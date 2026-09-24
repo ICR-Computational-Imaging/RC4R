@@ -6,9 +6,9 @@ data artifacts from the Python source code in `src/`.
 
 Dataset files **should not be committed directly to Git**. They may be too
 large for a Git repository, change independently from the source code, or
-contain sensitive information that must not be published on GitHub. Instead, this project
-uses Data Version Control (DVC) to record which version of a dataset belongs to
-each version of the code.
+contain sensitive information that must not be published on GitHub. Instead,
+this project uses Data Version Control (DVC) to record which version of a
+dataset belongs to each version of the code.
 
 When data are tracked with DVC:
 
@@ -23,13 +23,26 @@ still follow the applicable consent, licence, information-governance, and
 security requirements. Sensitive or identifiable research data must never be
 uploaded to a public remote or committed to Git.
 
-A common data lifecycle separates immutable inputs from generated outputs:
-
-```text
-raw data -> intermediate data -> processed data -> training and evaluation
-```
-
 ## Data in this repository
 
-The sections below describe the purpose, origin, access requirements, and DVC
-management of each dataset or data directory used by this project.
+The Dermapred example uses the official training, validation, and test splits
+from the 64 × 64 version of DermaMNIST. Each image array and its corresponding
+label array are stored separately:
+
+| File | Contents |
+|---|---|
+| `train_images.npy` | Images used to fit the model |
+| `train_labels.npy` | Labels corresponding to the training images |
+| `validation_images.npy` | Images used to select and tune the model |
+| `validation_labels.npy` | Labels corresponding to the validation images |
+| `test_images.npy` | Images reserved for final evaluation |
+| `test_labels.npy` | Labels corresponding to the test images |
+
+The project deliberately does not retain an additional raw archive or create
+raw, intermediate, and processed subdirectories. The download script writes
+these six arrays directly into this directory, providing one clear copy of the
+example dataset. The files must remain aligned: element `n` in an image array
+must correspond to element `n` in its label array.
+
+All six `.npy` files are managed by DVC and excluded from Git. This README and
+the generated DVC metadata files remain under Git control.
