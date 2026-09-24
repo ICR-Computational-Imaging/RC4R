@@ -80,7 +80,7 @@ be added as those parts of the example are implemented.
 The main repository directories have distinct responsibilities:
 
 | Directory | Purpose |
-|---|---|
+| --- | --- |
 | `data/` | DVC-managed training, validation, and test data |
 | `docs/` | Source files for this documentation website |
 | `notebooks/` | Exploratory analyses and explanatory notebooks |

@@ -90,7 +90,7 @@ for more examples.
 Dependencies are separated according to who needs them:
 
 | Location in `pyproject.toml` | Purpose | Example |
-|---|---|---|
+| --- | --- | --- |
 | `[project].dependencies` | Required when users install Dermapred | PyTorch, NumPy, Pillow |
 | `[project.optional-dependencies]` | Published features users may choose to install | A future browser or desktop UI |
 | `[dependency-groups].train` | Local data and model-development tools | DVC, MedMNIST |
