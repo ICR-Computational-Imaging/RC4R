@@ -30,7 +30,7 @@ from the 64 × 64 version of DermaMNIST. Each image array and its corresponding
 label array are stored separately:
 
 | File | Contents |
-|---|---|
+| --- | --- |
 | `train_images.npy` | Images used to fit the model |
 | `train_labels.npy` | Labels corresponding to the training images |
 | `validation_images.npy` | Images used to select and tune the model |
