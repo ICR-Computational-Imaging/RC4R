@@ -1,23 +1,22 @@
+# This is a pyproject.toml file for a Python project. 
+# It specifies the build system, project metadata, dependencies, and tool configurations.
+
 [build-system]
 requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rc4r"
+name = "dermapred"
 dynamic = ["version"]
-description = "A template for reproducible code in research"
+description = "A template for reproducible code in research. An example is provided for classifying skin lesions using the DermaMNIST dataset."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-dependencies = [
-    # Add only dependencies required to use the installed package.
-]
+dependencies = ["torch", "pillow", "numpy"]
 
 [dependency-groups]
-train = [
-    # Add dependencies used to reproduce data processing and model training.
-]
+train = ["dvc>=2.0"]
 test = ["pytest>=8", "pytest-cov>=5"]
 lint = ["ruff>=0.11"]
 type = ["mypy>=1.15"]
@@ -39,14 +38,14 @@ where = ["src"]
 addopts = [
     "--strict-config",
     "--strict-markers",
-    "--cov=rc4r",
+    "--cov=dermapred",
     "--cov-report=term-missing",
 ]
 testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["rc4r"]
+source = ["dermapred"]
 
 [tool.coverage.report]
 show_missing = true
