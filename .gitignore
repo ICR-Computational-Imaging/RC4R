@@ -1,3 +1,6 @@
+# These files will be ignored by git when committing changes.  
+# This is a standard Python .gitignore file, produced by GitHub, with some additions for specific tools and environments.
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -216,3 +219,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# macOS Finder metadata
+.DS_Store
