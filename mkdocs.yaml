@@ -49,3 +49,5 @@ markdown_extensions:
 # Navigation labels and their Markdown sources, relative to docs_dir.
 nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
+  - General:
+      - Managing Python with uv: general/uv.md
