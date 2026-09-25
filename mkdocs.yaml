@@ -40,14 +40,20 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - pymdownx.snippets:
-      base_path: [docs/examples]  # Replace if reusable snippets are stored elsewhere.
+      base_path:
+        - mkdocs.yaml  # Allows named sections of this configuration to be embedded in the docs.
+        - docs/examples  # Replace or extend when reusable snippets are stored elsewhere.
   - attr_list  # Enables attributes on images and other Markdown elements.
   - md_in_html  # Enables Markdown content inside HTML blocks.
   - admonition
   - pymdownx.details
 
 # Navigation labels and their Markdown sources, relative to docs_dir.
+# --8<-- [start:navigation]
 nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - General:
       - Managing Python with uv: general/uv.md
+      - Publishing with GitHub Pages: general/github-pages.md
+# --8<-- [end:navigation]
+# Note: The --8<-- block helps mkdocs snippets identify specific blocks of content to incorporate into Markdown documentation files.
