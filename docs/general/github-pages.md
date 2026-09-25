@@ -133,11 +133,7 @@ GitHub's guide to
 
 ## Add the deployment workflow
 
-Create `.github/workflows/docs.yml` with the following initial workflow:
-
-```yaml
-
-```
+The GitHub Action deployment workflow is found in `.github/workflows/docs.yml`.
 
 The workflow follows GitHub's recommended Pages process:
 

@@ -54,6 +54,7 @@ nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - General:
       - Managing Python with uv: general/uv.md
+      - Semantic versioning: general/semantic_versioning.md
       - Publishing with GitHub Pages: general/github-pages.md
 # --8<-- [end:navigation]
 # Note: The --8<-- block helps mkdocs snippets identify specific blocks of content to incorporate into Markdown documentation files.
