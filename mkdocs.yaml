@@ -57,6 +57,9 @@ nav:
       - Managing data with DVC: general/dvc.md
       - Semantic versioning: general/semantic_versioning.md
       - Using Git and GitHub: general/github.md
+      - Testing with pytest: general/testing.md
+      - Code quality: general/code_quality.md
+      - Automation with GitHub Actions: general/github_actions.md
       - Writing documentation with MkDocs: general/mkdocs.md
       - Publishing with GitHub Pages: general/github-pages.md
 # --8<-- [end:navigation]
