@@ -57,6 +57,7 @@ nav:
       - Managing data with DVC: general/dvc.md
       - Semantic versioning: general/semantic_versioning.md
       - Using Git and GitHub: general/github.md
+      - Writing documentation with MkDocs: general/mkdocs.md
       - Publishing with GitHub Pages: general/github-pages.md
 # --8<-- [end:navigation]
 # Note: The --8<-- block helps mkdocs snippets identify specific blocks of content to incorporate into Markdown documentation files.
