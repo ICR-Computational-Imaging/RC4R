@@ -31,12 +31,12 @@ label array are stored separately:
 
 | File | Contents |
 | --- | --- |
-| `train_images.npy` | Images used to fit the model |
-| `train_labels.npy` | Labels corresponding to the training images |
-| `validation_images.npy` | Images used to select and tune the model |
-| `validation_labels.npy` | Labels corresponding to the validation images |
-| `test_images.npy` | Images reserved for final evaluation |
-| `test_labels.npy` | Labels corresponding to the test images |
+| `raw_data/train_images.npy` | Images used to fit the model |
+| `raw_data/train_labels.npy` | Labels corresponding to the training images |
+| `raw_data/validation_images.npy` | Images used to select and tune the model |
+| `raw_data/validation_labels.npy` | Labels corresponding to the validation images |
+| `raw_data/test_images.npy` | Images reserved for final evaluation |
+| `raw_data/test_labels.npy` | Labels corresponding to the test images |
 
 The project deliberately does not retain an additional raw archive or create
 raw, intermediate, and processed subdirectories. The download script writes

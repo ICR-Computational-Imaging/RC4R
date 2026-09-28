@@ -54,6 +54,7 @@ nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - General:
       - Managing Python with uv: general/uv.md
+      - Managing data with DVC: general/dvc.md
       - Semantic versioning: general/semantic_versioning.md
       - Using Git and GitHub: general/github.md
       - Publishing with GitHub Pages: general/github-pages.md
