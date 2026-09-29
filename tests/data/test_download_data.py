@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from scripts import download_dermapred
+from dermapred.data import download_data
 
 
 def test_download_dermapred_dataset_saves_all_splits(
@@ -24,10 +24,10 @@ def test_download_dermapred_dataset_saves_all_splits(
             labels=np.full((2, 1), split_number, dtype=np.uint8),
         )
 
-    monkeypatch.setattr(download_dermapred, "DermaMNIST", fake_dermamnist)
+    monkeypatch.setattr(download_data, "DermaMNIST", fake_dermamnist)
     output_path = tmp_path / "nested" / "raw_data"
 
-    download_dermapred.download_dermapred_dataset(output_path, size=64)
+    download_data.download_dermapred_dataset(output_path, size=64)
 
     assert [(split, size, download) for split, size, download, _ in calls] == [
         ("train", 64, True),
@@ -55,7 +55,7 @@ def test_download_dermapred_dataset_rejects_unsupported_size(
     output_path = tmp_path / "raw_data"
 
     with pytest.raises(ValueError, match=f"Invalid size: {size}"):
-        download_dermapred.download_dermapred_dataset(output_path, size=size)
+        download_data.download_dermapred_dataset(output_path, size=size)
 
     assert not output_path.exists()
 
@@ -71,10 +71,10 @@ def test_main_reports_success(
     def fake_download(output_dir: str | Path, size: int) -> None:
         calls.append((Path(output_dir), size))
 
-    monkeypatch.setattr(download_dermapred, "download_dermapred_dataset", fake_download)
+    monkeypatch.setattr(download_data, "download_dermapred_dataset", fake_download)
     output_path = tmp_path / "raw_data"
 
-    exit_code = download_dermapred.main([str(output_path), "--size", "128"])
+    exit_code = download_data.main([str(output_path), "--size", "128"])
 
     captured = capsys.readouterr()
     assert exit_code == 0
@@ -92,9 +92,9 @@ def test_main_reports_download_failure(
     def fake_download(output_dir: str | Path, size: int) -> None:
         raise OSError("download failed")
 
-    monkeypatch.setattr(download_dermapred, "download_dermapred_dataset", fake_download)
+    monkeypatch.setattr(download_data, "download_dermapred_dataset", fake_download)
 
-    exit_code = download_dermapred.main([str(tmp_path)])
+    exit_code = download_data.main([str(tmp_path)])
 
     captured = capsys.readouterr()
     assert exit_code == 1
