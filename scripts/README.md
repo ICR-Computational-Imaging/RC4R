@@ -45,19 +45,19 @@ declared as entry points in `pyproject.toml`.
 The sections below describe the purpose, arguments, outputs, and usage of each
 script included in this project.
 
-### Download DermaMNIST data (`download_dermamnist.py`)
+### Download DermaMNIST data (`download_dermapred.py`)
 
 This script downloads the official training, validation, and test splits from
 the 64 × 64 version of DermaMNIST. It extracts the images and labels directly
 into six files:
 
 ```text
-data/train_images.npy
-data/train_labels.npy
-data/validation_images.npy
-data/validation_labels.npy
-data/test_images.npy
-data/test_labels.npy
+data/raw_data/train_images.npy
+data/raw_data/train_labels.npy
+data/raw_data/validation_images.npy
+data/raw_data/validation_labels.npy
+data/raw_data/test_images.npy
+data/raw_data/test_labels.npy
 ```
 
 The project does not retain a duplicate source archive. This is a one-time
@@ -70,7 +70,7 @@ repository root:
 
 ```bash
 uv sync --group train
-uv run python scripts/download_dermamnist.py
+uv run python scripts/download_dermapred.py data/raw_data
 ```
 
 After checking the six downloaded files, place them under DVC control and
@@ -78,10 +78,10 @@ upload them to the configured DVC remote:
 
 ```bash
 uv run dvc add \
-    data/train_images.npy data/train_labels.npy \
-    data/validation_images.npy data/validation_labels.npy \
-    data/test_images.npy data/test_labels.npy
-git add data/*.dvc data/.gitignore
+    data/raw_data/train_images.npy data/raw_data/train_labels.npy \
+    data/raw_data/validation_images.npy data/raw_data/validation_labels.npy \
+    data/raw_data/test_images.npy data/raw_data/test_labels.npy
+git add data/raw_data/*.dvc data/raw_data/.gitignore
 uv run dvc push
 ```
 
