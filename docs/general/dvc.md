@@ -239,7 +239,7 @@ The DVC documentation describes mounted network storage under
 
 ## Configure a Google Drive remote
 
-We *no not endorse* the use of Google Drive for storing your data due to
+***We do not endorse*** the use of Google Drive for storing your data due to
 institutional restrictions on using cloud-based, third-party data storage.
 It is important to keep your data secure, especially in the context of healthcare
 research. However, we include this for completeness on any other projects you
