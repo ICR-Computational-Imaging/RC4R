@@ -288,10 +288,9 @@ if not deploy_token:
 > GitHub creates a `GITHUB_TOKEN` automatically.
 > Custom secrets such as `DEPLOY_TOKEN` must be added through the repository or environment settings.
 
-
 Secrets should be exposed only to the step or job that requires them.
 Pull requests from forks do not normally receive repository secrets.
-Do not weaken this protection merely to make a workflow convenient: 
+Do not weaken this protection merely to make a workflow convenient:
 untrusted code must not receive powerful tokens,
 deployment authority, or sensitive storage credentials.
 

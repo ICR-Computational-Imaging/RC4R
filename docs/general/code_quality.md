@@ -252,4 +252,3 @@ undeclared runner state.
 - [Ruff rule reference](https://docs.astral.sh/ruff/rules/)
 - [mypy documentation](https://mypy.readthedocs.io/en/stable/)
 - [Python typing documentation](https://docs.python.org/3/library/typing.html)
-

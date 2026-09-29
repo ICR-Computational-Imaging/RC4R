@@ -289,4 +289,3 @@ workflow.
 - [Parametrising tests](https://docs.pytest.org/en/stable/how-to/parametrize.html)
 - [Using pytest markers](https://docs.pytest.org/en/stable/how-to/mark.html)
 - [pytest-cov documentation](https://pytest-cov.readthedocs.io/)
-
