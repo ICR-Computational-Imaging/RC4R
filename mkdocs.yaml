@@ -14,7 +14,7 @@ use_directory_urls: true  # Keep enabled for clean URLs such as /guide/ instead 
 theme:
   name: material  # Requires the mkdocs-material package in the docs dependency group.
   language: en  # Replace with another supported language code if required.
-  logo: assets/logo/logo.png  # Path is relative to docs_dir; replace with the project logo.
+  logo: assets/logo/dermapred-logo.svg  # Path is relative to docs_dir; replace with the project logo.
   favicon: assets/logo/favicon.ico  # Path is relative to docs_dir; replace with the project favicon.
   palette:
     - scheme: default  # Customize this palette to change the site's colour scheme.

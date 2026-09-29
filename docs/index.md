@@ -12,6 +12,8 @@ reproducible computational work.
 
 ## The Dermapred example
 
+![DermaPred](assets/logo/dermapred-logo.svg)
+
 Dermapred is the worked example included with RC4R. It uses PyTorch to classify
 skin-lesion images from the 64 × 64 version of the DermaMNIST dataset.
 

@@ -39,13 +39,15 @@ addopts = [
     "--strict-config",
     "--strict-markers",
     "--cov=dermapred",
+    "--cov=scripts",
     "--cov-report=term-missing",
 ]
+pythonpath = ["."]
 testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["dermapred"]
+source = ["dermapred", "scripts"]
 
 [tool.coverage.report]
 show_missing = true
