@@ -1,0 +1,24 @@
+# The DVC pipeline for the DermaPred project is defined in this file. It
+# specifies the stages, dependencies, parameters, and outputs that make each
+# step reproducible.
+
+stages:
+  download_data:
+    # Run the downloader as a module from the installed Dermapred package.
+    cmd: >-
+      uv run --group train python -m dermapred.data.download_data
+      data/raw_data --size ${dermamnist_size}
+
+    # A change to the implementation or environment invalidates this stage.
+    deps:
+      - src/dermapred/data/download_data.py
+      - pyproject.toml
+      - uv.lock
+
+    # DVC records this value from params.yaml in dvc.lock.
+    params:
+      - dermamnist_size
+
+    # Pipeline outputs are tracked automatically; do not run `dvc add` on them.
+    outs:
+      - data/raw_data
