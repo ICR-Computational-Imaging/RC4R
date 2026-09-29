@@ -4,27 +4,28 @@ Run these commands from the repository root. First install the training
 dependencies and download the default 64 x 64 dataset::
 
     uv sync --group train
-    uv run python scripts/download_dermapred.py data/raw_data
+    uv run --group train python -m dermapred.data.download_data data/raw_data
 
-To select another supported image size, add ``--size``; for example::
+To select another supported image size, use ``--size``; for example::
 
-    uv run python scripts/download_dermapred.py data/raw_data --size 128
+    uv run --group train python -m dermapred.data.download_data data/raw_data --size 128
 
 The script creates separate image and label arrays for the training,
 validation, and test splits. It replaces files with the same names in the
 output directory.
 
-After inspecting the generated arrays, add or update them in DVC::
+After inspecting the arrays, add the directory to DVC, stage its metadata in
+Git, and upload the data to the configured DVC remote::
 
-    uv run dvc add data/raw_data/*.npy
-    git add data/raw_data/*.dvc data/raw_data/.gitignore
+    uv run dvc add data/raw_data
+    git add data/raw_data.dvc data/.gitignore
     uv run dvc push
+    git commit -m "Track DermaMNIST data"
 
-``dvc add`` updates the local DVC metadata; it does not upload the arrays.
-``dvc push`` uploads the tracked data to the configured DVC remote. Review and
-commit the changed ``.dvc`` files and ``.gitignore`` so Git records which data
-version belongs with the code. A DVC remote must be configured before running
-``dvc push``.
+``dvc add`` stores the data in the local cache and creates
+``data/raw_data.dvc``. ``dvc push`` uploads content not already present in the
+remote. Commit the ``.dvc`` file so Git records which data version belongs
+with the code. A DVC remote must be configured before running ``dvc push``.
 """
 
 from __future__ import annotations

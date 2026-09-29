@@ -1,3 +1,3 @@
-# This file provides parameters for DVC pipelines. These can be changed to modify and track experiment parameters.
-
-dermamnist_size: 64  # The size of images to be used for training and evaluation. Must be one of (28, 64, 128, 224)
+# This file provides parameters for DVC processing and training stages. Add
+# experiment settings here as the pipeline is developed.
+{}
