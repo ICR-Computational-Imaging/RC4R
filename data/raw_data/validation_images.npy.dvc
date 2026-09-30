@@ -1,0 +1,5 @@
+outs:
+- md5: 4331d6e12ac5ae1b7f7eacc511b4bb5b
+  size: 2359184
+  hash: md5
+  path: validation_images.npy
