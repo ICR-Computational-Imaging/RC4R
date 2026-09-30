@@ -25,6 +25,7 @@ def test_download_dermapred_dataset_saves_all_splits(
         )
 
     monkeypatch.setattr(download_data, "DermaMNIST", fake_dermamnist)
+    monkeypatch.setattr(download_data, "package_version", lambda package: "3.0.2")
     output_path = tmp_path / "nested" / "raw_data"
 
     download_data.download_dermapred_dataset(output_path, size=64)
@@ -44,6 +45,13 @@ def test_download_dermapred_dataset_saves_all_splits(
         assert labels.shape == (2, 1)
         assert np.all(images == expected_value)
         assert np.all(labels == expected_value)
+
+    assert (output_path / "dataset.yaml").read_text(encoding="utf-8") == (
+        "name: DermaMNIST\n"
+        "image_size: 64\n"
+        'medmnist_version: "3.0.2"\n'
+        "source: https://medmnist.com/\n"
+    )
 
 
 @pytest.mark.parametrize("size", [0, 32, 256])

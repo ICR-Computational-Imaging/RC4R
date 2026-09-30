@@ -31,6 +31,7 @@ label array are stored separately:
 
 | File | Contents |
 | --- | --- |
+| `raw_data/dataset.yaml` | Dataset source, image size, and MedMNIST package version |
 | `raw_data/train_images.npy` | Images used to fit the model |
 | `raw_data/train_labels.npy` | Labels corresponding to the training images |
 | `raw_data/validation_images.npy` | Images used to select and tune the model |
@@ -39,10 +40,11 @@ label array are stored separately:
 | `raw_data/test_labels.npy` | Labels corresponding to the test images |
 
 The project deliberately does not retain an additional raw archive or create
-raw, intermediate, and processed subdirectories. The download script writes
-these six arrays directly into this directory, providing one clear copy of the
-example dataset. The files must remain aligned: element `n` in an image array
-must correspond to element `n` in its label array.
+raw, intermediate, and processed subdirectories. The downloader writes the
+six arrays and `dataset.yaml` directly into this directory, providing one
+clear copy of the example dataset with its acquisition metadata. The array
+files must remain aligned: element `n` in an image array must correspond to
+element `n` in its label array.
 
-All six `.npy` files are managed by DVC and excluded from Git. This README and
-the generated DVC metadata files remain under Git control.
+The complete `raw_data` directory is managed by DVC and excluded from Git.
+This README and the generated DVC metadata files remain under Git control.
