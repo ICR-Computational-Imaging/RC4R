@@ -14,7 +14,7 @@ causes the stage to run again.
 Current training parameters are:
 
 ```yaml
----8<--- "params.yaml:8:17"
+--8<-- "params.yaml:8:17"
 ```
 
 The stage uses weighted binary cross-entropy with logits. Its positive-class
@@ -61,3 +61,6 @@ Do not add them with `dvc add` or commit them directly to Git.
 `loss_curve.png` should be added to git to ensure that it is visible in the GitHub repository.
 Also, commit `dvc.yaml`, `dvc.lock`, and the generated`.gitignore` files,
 then use `dvc push` to upload the artifacts.
+
+After training, continue to
+[calibrating the validation probabilities](calibration.md).

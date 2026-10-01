@@ -96,3 +96,54 @@ stages:
       hash: md5
       md5: b8334b5cf098759837362c029f42c655
       size: 866
+  calibrate:
+    cmd: uv run --group train python -m dermapred.dvcstages.calibration 
+      --model-path results/trained_models/binary_classifier.pt 
+      --validation-images data/processed_data/validation_images.npy 
+      --validation-labels data/raw_data/validation_labels.npy --params-path 
+      params.yaml --calibrator-output 
+      results/calibration/probability_calibrator.json --metrics-output 
+      results/calibration/validation_metrics.json --plot-output 
+      results/calibration/validation_calibration.png
+    deps:
+    - path: data/processed_data/validation_images.npy
+      hash: md5
+      md5: 99239472dba70b805f456e6a6f3982ca
+      size: 9436352
+    - path: data/raw_data/validation_labels.npy
+      hash: md5
+      md5: 26876f84602d81c9c760fd4cf16a8f1e
+      size: 1131
+    - path: results/trained_models/binary_classifier.pt
+      hash: md5
+      md5: 611a3be32a5b57fb41dfaad71ca741b7
+      size: 181043
+    - path: src/dermapred/dvcstages/calibration.py
+      hash: md5
+      md5: ce176b4275d11ae45f22c60addaa05a1
+      size: 12714
+    - path: src/dermapred/inference/calibration.py
+      hash: md5
+      md5: 5aa29924694ca16f705d4389979a9d2b
+      size: 7103
+    - path: src/dermapred/models/binary_classifier.py
+      hash: md5
+      md5: b83a182ad1c83fa730fb4fb6166cc41c
+      size: 3589
+    - path: src/dermapred/plotting/calibration.py
+      hash: md5
+      md5: 5ba47f579f9f9dbfea3d7ffe3b9006a6
+      size: 2507
+    params:
+      params.yaml:
+        calibration:
+          method: isotonic
+          cross_validation_folds: 5
+          reliability_bins: 10
+          inference_batch_size: 256
+          random_seed: 42
+    outs:
+    - path: results/calibration/probability_calibrator.json
+      hash: md5
+      md5: b3fc7d6b7aab7ef82c833c8d7cc3e7b9
+      size: 1687

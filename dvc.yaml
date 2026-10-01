@@ -39,7 +39,33 @@ stages:
       - data/processed_data/validation_images.npy
       - data/raw_data/validation_labels.npy
     params:
-      - training
+      - params.yaml:
+          - training
     outs:
       - results/trained_models/binary_classifier.pt
       - results/training/history.csv
+
+  calibrate:
+    cmd: >-
+      uv run --group train
+      python -m dermapred.dvcstages.calibration
+      --model-path results/trained_models/binary_classifier.pt
+      --validation-images data/processed_data/validation_images.npy
+      --validation-labels data/raw_data/validation_labels.npy
+      --params-path params.yaml
+      --calibrator-output results/calibration/probability_calibrator.json
+      --metrics-output results/calibration/validation_metrics.json
+      --plot-output results/calibration/validation_calibration.png
+    deps:
+      - src/dermapred/inference/calibration.py
+      - src/dermapred/models/binary_classifier.py
+      - src/dermapred/plotting/calibration.py
+      - src/dermapred/dvcstages/calibration.py
+      - results/trained_models/binary_classifier.pt
+      - data/processed_data/validation_images.npy
+      - data/raw_data/validation_labels.npy
+    params:
+      - params.yaml:
+          - calibration
+    outs:
+      - results/calibration/probability_calibrator.json

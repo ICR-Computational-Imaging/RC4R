@@ -15,3 +15,10 @@ training:
     horizontal_flip_probability: 0.5
     vertical_flip_probability: 0.5
     rotation_probability: 0.5
+
+calibration:
+  method: isotonic  # Supported values: isotonic or platt.
+  cross_validation_folds: 5
+  reliability_bins: 10
+  inference_batch_size: 256
+  random_seed: 42
