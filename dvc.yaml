@@ -1,4 +1,19 @@
-# The reproducible processing and training stages for DermaPred will be added
-# here. The source data are acquired separately and tracked with `dvc add`, so
+# Source data are acquired separately and tracked with `dvc add`, so
 # downloading them is deliberately not a pipeline stage.
-stages: {}
+stages:
+  preprocess:
+    cmd: >-  # This allows the command to be written on multiple lines for readability.
+      uv run --group train
+      python -m dermapred.dvcstages.preprocessing
+      --input-dir data/raw_data
+      --output-dir data/processed_data
+    deps:
+      - src/dermapred/data/preprocessing.py
+      - src/dermapred/dvcstages/preprocessing.py
+      - data/raw_data/train_images.npy
+      - data/raw_data/validation_images.npy
+      - data/raw_data/test_images.npy
+    outs:
+      - data/processed_data/train_images.npy
+      - data/processed_data/validation_images.npy
+      - data/processed_data/test_images.npy

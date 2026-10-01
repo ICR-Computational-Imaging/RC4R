@@ -55,6 +55,9 @@ nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - DermaPred:
       - Downloading data: dermapred/data_download.md
+      - Image preprocessing: dermapred/dvc/preprocessing.md
+  - DermaPred API:
+      - Image preprocessing: dermapred/api/preprocessing.md
   - General:
       - Managing Python with uv: general/uv.md
       - Managing data with DVC: general/dvc.md

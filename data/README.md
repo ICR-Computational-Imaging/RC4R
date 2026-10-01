@@ -55,3 +55,12 @@ are not stored separately in this example; `dataset.yaml` records this choice.
 The `.npy` arrays are managed individually by DVC and excluded from Git.
 `dataset.yaml`, this README, and the generated `.dvc` metadata files remain
 under Git control.
+
+## Processed data
+
+The first DVC pipeline stage creates `train_images.npy`,
+`validation_images.npy`, and `test_images.npy` under `processed_data/`. These
+arrays contain `float32` pixels scaled to `[-1, 1]` and use PyTorch's
+channel-first `(N, C, H, W)` layout. They are declared as DVC pipeline outputs
+and must not be added with a separate `dvc add` command. The unchanged binary
+labels remain under `raw_data/` to avoid unnecessary duplication.

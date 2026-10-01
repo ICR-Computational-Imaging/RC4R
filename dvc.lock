@@ -1,0 +1,39 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: uv run --group train python -m dermapred.dvcstages.preprocessing 
+      --input-dir data/raw_data --output-dir data/processed_data
+    deps:
+    - path: data/raw_data/test_images.npy
+      hash: md5
+      md5: 42a390dd7b9b63bf55ffeb9ca1e70ade
+      size: 4715888
+    - path: data/raw_data/train_images.npy
+      hash: md5
+      md5: 35134cc5f951f19b7b3224bf34780ac9
+      size: 16480592
+    - path: data/raw_data/validation_images.npy
+      hash: md5
+      md5: 4331d6e12ac5ae1b7f7eacc511b4bb5b
+      size: 2359184
+    - path: src/dermapred/data/preprocessing.py
+      hash: md5
+      md5: 481d9c28ca7c26fa423ab3d7d67a02c5
+      size: 3250
+    - path: src/dermapred/dvcstages/preprocessing.py
+      hash: md5
+      md5: d8a97d9ec164387e6a7ba687873e223b
+      size: 2979
+    outs:
+    - path: data/processed_data/test_images.npy
+      hash: md5
+      md5: 42a4ecf88fd494aa001e52f8372d6c65
+      size: 18863168
+    - path: data/processed_data/train_images.npy
+      hash: md5
+      md5: a19d937f8b7f2159598685e987b9dedb
+      size: 65921984
+    - path: data/processed_data/validation_images.npy
+      hash: md5
+      md5: 99239472dba70b805f456e6a6f3982ca
+      size: 9436352

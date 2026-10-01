@@ -1,0 +1,7 @@
+# Image preprocessing API
+
+::: dermapred.data.preprocessing
+    options:
+      show_root_heading: true
+      members_order: source
+      show_source: true
