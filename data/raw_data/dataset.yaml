@@ -1,4 +1,7 @@
 name: DermaMNIST
 image_size: 28
+label_task: binary
+label_0: benign
+label_1: clinically_concerning
 medmnist_version: "3.0.2"
 source: https://medmnist.com/
