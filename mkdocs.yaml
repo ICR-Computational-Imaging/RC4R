@@ -58,10 +58,12 @@ nav:
       - Image preprocessing: dermapred/dvc/preprocessing.md
       - Model training: dermapred/dvc/training.md
       - Probability calibration: dermapred/dvc/calibration.md
+      - Final test evaluation: dermapred/dvc/evaluation.md
   - DermaPred API:
       - Image preprocessing: dermapred/api/preprocessing.md
       - Binary classifier: dermapred/api/binary_classifier.md
       - Probability calibration: dermapred/api/calibration.md
+      - Model evaluation: dermapred/api/evaluation.md
   - General:
       - Managing Python with uv: general/uv.md
       - Managing data with DVC: general/dvc.md

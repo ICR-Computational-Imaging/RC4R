@@ -64,3 +64,6 @@ GitHub.
 Because the Git-tracked review files are not DVC outputs, deleting only one of
 them does not make DVC consider the stage incomplete. A calibration run always
 regenerates both files.
+
+After calibration, continue to the
+[final evaluation on the untouched test set](evaluation.md).

@@ -32,6 +32,42 @@ def logits_to_probabilities(logits: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-clipped_logits))
 
 
+def expected_calibration_error(
+    labels: np.ndarray,
+    probabilities: np.ndarray,
+    bins: int,
+) -> float:
+    """Calculate equally spaced expected calibration error.
+
+    Args:
+        labels: One-dimensional binary labels.
+        probabilities: Aligned positive-class probabilities.
+        bins: Number of equal-width bins between zero and one.
+
+    Returns:
+        Weighted absolute difference between confidence and observed frequency.
+
+    Raises:
+        ValueError: If arrays are misaligned, probabilities are invalid, or
+            ``bins`` is not positive.
+    """
+    labels = np.asarray(labels).reshape(-1)
+    probabilities = np.asarray(probabilities, dtype=np.float64).reshape(-1)
+    if labels.shape != probabilities.shape or not labels.size:
+        raise ValueError("Labels and probabilities must be non-empty and aligned.")
+    if bins <= 0 or np.any((probabilities < 0) | (probabilities > 1)):
+        raise ValueError("Bins must be positive and probabilities must be in [0, 1].")
+    bin_indices = np.minimum((probabilities * bins).astype(int), bins - 1)
+    error = 0.0
+    for index in range(bins):
+        mask = bin_indices == index
+        if np.any(mask):
+            error += float(mask.mean()) * abs(
+                float(probabilities[mask].mean()) - float(labels[mask].mean())
+            )
+    return error
+
+
 class ProbabilityCalibrator:
     """Apply a fitted isotonic or Platt calibration mapping to model logits."""
 
