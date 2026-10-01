@@ -37,3 +37,62 @@ stages:
       hash: md5
       md5: 99239472dba70b805f456e6a6f3982ca
       size: 9436352
+  train:
+    cmd: uv run --group train python -m dermapred.dvcstages.training 
+      --train-images data/processed_data/train_images.npy --train-labels 
+      data/raw_data/train_labels.npy --validation-images 
+      data/processed_data/validation_images.npy --validation-labels 
+      data/raw_data/validation_labels.npy --params-path params.yaml 
+      --model-output results/trained_models/binary_classifier.pt 
+      --history-output results/training/history.csv --plot-output 
+      results/training/loss_curve.png
+    deps:
+    - path: data/processed_data/train_images.npy
+      hash: md5
+      md5: a19d937f8b7f2159598685e987b9dedb
+      size: 65921984
+    - path: data/processed_data/validation_images.npy
+      hash: md5
+      md5: 99239472dba70b805f456e6a6f3982ca
+      size: 9436352
+    - path: data/raw_data/train_labels.npy
+      hash: md5
+      md5: b6e671527f2cbe42474499f5162a2851
+      size: 7135
+    - path: data/raw_data/validation_labels.npy
+      hash: md5
+      md5: 26876f84602d81c9c760fd4cf16a8f1e
+      size: 1131
+    - path: src/dermapred/dvcstages/training.py
+      hash: md5
+      md5: e3c5b3d37490f3f260867b01fd80c18c
+      size: 17279
+    - path: src/dermapred/models/binary_classifier.py
+      hash: md5
+      md5: b83a182ad1c83fa730fb4fb6166cc41c
+      size: 3589
+    - path: src/dermapred/plotting/training.py
+      hash: md5
+      md5: ef58d26ded09a7f5a85a161eb5b7f8b0
+      size: 1725
+    params:
+      params.yaml:
+        training:
+          batch_size: 64
+          epochs: 20
+          learning_rate: 0.001
+          random_seed: 42
+          num_workers: 0
+          augmentation:
+            horizontal_flip_probability: 0.5
+            vertical_flip_probability: 0.5
+            rotation_probability: 0.5
+    outs:
+    - path: results/trained_models/binary_classifier.pt
+      hash: md5
+      md5: 611a3be32a5b57fb41dfaad71ca741b7
+      size: 181043
+    - path: results/training/history.csv
+      hash: md5
+      md5: b8334b5cf098759837362c029f42c655
+      size: 866

@@ -56,8 +56,10 @@ nav:
   - DermaPred:
       - Downloading data: dermapred/data_download.md
       - Image preprocessing: dermapred/dvc/preprocessing.md
+      - Model training: dermapred/dvc/training.md
   - DermaPred API:
       - Image preprocessing: dermapred/api/preprocessing.md
+      - Binary classifier: dermapred/api/binary_classifier.md
   - General:
       - Managing Python with uv: general/uv.md
       - Managing data with DVC: general/dvc.md

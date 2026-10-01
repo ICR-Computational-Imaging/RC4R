@@ -17,3 +17,29 @@ stages:
       - data/processed_data/train_images.npy
       - data/processed_data/validation_images.npy
       - data/processed_data/test_images.npy
+
+  train:
+    cmd: >-
+      uv run --group train
+      python -m dermapred.dvcstages.training
+      --train-images data/processed_data/train_images.npy
+      --train-labels data/raw_data/train_labels.npy
+      --validation-images data/processed_data/validation_images.npy
+      --validation-labels data/raw_data/validation_labels.npy
+      --params-path params.yaml
+      --model-output results/trained_models/binary_classifier.pt
+      --history-output results/training/history.csv
+      --plot-output results/training/loss_curve.png
+    deps:
+      - src/dermapred/models/binary_classifier.py
+      - src/dermapred/plotting/training.py
+      - src/dermapred/dvcstages/training.py
+      - data/processed_data/train_images.npy
+      - data/raw_data/train_labels.npy
+      - data/processed_data/validation_images.npy
+      - data/raw_data/validation_labels.npy
+    params:
+      - training
+    outs:
+      - results/trained_models/binary_classifier.pt
+      - results/training/history.csv

@@ -1351,8 +1351,11 @@ test = [
 ]
 train = [
     { name = "dvc" },
+    { name = "matplotlib" },
     { name = "medmnist" },
+    { name = "monai" },
     { name = "pyyaml" },
+    { name = "tqdm" },
 ]
 type = [
     { name = "mypy" },
@@ -1399,8 +1402,11 @@ test = [
 ]
 train = [
     { name = "dvc", specifier = ">=2.0" },
+    { name = "matplotlib", specifier = ">=3.10" },
     { name = "medmnist", specifier = ">=3.0,<4" },
+    { name = "monai", specifier = ">=1.5,<2" },
     { name = "pyyaml", specifier = ">=6" },
+    { name = "tqdm" },
 ]
 type = [
     { name = "mypy", specifier = ">=1.15" },
@@ -3054,6 +3060,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/96/11/640067d1ad713ea99c233e53e57a4c300d9885f904a61371d7ef90dea549/mkdocstrings_python-2.0.9.tar.gz", hash = "sha256:ae945637dc0618c6beedbee169f10c0234b77f322c53db3fc9fb4c29b3013038", size = 203006, upload-time = "2026-09-22T13:43:27.712Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/0f/f7f926cfa06317bbdbd3cf0ff82f9e3a91767352eb01519c81499fddf575/mkdocstrings_python-2.0.9-py3-none-any.whl", hash = "sha256:c0233eff3f84d78110df50541918e7ec2bcff8e1614faddea34290a90321a416", size = 105698, upload-time = "2026-09-22T13:43:26.345Z" },
+]
+
+[[package]]
+name = "monai"
+version = "1.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "torch" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1b/b0/c1d19d39824e07d0fe911829a61aef410aaaf84cd5c3fce8fd58def31ab1/monai-1.6.1.tar.gz", hash = "sha256:e24ae4bb944f1779b7a6445acc4ff2efd9cc504d05dffe2498c49af117350136", size = 1336418, upload-time = "2026-09-27T19:40:25.342Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/cd/e9d2ff282a9691a810d9a3b61064989d8577c4a0c6406639a9077993a2d1/monai-1.6.1-py3-none-any.whl", hash = "sha256:dbd3b1dd309e752e0477ed73fde03b92f80ac74bfb8a8c4260f018b5d6ab2b0b", size = 1677458, upload-time = "2026-09-27T19:40:21.758Z" },
 ]
 
 [[package]]
