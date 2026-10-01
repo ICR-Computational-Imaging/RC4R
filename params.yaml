@@ -1,3 +1,6 @@
-# This file provides parameters for DVC processing and training stages. Add
-# experiment settings here as the pipeline is developed.
-{}
+# This file provides version-controlled settings for data acquisition and for
+# DVC processing and training stages.
+
+data:
+  dermamnist:
+    image_size: 28  # Supported values: 28, 64, 128, or 224.

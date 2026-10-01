@@ -27,18 +27,21 @@ uv sync --group train
 
 ## 1. Download the data
 
-The following command downloads the default 64 × 64 version:
+The selected image size is stored in the Git-tracked `params.yaml` file:
+
+```yaml
+--8<-- "params.yaml:4:6"
+```
+
+The value may be `28`, `64`, `128`, or `224`. Keeping this acquisition choice
+in `params.yaml` makes it explicit and reproducible; downloading remains a
+manual operation rather than a DVC pipeline stage.
+
+The following command reads `params.yaml` and downloads the configured data
+version:
 
 ```bash
 uv run --group train python -m dermapred.data.download_data data/raw_data
-```
-
-The downloader supports image sizes `28`, `64`, `128`, and `224`. Select a
-different size with `--size`:
-
-```bash
-uv run --group train python -m dermapred.data.download_data \
-    data/raw_data --size 128
 ```
 
 The command creates six NumPy arrays and a provenance YAML file:
@@ -53,12 +56,34 @@ data/raw_data/test_images.npy
 data/raw_data/test_labels.npy
 ```
 
+### Binary classification labels
+
+For this introductory example, the downloader converts DermaMNIST's original
+seven-class labels and saves the result in each `*_labels.npy` file:
+
+| Binary label | Meaning | Original DermaMNIST diagnoses |
+| ---: | --- | --- |
+| `0` | Benign | Benign keratosis-like lesions; dermatofibroma; melanocytic nevi; vascular lesions |
+| `1` | Clinically concerning | Actinic keratoses and intraepithelial carcinoma; basal cell carcinoma; melanoma |
+
+The positive class contains actinic keratoses and intraepithelial carcinoma,
+basal cell carcinoma, and melanoma. It is called **clinically concerning**,
+not simply malignant, because the first category combines premalignant
+actinic keratoses with intraepithelial carcinoma.
+
+The downloaded seven-class labels are not saved separately in this example.
+They remain available from the original MedMNIST source and can be retained in
+a future multiclass experiment by changing the downloader.
+
+### `dataset.yaml`
+
 `dataset.yaml` records the dataset name, selected image size, installed
 MedMNIST version, and source URL. The downloader generates it automatically so
-the provenance can be committed to Git alongside the DVC pointers. It is not
-added to DVC.
+the provenance can be committed to Git alongside the DVC pointers. It also
+explicitly records that the saved labels are binary and gives
+the meaning of values `0` and `1`.
 
-Inspect the files before tracking them. In a real research project, this is
+Inspect the files before tracking them via `git status`. In a real research project, this is
 also the point at which you should confirm provenance, licensing, consent,
 information-governance requirements, and the absence of unexpected sensitive
 information.
@@ -109,6 +134,7 @@ Stage the DVC pointers, generated Git ignore rule, and provenance file:
 
 ```bash
 git add \
+    params.yaml \
     data/raw_data/*.dvc \
     data/raw_data/.gitignore \
     data/raw_data/dataset.yaml
@@ -126,10 +152,10 @@ Upload any content that is not already present in the configured DVC remote:
 uv run --group train dvc push
 ```
 
-Then commit the metadata to Git:
+Then commit the metadata to Git using an appropriate commit message, *for example*:
 
 ```bash
-git commit -m "Track 64x64 DermaMNIST data"
+git commit -m "Track 28x28 DermaMNIST data"
 git push
 ```
 
@@ -144,12 +170,12 @@ uv run --group train dvc pull
 
 ## Updating the dataset
 
-For example, replace the tracked 64 × 64 data with the 128 × 128 version and
-then add the arrays again:
+For example, to replace the tracked 28 × 28 data with the 128 × 128 version,
+first change `data.dermamnist.image_size` in `params.yaml` to `128`. Then run
+the downloader without a command-line override and add the arrays again:
 
 ```bash
-uv run --group train python -m dermapred.data.download_data \
-    data/raw_data --size 128
+uv run --group train python -m dermapred.data.download_data data/raw_data
 uv run --group train dvc add data/raw_data/*.npy
 uv run --group train dvc push
 ```
@@ -160,8 +186,8 @@ downloader also updates the Git-tracked `dataset.yaml`. Stage and commit these
 changes together:
 
 ```bash
-git add data/raw_data/*.dvc data/raw_data/dataset.yaml
-git commit -m "Use 128x128 DermaMNIST data"
+git add params.yaml data/raw_data/*.dvc data/raw_data/dataset.yaml
+git commit -m "Use 128x128 DermaMNIST data"  # Make sure the message is appropriate!
 git push
 ```
 
@@ -174,6 +200,8 @@ uv run --group train dvc push data/raw_data/train_images.npy.dvc
 ```
 
 > **Note:** "When is `dvc unprotect` needed?"
+> `dvc unprotect` makes DVC-managed files writable so that they can be replaced or
+> updated without changing the protected copy stored in DVC’s cache.
 > `dvc unprotect` is not normally required. DVC avoids hard links and
 > symbolic links by default, using the safe `reflink,copy` strategy instead.
 > If an advanced cache configuration explicitly uses `hardlink` or

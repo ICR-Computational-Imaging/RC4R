@@ -1,24 +1,29 @@
 """Download the DermaMNIST data used by the Dermapred example.
 
-Run these commands from the repository root. To install the training
-dependencies and download the default 64 x 64 dataset::
+The image size is read from ``data.dermamnist.image_size`` in ``params.yaml``.
+Run these commands from the repository root to install the training
+dependencies and download the configured dataset::
 
     uv sync --group train
     uv run --group train python -m dermapred.data.download_data data/raw_data
 
-To select another supported image size, use ``--size``; for example::
+Change ``params.yaml`` to select another size permanently. For a temporary
+override, use ``--size``::
 
     uv run --group train python -m dermapred.data.download_data data/raw_data --size 128
 
-The script creates separate image and label arrays for the training,
-validation, and test splits. It replaces files with the same names in the
-output directory.
+The script creates separate image and binary label arrays for the training,
+validation, and test splits. For this first classification task, ``0`` means
+benign and ``1`` means clinically concerning. The original seven-class labels
+are converted before saving. The script replaces files with the same names in
+the output directory.
 
 After inspecting the arrays, add them individually to DVC, stage their
 metadata in Git, and upload the data to the configured DVC remote::
 
     uv run dvc add data/raw_data/*.npy
-    git add data/raw_data/*.dvc data/raw_data/.gitignore data/raw_data/dataset.yaml
+    git add params.yaml data/raw_data/*.dvc data/raw_data/.gitignore \
+        data/raw_data/dataset.yaml
     uv run dvc push
     git commit -m "Track DermaMNIST data"
 
@@ -47,19 +52,97 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import numpy as np
+import yaml
 from medmnist import DermaMNIST
+from medmnist.info import INFO
 
-DEFAULT_SIZE = 64
 AVAILABLE_SIZES = (28, 64, 128, 224)
+DEFAULT_PARAMS_PATH = Path("params.yaml")
+CONCERNING_DIAGNOSES = frozenset(
+    {
+        "actinic keratoses and intraepithelial carcinoma",
+        "basal cell carcinoma",
+        "melanoma",
+    }
+)
 
 
-def download_dermapred_dataset(output_dir: str | Path, size: int = DEFAULT_SIZE) -> None:
+def create_binary_labels(labels: np.ndarray) -> np.ndarray:
+    """Map DermaMNIST labels to benign or clinically concerning classes.
+
+    The diagnosis names are deliberately selected here, while MedMNIST's
+    ``INFO`` dictionary remains the authority for their numeric labels. The
+    original array shape is retained so the derived labels align directly
+    with the source labels.
+
+    Args:
+        labels: Original integer DermaMNIST labels.
+
+    Returns:
+        An unsigned-byte array where 0 is benign and 1 is clinically
+        concerning.
+
+    Raises:
+        ValueError: If the expected diagnoses or input labels are not present
+            in the installed MedMNIST metadata.
+    """
+    label_metadata = INFO["dermamnist"]["label"]
+    available_diagnoses = set(label_metadata.values())
+    missing_diagnoses = CONCERNING_DIAGNOSES - available_diagnoses
+    if missing_diagnoses:
+        missing = ", ".join(sorted(missing_diagnoses))
+        raise ValueError(f"Missing diagnoses in MedMNIST metadata: {missing}")
+
+    binary_mapping = {
+        int(label): int(diagnosis in CONCERNING_DIAGNOSES)
+        for label, diagnosis in label_metadata.items()
+    }
+    unique_labels = {int(label) for label in np.unique(labels)}
+    unknown_labels = unique_labels - binary_mapping.keys()
+    if unknown_labels:
+        unknown = ", ".join(str(label) for label in sorted(unknown_labels))
+        raise ValueError(f"Unknown DermaMNIST labels: {unknown}")
+
+    lookup = np.array(
+        [binary_mapping[index] for index in range(len(binary_mapping))],
+        dtype=np.uint8,
+    )
+    return lookup[labels]
+
+
+def load_dermamnist_size(params_path: str | Path = DEFAULT_PARAMS_PATH) -> int:
+    """Read the configured DermaMNIST image size from a YAML parameters file.
+
+    Args:
+        params_path: YAML file containing ``data.dermamnist.image_size``.
+
+    Returns:
+        The configured image width and height.
+
+    Raises:
+        OSError: If the parameters file cannot be read.
+        ValueError: If the required integer parameter is missing or malformed.
+    """
+    path = Path(params_path)
+    try:
+        parameters = yaml.safe_load(path.read_text(encoding="utf-8"))
+        size = parameters["data"]["dermamnist"]["image_size"]
+    except (TypeError, KeyError, yaml.YAMLError) as error:
+        raise ValueError(f"{path} must define an integer at data.dermamnist.image_size") from error
+
+    if isinstance(size, bool) or not isinstance(size, int):
+        raise ValueError(f"{path} must define an integer at data.dermamnist.image_size")
+
+    return size
+
+
+def download_dermapred_dataset(output_dir: str | Path, size: int) -> None:
     """Download the raw dermapred dataset from the original source.
 
     Args:
         output_dir: Destination directory for the raw dermapred numpy dataset.
         size: The width and height of each DermaMNIST image.
-              Must be one of 28, 64, 128, or 224 (default: 64).
+              Must be one of 28, 64, 128, or 224.
 
     Raises:
         ValueError: If the size is not one of 28, 64, 128, or 224.
@@ -80,10 +163,19 @@ def download_dermapred_dataset(output_dir: str | Path, size: int = DEFAULT_SIZE)
         data_val = DermaMNIST(split="val", size=size, download=False, root=temp_path)
         data_test = DermaMNIST(split="test", size=size, download=False, root=temp_path)
 
-        # Save the labels as numpy arrays in the output directory.
-        np.save(output_path / "train_labels.npy", data_train.labels)
-        np.save(output_path / "validation_labels.npy", data_val.labels)
-        np.save(output_path / "test_labels.npy", data_test.labels)
+        # Convert the seven source diagnoses into the binary modelling target.
+        np.save(
+            output_path / "train_labels.npy",
+            create_binary_labels(data_train.labels),
+        )
+        np.save(
+            output_path / "validation_labels.npy",
+            create_binary_labels(data_val.labels),
+        )
+        np.save(
+            output_path / "test_labels.npy",
+            create_binary_labels(data_test.labels),
+        )
 
         # Save the images as numpy arrays in the output directory.
         np.save(output_path / "train_images.npy", data_train.imgs)
@@ -94,6 +186,9 @@ def download_dermapred_dataset(output_dir: str | Path, size: int = DEFAULT_SIZE)
         metadata = (
             "name: DermaMNIST\n"
             f"image_size: {size}\n"
+            "label_task: binary\n"
+            "label_0: benign\n"
+            "label_1: clinically_concerning\n"
             f'medmnist_version: "{package_version("medmnist")}"\n'
             "source: https://medmnist.com/\n"
         )
@@ -111,9 +206,15 @@ def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--size",
         type=int,
-        default=DEFAULT_SIZE,
+        default=None,
         choices=AVAILABLE_SIZES,
-        help="image width and height (default: 64)",
+        help="override the image size configured in params.yaml",
+    )
+    parser.add_argument(
+        "--params",
+        type=Path,
+        default=DEFAULT_PARAMS_PATH,
+        help="parameters file used when --size is omitted (default: params.yaml)",
     )
     return parser.parse_args(arguments)
 
@@ -123,7 +224,8 @@ def main(arguments: Sequence[str] | None = None) -> int:
     args = _parse_args(arguments)
 
     try:
-        download_dermapred_dataset(args.output, args.size)
+        size = args.size if args.size is not None else load_dermamnist_size(args.params)
+        download_dermapred_dataset(args.output, size)
     except (OSError, ValueError) as error:
         print(f"Error: {error}", file=sys.stderr)
         return 1

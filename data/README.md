@@ -26,25 +26,32 @@ uploaded to a public remote or committed to Git.
 ## Data in this repository
 
 The Dermapred example uses the official training, validation, and test splits
-from the 64 × 64 version of DermaMNIST. Each image array and its corresponding
-label array are stored separately:
+from DermaMNIST. The selected image size is defined in the repository-level
+`params.yaml` under `data.dermamnist.image_size`.
+Each image array and its corresponding label array are stored separately:
 
 | File | Contents |
 | --- | --- |
 | `raw_data/dataset.yaml` | Dataset source, image size, and MedMNIST package version |
 | `raw_data/train_images.npy` | Images used to fit the model |
-| `raw_data/train_labels.npy` | Labels corresponding to the training images |
+| `raw_data/train_labels.npy` | Binary benign/concerning labels for the training images |
 | `raw_data/validation_images.npy` | Images used to select and tune the model |
-| `raw_data/validation_labels.npy` | Labels corresponding to the validation images |
+| `raw_data/validation_labels.npy` | Binary benign/concerning labels for the validation images |
 | `raw_data/test_images.npy` | Images reserved for final evaluation |
-| `raw_data/test_labels.npy` | Labels corresponding to the test images |
+| `raw_data/test_labels.npy` | Binary benign/concerning labels for the test images |
 
 The project deliberately does not retain an additional raw archive or create
 raw, intermediate, and processed subdirectories. The downloader writes the
-six arrays and `dataset.yaml` directly into this directory, providing one
+six image and binary-label arrays plus `dataset.yaml` directly into this
+directory, providing one
 clear copy of the example dataset with its acquisition metadata. The array
 files must remain aligned: element `n` in an image array must correspond to
 element `n` in its label array.
 
-The complete `raw_data` directory is managed by DVC and excluded from Git.
-This README and the generated DVC metadata files remain under Git control.
+For the binary task, label `0` means benign and label `1` means clinically
+concerning. The original seven-class labels are converted during download and
+are not stored separately in this example; `dataset.yaml` records this choice.
+
+The `.npy` arrays are managed individually by DVC and excluded from Git.
+`dataset.yaml`, this README, and the generated `.dvc` metadata files remain
+under Git control.

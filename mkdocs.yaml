@@ -41,7 +41,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.snippets:
       base_path:
-        - mkdocs.yaml  # Allows named sections of this configuration to be embedded in the docs.
+        - .  # Allows sections from any base file to be embedded in the docs.
         - docs/examples  # Replace or extend when reusable snippets are stored elsewhere.
         - .github/workflows
   - attr_list  # Enables attributes on images and other Markdown elements.
