@@ -6,6 +6,25 @@ not fit the model, select a checkpoint, tune the classification threshold, or
 alter the calibrator. This separation makes the reported performance a fairer
 estimate of how the completed pipeline handles unseen data.
 
+## Experiment without leaking the test set
+
+This repository is an example project, so students are encouraged to change
+the preprocessing, model, augmentation, loss, calibration method, and decision
+threshold and observe what happens. Use the **training set** to fit each model
+and the **validation set** to compare those choices. In particular, model
+selection, hyperparameter tuning, early stopping, threshold selection, and
+calibration must use training or validation data—not the test data.
+
+Treat the **test set** as sealed until the complete workflow has been chosen.
+Run the final evaluation once to estimate performance on unseen data. Repeatedly
+examining test results and then changing the workflow indirectly tunes the
+project to that test set, making its reported performance optimistic.
+
+For learning purposes, students may deliberately rerun the test stage to see
+how a change affects the figures. Results produced this way should be described
+as exploratory rather than as an unbiased final evaluation. A real study would
+need a new untouched test set or external validation after such exploration.
+
 ## Evaluation configuration
 
 The fixed threshold, bootstrap settings, and inference settings are versioned
