@@ -1,5 +1,5 @@
 name: DermaMNIST
-image_size: 28
+image_size: 64
 label_task: binary
 label_0: benign
 label_1: clinically_concerning

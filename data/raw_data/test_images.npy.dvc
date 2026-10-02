@@ -1,5 +1,5 @@
 outs:
-- md5: 42a390dd7b9b63bf55ffeb9ca1e70ade
-  size: 4715888
+- md5: a9f712e8706ddb6fa35e52d11af95ff4
+  size: 24637568
   hash: md5
   path: test_images.npy

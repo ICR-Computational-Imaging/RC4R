@@ -3,11 +3,11 @@
 
 data:
   dermamnist:
-    image_size: 28  # Supported values: 28, 64, 128, or 224.
+    image_size: 64  # Supported values: 28, 64, 128, or 224.
 
 training:
   batch_size: 64
-  epochs: 20
+  epochs: 40
   learning_rate: 0.001
   random_seed: 42
   num_workers: 0  # Keep at zero for a simple, deterministic teaching example.
