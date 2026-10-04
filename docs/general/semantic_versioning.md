@@ -31,15 +31,16 @@ The number after `dev` distinguishes successive development builds targeting
 the same release. It is separate from the semantic `PATCH` number and does not
 need to match the Git commit count.
 
-The intended branch convention is:
+The [development and release workflow](development_workflow.md) uses short-lived
+issue branches created from `main`, with PRs targeting `main`. Each branch has
+an approved issue and release-version target. Several issues may target the
+same release; this does not require each branch to bump the package version.
 
-- The development branch contains versions such as `0.1.0.dev45`.
-- The main branch contains stable releases such as `0.1.0`.
-- After releasing `0.1.0`, development can begin on `0.2.0.dev1` or whichever
-  release is planned next.
-
-Branch names do not enforce stability by themselves. Tests, review, and the
-release workflow determine whether a version is ready for the main branch.
+Development suffixes identify preview builds when needed. A `.devN` version
+does not imply a permanent branch named `dev`. A maintainer coordinates the
+version change in release preparation, and stable release tags identify exact
+reviewed commits on `main`. Branch names and version strings do not enforce
+stability; tests, model verification, and review provide that evidence.
 
 ## What bumpversion updates
 
@@ -86,30 +87,29 @@ identifiable version, rather than automatically running it after every commit.
 
 ## Creating a stable release
 
-When the development version has passed its tests and is ready to release,
-remove its development suffix with:
+On an approved release-preparation branch, when the development version targets
+the agreed release, remove its development suffix with:
 
 ```bash
 bumpversion release
 ```
 
-For example, `0.1.0.dev45` becomes `0.1.0`. To create an annotated Git tag at
-the same time, override the repository's default for this command:
+For example, `0.1.0.dev45` becomes `0.1.0`. This command updates the version
+files and creates a commit. Push the branch and merge its reviewed PR into
+`main` before creating the release tag. After updating local `main` and
+confirming the intended version and commit:
 
 ```bash
-bumpversion --tag release
-```
-
-This produces a tag such as `v0.1.0`. Push the release commit and tag only
-after verifying them:
-
-```bash
-git push origin main
+git switch main
+git pull --ff-only
+git tag -a v0.1.0 -m "Release 0.1.0"
 git push origin v0.1.0
 ```
 
-Do not run the push commands until the release commit has been merged onto the
-main branch and `v0.1.0` is the intended public release.
+Tagging after merge ensures the tag points to the reviewed commit on `main`,
+including when GitHub squashes the PR. Do not create or push a release tag
+until that commit and version are approved. Existing stable versions can use
+an explicit new version as described below instead of removing a suffix.
 
 ## Setting an explicit version
 
@@ -137,15 +137,19 @@ bumpversion --no-commit --new-version 0.1.0.dev1 build
 
 ## Example release sequence
 
-For a development branch currently at `0.1.0.dev45`:
+For an approved release targeting `0.1.0`, with the current version
+`0.1.0.dev45`:
 
-1. Ensure the working tree is clean and all tests pass.
-2. Merge the tested release candidate according to the project's branch
-   policy.
-3. Run `bumpversion --tag release` on the release branch to create `0.1.0`.
-4. Verify the version, commit, and tag before pushing them.
-5. Begin the next planned release on the development branch, for example with
-   `bumpversion --new-version 0.2.0.dev1 build`.
+1. Create a release-preparation branch from updated `main`, associated with
+   the approved release issue.
+2. Run `bumpversion release` on that branch to set `0.1.0`.
+3. Run the required checks and obtain review, including model verification
+   when the release changes model artifacts.
+4. Merge the PR into `main`, update local `main`, and tag the exact reviewed
+   commit as `v0.1.0`.
+5. Publish the verified artifacts and package according to the release workflow.
+6. Start subsequent work from updated `main` under a new approved issue. Set a
+   development version only when an identifiable preview build is needed.
 
 The next target is a project decision: use a patch version for a compatible
 fix, a minor version for compatible functionality, or a major version for an

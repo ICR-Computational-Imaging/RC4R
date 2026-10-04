@@ -31,6 +31,30 @@ uv run python scripts/<script_name>.py
 
 ## Available scripts
 
+### Create a model manifest
+
+`create_model_manifest.py` records model artifact URLs, sizes, and SHA-256 hashes.
+It reads the bumpversion-managed `VERSION` file by default and does not upload
+anything. See the [model release guide](../docs/dermapred/model_download.md).
+
+### Upload model files to a draft release
+
+`upload_model_release.py` uses the authenticated GitHub CLI (`gh`) to prepare a
+draft release and upload the files described by a reviewed manifest:
+
+```bash
+uv run python -m scripts.upload_model_release \
+  --repo ICR-Computational-Imaging/RC4R \
+  --manifest model-release.json \
+  --artifact weights=results/trained_models/binary_classifier.pt \
+  --artifact calibrator=results/calibration/probability_calibrator.json
+```
+
+Run it after pushing the approved release tag. Add `--dry-run` for local checks
+without contacting GitHub. The command verifies uploaded attachments, can resume
+an incomplete draft, and never overwrites differing assets or publishes a release.
+Review and publish the draft separately on GitHub.
+
 ### Create a favicon
 
 `create_favicon.py` converts a raster image into a multi-resolution ICO file.

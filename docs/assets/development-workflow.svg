@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="780" viewBox="0 0 1440 780" role="img" aria-labelledby="title description">
+  <title id="title">Who does each step from an issue to a release</title>
+  <desc id="description">
+    Follow the top row from left to right, then the bottom row from right to left.
+    The contributor opens an issue. The maintainer approves the scope and target
+    version. The contributor branches from main, makes changes, tests, commits,
+    and pushes to GitHub. GitHub Actions runs configured checks. A pull request
+    is reviewed and merged by the reviewer and maintainer. The maintainer prepares
+    a separate release pull request, then tags its reviewed commit on main and
+    publishes the approved package and model files. Numbers match the walkthrough.
+  </desc>
+  <rect width="1440" height="780" rx="20" fill="#f7f9fc" />
+  <text x="48" y="62" class="title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="34px" font-weight="700">From an approved issue to a public release</text>
+  <text x="48" y="98" class="subtitle" font-family="Arial, Helvetica, sans-serif" fill="#526479" font-size="20px">Start at step 1 and follow the arrows. Numbers match the walkthrough.</text>
+  <rect x="48" y="130" width="1344" height="520" rx="18" fill="#edf3f9" />
+  <path d="M348 278 H396" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <path d="M696 278 H744" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <path d="M1044 278 H1092" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <path d="M1242 368 V454" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <text x="1216" y="415" text-anchor="end" class="small" font-family="Arial, Helvetica, sans-serif" fill="#526479" font-size="18px">Continue on GitHub</text>
+  <path d="M1092 544 H1044" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <path d="M744 544 H696" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <path d="M396 544 H348" class="flow" fill="none" stroke="#526479" stroke-width="3" stroke-opacity="1" />
+  <g id="step-1">
+    <rect x="48" y="188" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="48" y="188" width="300" height="42" rx="12" fill="#e0ebf6" />
+    <rect x="48" y="216" width="300" height="14" fill="#e0ebf6" />
+    <circle cx="76" cy="209" r="15" fill="#245a78" />
+    <text x="76" y="215" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">1</text>
+    <text x="102" y="215" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">CONTRIBUTOR</text>
+    <text x="70" y="269" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Open an issue</text>
+    <text x="70" y="302" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Describe the problem</text>
+    <text x="70" y="332" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">and the expected result.</text>
+  </g>
+  <g id="step-2">
+    <rect x="396" y="188" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="396" y="188" width="300" height="42" rx="12" fill="#ede3f0" />
+    <rect x="396" y="216" width="300" height="14" fill="#ede3f0" />
+    <circle cx="424" cy="209" r="15" fill="#713a74" />
+    <text x="424" y="215" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">2</text>
+    <text x="450" y="215" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">MAINTAINER</text>
+    <text x="418" y="269" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Approve the plan</text>
+    <text x="418" y="302" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Agree the scope</text>
+    <text x="418" y="332" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">and target version.</text>
+  </g>
+  <g id="step-3">
+    <rect x="744" y="188" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="744" y="188" width="300" height="42" rx="12" fill="#e0ebf6" />
+    <rect x="744" y="216" width="300" height="14" fill="#e0ebf6" />
+    <circle cx="772" cy="209" r="15" fill="#245a78" />
+    <text x="772" y="215" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">3</text>
+    <text x="798" y="215" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">CONTRIBUTOR</text>
+    <text x="766" y="269" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Branch from main</text>
+    <text x="766" y="302" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Update your local main.</text>
+    <text x="766" y="332" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Create an issue branch.</text>
+  </g>
+  <g id="steps-4-5">
+    <rect x="1092" y="188" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="1092" y="188" width="300" height="42" rx="12" fill="#e0ebf6" />
+    <rect x="1092" y="216" width="300" height="14" fill="#e0ebf6" />
+    <rect x="1105" y="194" width="52" height="30" rx="15" fill="#245a78" />
+    <text x="1131" y="215" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">4–5</text>
+    <text x="1168" y="215" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">CONTRIBUTOR</text>
+    <text x="1114" y="269" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Change, test, commit</text>
+    <text x="1114" y="302" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Edit code, tests, and docs.</text>
+    <text x="1114" y="332" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Save checked changes.</text>
+  </g>
+  <g id="step-6">
+    <rect x="1092" y="454" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="1092" y="454" width="300" height="42" rx="12" fill="#e0ebf6" />
+    <rect x="1092" y="482" width="300" height="14" fill="#e0ebf6" />
+    <circle cx="1120" cy="475" r="15" fill="#245a78" />
+    <text x="1120" y="481" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">6</text>
+    <text x="1146" y="481" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">CONTRIBUTOR + ACTIONS</text>
+    <text x="1114" y="535" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Push and check</text>
+    <text x="1114" y="568" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Send commits to GitHub.</text>
+    <text x="1114" y="598" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Confirm the checks pass.</text>
+  </g>
+  <g id="steps-7-8">
+    <rect x="744" y="454" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="744" y="454" width="300" height="42" rx="12" fill="#deeee8" />
+    <rect x="744" y="482" width="300" height="14" fill="#deeee8" />
+    <rect x="757" y="460" width="52" height="30" rx="15" fill="#27816b" />
+    <text x="783" y="481" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">7–8</text>
+    <text x="820" y="481" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">REVIEWER + MAINTAINER</text>
+    <text x="766" y="535" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Review into main</text>
+    <text x="766" y="568" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Contributor opens the PR.</text>
+    <text x="766" y="598" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Review, approve, then merge.</text>
+  </g>
+  <g id="step-9">
+    <rect x="396" y="454" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="396" y="454" width="300" height="42" rx="12" fill="#ede3f0" />
+    <rect x="396" y="482" width="300" height="14" fill="#ede3f0" />
+    <circle cx="424" cy="475" r="15" fill="#713a74" />
+    <text x="424" y="481" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">9</text>
+    <text x="450" y="481" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">MAINTAINER + REVIEWER</text>
+    <text x="418" y="535" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Prepare the release</text>
+    <text x="418" y="568" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Review version, notes, models.</text>
+    <text x="418" y="598" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Merge the release PR.</text>
+  </g>
+  <g id="step-10">
+    <rect x="48" y="454" width="300" height="180" rx="12" class="card" fill="#ffffff" stroke="#c9d5e1" stroke-width="1.5" stroke-opacity="1" />
+    <rect x="48" y="454" width="300" height="42" rx="12" fill="#ede3f0" />
+    <rect x="48" y="482" width="300" height="14" fill="#ede3f0" />
+    <circle cx="76" cy="475" r="15" fill="#713a74" />
+    <text x="76" y="481" class="step" font-family="Arial, Helvetica, sans-serif" fill="#ffffff" font-size="18px" font-weight="700" text-anchor="middle">10</text>
+    <text x="102" y="481" class="role" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="14px" font-weight="700" letter-spacing=".5px">MAINTAINER</text>
+    <text x="70" y="535" class="card-title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="24px" font-weight="700">Tag and publish</text>
+    <text x="70" y="568" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Tag the reviewed main commit.</text>
+    <text x="70" y="598" class="body" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="19px">Publish the verified release.</text>
+  </g>
+  <text x="48" y="698" class="subtitle" font-family="Arial, Helvetica, sans-serif" fill="#526479" font-size="20px">Every working branch has an approved issue and target version.</text>
+  <text x="48" y="731" class="subtitle" font-family="Arial, Helvetica, sans-serif" fill="#526479" font-size="20px">Checks and review come before merge. Release tags come after the release PR merges.</text>
+  <polygon points="390,278 378,270 378,286" fill="#526479" />
+  <polygon points="738,278 726,270 726,286" fill="#526479" />
+  <polygon points="1086,278 1074,270 1074,286" fill="#526479" />
+  <polygon points="1242,448 1234,436 1250,436" fill="#526479" />
+  <polygon points="1050,544 1062,536 1062,552" fill="#526479" />
+  <polygon points="702,544 714,536 714,552" fill="#526479" />
+  <polygon points="354,544 366,536 366,552" fill="#526479" />
+</svg>

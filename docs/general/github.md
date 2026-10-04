@@ -188,12 +188,14 @@ proposes merging one branch into another. It provides a place to explain the
 change, review its diff, discuss it, and run automated checks before merging.
 
 For ordinary changes in this repository, use a short-lived branch based on the
-latest development branch:
+latest `main`. First create a GitHub issue and obtain maintainer approval for
+the scope and target semantic version, as described in the
+[development and release workflow](development_workflow.md):
 
 ```bash
-git switch dev
+git switch main
 git pull --ff-only
-git switch -c feature/short-description
+git switch -c issue-42/short-description
 ```
 
 Then follow this workflow:
@@ -201,18 +203,20 @@ Then follow this workflow:
 1. Make one coherent change and add or update its tests and documentation.
 2. Review the work with `git status`, `git diff`, and the relevant checks.
 3. Stage and commit meaningful groups of changes.
-4. Push the branch with `git push -u origin feature/short-description`.
-5. Open a pull request on GitHub with `dev` as the base branch.
+4. Push the branch with `git push -u origin issue-42/short-description` and
+   confirm the latest commit passes its GitHub checks.
+5. Open a pull request on GitHub with `main` as the base branch.
 6. Explain what changed, why it was needed, and how it was tested. Link any
-   related issue or research decision.
+   approved issue and record its target version.
 7. Respond to review comments by committing and pushing further changes to the
    same branch; the pull request updates automatically.
 8. Merge only after reviews and automated checks pass, then delete the merged
    feature branch.
 
-Stable releases use a separate pull request from `dev` into `main`. Confirm the
-intended stable version, release notes, tests, documentation, and reproducible
-outputs before merging. The versioning process is described in
+Release preparation also uses an issue branch from `main` if changes are
+needed. Confirm the intended stable version, release notes, tests,
+documentation, and reproducible outputs before merging. Tag the reviewed
+commit on `main` when ready to publish. The versioning commands are described in
 [Semantic versioning with bumpversion](semantic_versioning.md).
 
 When contributing without write access, create a fork, push the branch to that

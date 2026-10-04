@@ -55,6 +55,7 @@ nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - DermaPred:
       - Downloading data: dermapred/data_download.md
+      - Releasing and downloading models: dermapred/model_download.md
       - Image preprocessing: dermapred/dvc/preprocessing.md
       - Model training: dermapred/dvc/training.md
       - Probability calibration: dermapred/dvc/calibration.md
@@ -65,6 +66,7 @@ nav:
       - Probability calibration: dermapred/api/calibration.md
       - Model evaluation: dermapred/api/evaluation.md
   - General:
+      - Development and release workflow: general/development_workflow.md
       - Managing Python with uv: general/uv.md
       - Managing data with DVC: general/dvc.md
       - Semantic versioning: general/semantic_versioning.md

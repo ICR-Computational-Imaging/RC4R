@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="940"
+     viewBox="0 0 1440 940" role="img" aria-labelledby="title description">
+  <title id="title">Releasing models from private DVC storage through GitHub Releases</title>
+  <desc id="description">
+    Three columns show the institutional environment, public distribution, and
+    the user's computer. Private DVC artifacts are retrieved and approved before
+    selected weights and their matching calibrator are published as GitHub release
+    assets. PyPI distributes the Python code and a trusted manifest tied to the
+    same release. The user explicitly requests a download over HTTPS. The
+    downloader verifies file sizes and SHA-256 hashes before promoting files into
+    a local cache. Verified cached files can be reused offline. Users do not
+    access the private remote, and installing the package does not download weights.
+  </desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#245a78"/>
+    </marker>
+    <marker id="arrow-model" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 Z" fill="#713a74"/>
+    </marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #173b61; }
+      .heading { font-size: 34px; font-weight: 700; }
+      .subtitle { font-size: 19px; fill: #526479; }
+      .lane-title { font-size: 21px; font-weight: 700; }
+      .lane-subtitle { font-size: 16px; fill: #526479; }
+      .card-title { font-size: 23px; font-weight: 700; }
+      .body { font-size: 18px; fill: #354b62; }
+      .small { font-size: 16px; fill: #526479; }
+      .label { font-size: 16px; font-weight: 700; }
+      .mono { font-family: Consolas, Menlo, monospace; font-size: 16px; }
+      .code-line { fill: none; stroke: #245a78; stroke-width: 3; marker-end: url(#arrow); }
+      .model-line { fill: none; stroke: #713a74; stroke-width: 3; marker-end: url(#arrow-model); }
+      .card { fill: #ffffff; stroke: #c9d5e1; stroke-width: 1.5; }
+      .model-card { fill: #ffffff; stroke: #d8c8de; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="940" rx="20" fill="#f7f9fc"/>
+  <text x="48" y="60" class="heading">Release the model. Keep research storage private.</text>
+  <text x="48" y="94" class="subtitle">Versioned public artifacts, verified downloads, and an independent local cache</text>
+
+  <!-- Institutional, public, and user boundaries. -->
+  <rect x="32" y="130" width="440" height="650" rx="18" fill="#f1eef7" stroke="#d8c8de"/>
+  <rect x="500" y="130" width="440" height="650" rx="18" fill="#edf3f9" stroke="#c9d5e1"/>
+  <rect x="968" y="130" width="440" height="650" rx="18" fill="#edf6f3" stroke="#c7ddd5"/>
+  <text x="60" y="169" class="lane-title">Institutional environment</text>
+  <text x="60" y="196" class="lane-subtitle">Private research artifacts</text>
+  <text x="528" y="169" class="lane-title">Public distribution</text>
+  <text x="528" y="196" class="lane-subtitle">One software release, two channels</text>
+  <text x="996" y="169" class="lane-title">User’s computer</text>
+  <text x="996" y="196" class="lane-subtitle">No institutional credentials needed</text>
+
+  <!-- Software distribution across the top row. -->
+  <rect x="60" y="230" width="384" height="130" rx="12" class="card"/>
+  <rect x="60" y="230" width="6" height="130" rx="3" fill="#245a78"/>
+  <text x="84" y="268" class="card-title">Versioned source code</text>
+  <text x="84" y="301" class="body">Python package + trusted manifest</text>
+  <text x="84" y="331" class="small">Manifest pins URLs, sizes, and hashes</text>
+
+  <path d="M 444 290 H 528" class="code-line"/>
+  <text x="485" y="275" text-anchor="middle" class="label">build</text>
+
+  <rect x="528" y="230" width="384" height="130" rx="12" class="card"/>
+  <rect x="528" y="230" width="6" height="130" rx="3" fill="#245a78"/>
+  <text x="552" y="268" class="card-title">PyPI package</text>
+  <text x="552" y="301" class="body">Code + model-release manifest</text>
+  <text x="552" y="331" class="small">Weights remain separate from the wheel</text>
+
+  <path d="M 912 290 H 996" class="code-line"/>
+  <text x="953" y="275" text-anchor="middle" class="label">pip</text>
+
+  <rect x="996" y="230" width="384" height="130" rx="12" class="card"/>
+  <rect x="996" y="230" width="6" height="130" rx="3" fill="#245a78"/>
+  <text x="1020" y="268" class="card-title">Installed package</text>
+  <text x="1020" y="301" class="body">Inference code + pinned manifest</text>
+  <text x="1020" y="331" class="small">Installation does not download weights</text>
+
+  <!-- Private artifacts and their explicit public release boundary. -->
+  <rect x="60" y="420" width="384" height="130" rx="12" class="model-card"/>
+  <rect x="60" y="420" width="6" height="130" rx="3" fill="#713a74"/>
+  <g transform="translate(391 440)" fill="none" stroke="#713a74" stroke-width="2.5">
+    <path d="M 4 12 V 7 A 8 8 0 0 1 20 7 V 12"/>
+    <rect x="0" y="12" width="24" height="20" rx="4"/>
+    <path d="M 12 19 V 25"/>
+  </g>
+  <text x="84" y="458" class="card-title">Private DVC remote</text>
+  <text x="84" y="491" class="body">Training checkpoints + calibrators</text>
+  <text x="84" y="521" class="small">Data and artifact history stay private</text>
+
+  <path d="M 252 550 V 622" class="model-line"/>
+  <rect x="142" y="570" width="220" height="26" rx="6" fill="#f1eef7"/>
+  <text x="252" y="589" text-anchor="middle" class="label">retrieve + approve</text>
+
+  <rect x="60" y="622" width="384" height="130" rx="12" class="model-card"/>
+  <rect x="60" y="622" width="6" height="130" rx="3" fill="#713a74"/>
+  <text x="84" y="660" class="card-title">Approved release bundle</text>
+  <text x="84" y="693" class="body">Selected weights + matching calibrator</text>
+  <text x="84" y="723" class="small">Generate the manifest from these files</text>
+
+  <path d="M 444 687 H 528" class="model-line"/>
+  <text x="485" y="672" text-anchor="middle" class="label">publish</text>
+
+  <!-- Dashed association denotes a shared release, not a file transfer. -->
+  <path d="M 720 360 V 622" fill="none" stroke="#8b9cb0" stroke-width="2" stroke-dasharray="7 7"/>
+  <rect x="562" y="430" width="316" height="94" rx="12" fill="#edf3f9" stroke="#c9d5e1"/>
+  <text x="720" y="462" text-anchor="middle" class="lane-title">Same release tag</text>
+  <text x="720" y="490" text-anchor="middle" class="mono">vX.Y.Z</text>
+  <text x="720" y="514" text-anchor="middle" class="small">Manifest selects exact model files</text>
+
+  <rect x="528" y="622" width="384" height="130" rx="12" class="model-card"/>
+  <rect x="528" y="622" width="6" height="130" rx="3" fill="#713a74"/>
+  <text x="552" y="660" class="card-title">GitHub Release assets</text>
+  <text x="552" y="693" class="body">Weights + calibrator + manifest</text>
+  <text x="552" y="723" class="small">Fixed release URLs; never “latest”</text>
+
+  <!-- Explicit download: GitHub redirects remain on HTTPS. -->
+  <path d="M 1188 360 V 420" class="code-line"/>
+  <rect x="1040" y="373" width="296" height="27" rx="6" fill="#edf6f3"/>
+  <text x="1188" y="393" text-anchor="middle" class="label">explicit download request</text>
+
+  <path d="M 824 622 V 578 H 950 V 486 H 996" class="model-line"/>
+  <rect x="771" y="550" width="173" height="24" rx="5" fill="#edf3f9"/>
+  <text x="858" y="568" text-anchor="middle" class="label">HTTPS download</text>
+
+  <rect x="996" y="420" width="384" height="130" rx="12" class="card"/>
+  <rect x="996" y="420" width="6" height="130" rx="3" fill="#27816b"/>
+  <text x="1020" y="458" class="card-title">Model downloader</text>
+  <text x="1020" y="491" class="body">Stream files to temporary storage</text>
+  <text x="1020" y="521" class="small">Check against the trusted manifest</text>
+
+  <path d="M 1188 550 V 622" class="code-line"/>
+  <rect x="1050" y="570" width="276" height="26" rx="6" fill="#edf6f3"/>
+  <text x="1188" y="589" text-anchor="middle" class="label">verify SHA-256 + file size</text>
+
+  <rect x="996" y="622" width="384" height="130" rx="12" fill="#ffffff" stroke="#9cc9bb" stroke-width="1.5"/>
+  <rect x="996" y="622" width="6" height="130" rx="3" fill="#27816b"/>
+  <text x="1020" y="660" class="card-title">Verified local cache</text>
+  <text x="1020" y="693" class="body">Model version + content hash</text>
+  <text x="1020" y="723" class="small">Reuse verified files, including offline</text>
+
+  <!-- Release contract and the meaning of the two connector colors. -->
+  <rect x="32" y="806" width="1376" height="102" rx="14" fill="#ffffff" stroke="#d6dfe8"/>
+  <text x="56" y="838" class="body">The trusted manifest ships with the software and pins the approved weights and calibrator.</text>
+  <path d="M 58 874 H 105" class="code-line"/>
+  <text x="119" y="880" class="small">Software and local use</text>
+  <path d="M 354 874 H 401" class="model-line"/>
+  <text x="415" y="880" class="small">Model artifacts</text>
+  <text x="1382" y="880" text-anchor="end" class="small">Release design for RC4R / DermaPred</text>
+</svg>
