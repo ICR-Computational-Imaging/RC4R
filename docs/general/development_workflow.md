@@ -1,5 +1,9 @@
 # Development, review, and release: a walkthrough
 
+For a generic beginner walkthrough focused on collaboration, start with
+[From an issue to a pull request](collaborating_on_github.md). This page adds the
+project's development and release requirements.
+
 ![Overview of the development and release workflow](../assets/development-workflow.svg)
 
 This guide follows one change from its first idea to a public release. The

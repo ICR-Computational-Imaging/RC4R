@@ -1,5 +1,9 @@
 # Using Git and GitHub
 
+For a practical first contribution, follow
+[From an issue to a pull request](collaborating_on_github.md). It explains each
+step, who performs it, and how to check the result.
+
 ## Introduction to Git and GitHub
 
 [Git](https://git-scm.com/) is a distributed version-control system. It records
