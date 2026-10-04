@@ -16,28 +16,41 @@ IMAGE_SPLITS = ("train", "validation", "test")
 class PreprocessingStage:
     """Load, preprocess, and save each DermaMNIST image split."""
 
-    def __init__(self, input_dir: Path, output_dir: Path) -> None:
+    def __init__(
+        self,
+        input_dir: Path,
+        output_dir: Path,
+        splits: Sequence[str] = IMAGE_SPLITS,
+    ) -> None:
         """Configure the input and output directories for the stage.
 
         Args:
             input_dir: Directory containing the raw image arrays.
             output_dir: Directory in which processed image arrays will be
                 written.
+            splits: Dataset splits to process. Defaults to all valid splits.
 
         Returns:
             None.
 
         Raises:
             TypeError: If either directory is not provided as a ``Path``.
+            ValueError: If splits are empty, repeated, or invalid.
         """
         if not isinstance(input_dir, Path) or not isinstance(output_dir, Path):
             raise TypeError("input_dir and output_dir must be pathlib.Path objects.")
+        selected_splits = tuple(splits)
+        if not selected_splits or any(split not in IMAGE_SPLITS for split in selected_splits):
+            raise ValueError(f"splits must contain names from {IMAGE_SPLITS}.")
+        if len(set(selected_splits)) != len(selected_splits):
+            raise ValueError("splits must not contain repeated names.")
 
         self.input_dir = input_dir
         self.output_dir = output_dir
+        self.splits = selected_splits
 
     def run(self) -> None:
-        """Create model-ready image arrays for all dataset splits.
+        """Create model-ready image arrays for the selected dataset splits.
 
         Returns:
             None.
@@ -50,7 +63,7 @@ class PreprocessingStage:
         """
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        for split in IMAGE_SPLITS:
+        for split in self.splits:
             input_path = self.input_dir / f"{split}_images.npy"
             output_path = self.output_dir / f"{split}_images.npy"
             images = np.load(input_path, allow_pickle=False)
@@ -80,6 +93,13 @@ def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
         help="directory containing the raw image arrays",
     )
     parser.add_argument(
+        "--splits",
+        nargs="+",
+        choices=IMAGE_SPLITS,
+        default=IMAGE_SPLITS,
+        help="dataset splits to process (default: train validation test)",
+    )
+    parser.add_argument(
         "--output-dir",
         type=Path,
         required=True,
@@ -90,5 +110,5 @@ def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
 
 if __name__ == "__main__":
     arguments = _parse_args()
-    stage = PreprocessingStage(arguments.input_dir, arguments.output_dir)
+    stage = PreprocessingStage(arguments.input_dir, arguments.output_dir, arguments.splits)
     stage.run()

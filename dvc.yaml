@@ -7,6 +7,7 @@ stages:
       python -m dermapred.dvcstages.preprocessing
       --input-dir data/raw_data
       --output-dir data/processed_data
+      --splits train validation test
     deps:
       - src/dermapred/data/preprocessing.py
       - src/dermapred/dvcstages/preprocessing.py

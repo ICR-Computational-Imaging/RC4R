@@ -9,13 +9,30 @@ Run it from the repository root:
 uv run --group train dvc repro preprocess
 ```
 
-The stage creates three model-ready arrays:
+The current pipeline explicitly selects all three splits with
+`--splits train validation test` and creates three model-ready arrays:
 
 ```text
 data/processed_data/train_images.npy
 data/processed_data/validation_images.npy
 data/processed_data/test_images.npy
 ```
+
+The same preprocessing code can process selected splits from separate input
+locations. For a development pipeline, use:
+
+```bash
+uv run --group train python -m dermapred.dvcstages.preprocessing \
+  --input-dir data/raw_data --output-dir data/processed_data \
+  --splits train validation
+```
+
+For a separate evaluation dataset, use its input and output locations with
+`--splits test`. Only selected splits are loaded; a missing selected file raises
+an error. Omitting `--splits` preserves the default of processing all three.
+When changing a DVC stage's selection, update its dependencies and outputs to
+match. The existing root pipeline still includes final evaluation; splitting
+that pipeline and moving data are separate migration steps.
 
 The binary labels are unchanged, so the training code will use the label
 arrays from `data/raw_data` rather than creating duplicate processed copies.
