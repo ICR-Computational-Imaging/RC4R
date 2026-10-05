@@ -8,7 +8,7 @@ untouched for a later evaluation stage.
 ## Training configuration
 
 Training and augmentation settings are versioned in `params.yaml` under
-`training`. DVC records these parameters in `pipelines/training/dvc.lock`, so
+`train`. DVC records these parameters in `pipelines/train/dvc.lock`, so
 changing a value causes the stage to run again.
 
 Current training parameters are:
@@ -46,20 +46,20 @@ then creates:
 
 ```text
 results/trained_models/binary_classifier.pt
-results/training/history.csv
-results/training/loss_curve.png
+results/train/history.csv
+results/train/loss_curve.png
 ```
 
 The checkpoint contains the best model state, input-channel count, best epoch,
 best validation loss, and training parameters. `history.csv` contains the mean
 training and validation loss for every epoch. The PNG is generated from that
-CSV by `dermapred.plotting.training`, keeping numerical results separate from
+CSV by `dermapred.plotting.train`, keeping numerical results separate from
 their presentation.
 
 `binary_classifier.pt` and `history.csv` are DVC pipeline outputs.
 Do not add them with `dvc add` or commit them directly to Git.
 `loss_curve.png` should be added to git to ensure that it is visible in the GitHub repository.
-Also, commit `pipelines/training/dvc.yaml`, `pipelines/training/dvc.lock`,
+Also, commit `pipelines/train/dvc.yaml`, `pipelines/train/dvc.lock`,
 and the generated `.gitignore` files,
 then use `dvc push` to upload the artifacts.
 

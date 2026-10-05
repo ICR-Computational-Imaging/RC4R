@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from dermapred.dvcstages.training import TrainingStage, load_training_parameters
+from dermapred.dvcstages.train import TrainingStage, load_training_parameters
 
 
 def _write_parameters(path: Path, epochs: int = 1) -> None:

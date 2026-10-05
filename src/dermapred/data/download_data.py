@@ -27,17 +27,17 @@ the output directory.
 
 Data will be stored in separate locations for training/validation and test:
 
-    - data/raw_data/training: Contains the training and validation images and labels.
+    - data/raw_data/train: Contains the training and validation images and labels.
     - data/raw_data/test: Contains the test images and labels.
 
 After inspecting the arrays, add them individually to DVC. A ``-r`` option
 on ``dvc push`` selects a destination for each group separately::
 
 Training:
-    uv run dvc add data/raw_data/training/*.npy
-    git add params.yaml data/raw_data/training/*.dvc data/raw_data/training/.gitignore \
-        data/raw_data/training/dataset.yaml
-    uv run dvc push -r rds-train data/raw_data/training/*.dvc
+    uv run dvc add data/raw_data/train/*.npy
+    git add params.yaml data/raw_data/train/*.dvc data/raw_data/train/.gitignore \
+        data/raw_data/train/dataset.yaml
+    uv run dvc push -r rds-train data/raw_data/train/*.dvc
     git commit -m "Track DermaMNIST training data"
 
 Test:
@@ -86,7 +86,7 @@ authorized to access. The committed ``.dvc`` files must be present first;
 there is no need to run this downloader or ``dvc add`` again::
 
     # Contributors: retrieve training and validation arrays only.
-    uv run dvc pull -r rds-train data/raw_data/training/*.dvc
+    uv run dvc pull -r rds-train data/raw_data/train/*.dvc
 
     # Authorized evaluators: retrieve test arrays only.
     uv run dvc pull -r rds-test data/raw_data/test/*.dvc
@@ -215,7 +215,7 @@ def download_dermapred_dataset(output_dir: str | Path, size: int) -> None:
         valid_sizes = ", ".join(str(valid_size) for valid_size in AVAILABLE_SIZES)
         raise ValueError(f"Invalid size: {size}. Must be one of {valid_sizes}.")
 
-    output_path_train = Path(output_dir) / "training"
+    output_path_train = Path(output_dir) / "train"
     output_path_test = Path(output_dir) / "test"
 
     for path in [output_path_train, output_path_test]:

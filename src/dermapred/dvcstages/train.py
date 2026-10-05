@@ -18,7 +18,7 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 
 from dermapred.models.binary_classifier import LeNetBinary
-from dermapred.plotting.training import plot_loss_curves
+from dermapred.plotting.train import plot_loss_curves
 
 
 class TrainingParameters:

@@ -5,7 +5,7 @@ data:
   dermamnist:
     image_size: 64  # Supported values: 28, 64, 128, or 224.
 
-training:
+train:
   batch_size: 64
   epochs: 40
   learning_rate: 0.001

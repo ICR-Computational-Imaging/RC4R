@@ -61,11 +61,11 @@ uv run --group train python -m dermapred.data.download_data data/raw_data
 The command creates six NumPy arrays and a provenance YAML file in each folder:
 
 ```text
-data/raw_data/training/dataset.yaml
-data/raw_data/training/train_images.npy
-data/raw_data/training/train_labels.npy
-data/raw_data/training/validation_images.npy
-data/raw_data/training/validation_labels.npy
+data/raw_data/train/dataset.yaml
+data/raw_data/train/train_images.npy
+data/raw_data/train/train_labels.npy
+data/raw_data/train/validation_images.npy
+data/raw_data/train/validation_labels.npy
 data/raw_data/test/dataset.yaml
 data/raw_data/test/test_images.npy
 data/raw_data/test/test_labels.npy
@@ -111,7 +111,7 @@ information.
 Track each NumPy array as an individual DVC target:
 
 ```bash
-uv run --group train dvc add data/raw_data/training/*.npy
+uv run --group train dvc add data/raw_data/train/*.npy
 uv run --group train dvc add data/raw_data/test/*.npy
 ```
 
@@ -120,7 +120,7 @@ DVC now:
 - calculates a checksum for each array;
 - stores each array in the local DVC cache;
 - creates a corresponding pointer such as
-  `data/raw_data/training/train_images.npy.dvc` for every array;
+  `data/raw_data/train/train_images.npy.dvc` for every array;
 - adds the `.npy` filenames to the `.gitignore` in each dataset folder so the arrays are
   not committed to Git.
 
@@ -158,7 +158,7 @@ git add \
     data/raw_data/training/dataset.yaml
 ```
 
-Test metadata can be staged separately:
+Test metadata are staged separately:
 
 ```bash
 git add \

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from dermapred.plotting.training import plot_loss_curves
+from dermapred.plotting.train import plot_loss_curves
 
 
 def test_plot_loss_curves_creates_image(tmp_path: Path) -> None:
