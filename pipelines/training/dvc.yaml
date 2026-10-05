@@ -7,27 +7,27 @@ stages:
     cmd: >-  # This allows the command to be written on multiple lines for readability.
       uv run --group train
       python -m dermapred.dvcstages.preprocessing
-      --input-dir data/raw_data
-      --output-dir data/processed_data
+      --input-dir data/raw_data/training
+      --output-dir data/training/processed_data
       --splits train validation
     deps:
     - src/dermapred/data/preprocessing.py
     - src/dermapred/dvcstages/preprocessing.py
-    - data/raw_data/train_images.npy
-    - data/raw_data/validation_images.npy
+    - data/raw_data/training/train_images.npy
+    - data/raw_data/training/validation_images.npy
     outs:
-    - data/processed_data/train_images.npy
-    - data/processed_data/validation_images.npy
+    - data/processed_data/training/train_images.npy
+    - data/processed_data/training/validation_images.npy
 
   train:
     wdir: ../..
     cmd: >-
       uv run --group train
       python -m dermapred.dvcstages.training
-      --train-images data/processed_data/train_images.npy
-      --train-labels data/raw_data/train_labels.npy
-      --validation-images data/processed_data/validation_images.npy
-      --validation-labels data/raw_data/validation_labels.npy
+      --train-images data/processed_data/training/train_images.npy
+      --train-labels data/raw_data/training/train_labels.npy
+      --validation-images data/processed_data/training/validation_images.npy
+      --validation-labels data/raw_data/training/validation_labels.npy
       --params-path params.yaml
       --model-output results/trained_models/binary_classifier.pt
       --history-output results/training/history.csv
@@ -36,10 +36,10 @@ stages:
     - src/dermapred/models/binary_classifier.py
     - src/dermapred/plotting/training.py
     - src/dermapred/dvcstages/training.py
-    - data/processed_data/train_images.npy
-    - data/raw_data/train_labels.npy
-    - data/processed_data/validation_images.npy
-    - data/raw_data/validation_labels.npy
+    - data/processed_data/training/train_images.npy
+    - data/raw_data/training/train_labels.npy
+    - data/processed_data/training/validation_images.npy
+    - data/raw_data/training/validation_labels.npy
     params:
     - params.yaml:
       - training
@@ -53,8 +53,8 @@ stages:
       uv run --group train
       python -m dermapred.dvcstages.calibration
       --model-path results/trained_models/binary_classifier.pt
-      --validation-images data/processed_data/validation_images.npy
-      --validation-labels data/raw_data/validation_labels.npy
+      --validation-images data/processed_data/training/validation_images.npy
+      --validation-labels data/raw_data/training/validation_labels.npy
       --params-path params.yaml
       --calibrator-output results/calibration/probability_calibrator.json
       --metrics-output results/calibration/validation_metrics.json
@@ -65,8 +65,8 @@ stages:
     - src/dermapred/plotting/calibration.py
     - src/dermapred/dvcstages/calibration.py
     - results/trained_models/binary_classifier.pt
-    - data/processed_data/validation_images.npy
-    - data/raw_data/validation_labels.npy
+    - data/processed_data/training/validation_images.npy
+    - data/raw_data/training/validation_labels.npy
     params:
     - params.yaml:
       - calibration
