@@ -55,7 +55,7 @@ def test_download_dermapred_dataset_saves_all_splits(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The downloader should save the images and labels from every split."""
+    """Save development and test splits in separate folders with provenance."""
     calls: list[tuple[str, int, bool, Path]] = []
 
     def fake_dermamnist(*, split: str, size: int, download: bool, root: Path) -> object:
@@ -82,15 +82,16 @@ def test_download_dermapred_dataset_saves_all_splits(
     expected_image_values = {"train": 1, "validation": 2, "test": 3}
     expected_label_values = {"train": 1, "validation": 0, "test": 0}
     for split, expected_image_value in expected_image_values.items():
-        images = np.load(output_path / f"{split}_images.npy")
-        labels = np.load(output_path / f"{split}_labels.npy")
+        split_path = output_path / ("test" if split == "test" else "training")
+        images = np.load(split_path / f"{split}_images.npy")
+        labels = np.load(split_path / f"{split}_labels.npy")
         assert images.shape == (2, 64, 64, 3)
         assert labels.shape == (2, 1)
         assert labels.dtype == np.uint8
         assert np.all(images == expected_image_value)
         assert np.all(labels == expected_label_values[split])
 
-    assert (output_path / "dataset.yaml").read_text(encoding="utf-8") == (
+    expected_metadata = (
         "name: DermaMNIST\n"
         "image_size: 64\n"
         "label_task: binary\n"
@@ -99,6 +100,14 @@ def test_download_dermapred_dataset_saves_all_splits(
         'medmnist_version: "3.0.2"\n'
         "source: https://medmnist.com/\n"
     )
+    for folder, splits in [("training", ("train", "validation")), ("test", ("test",))]:
+        folder_path = output_path / folder
+        assert {path.name for path in folder_path.iterdir()} == {
+            "dataset.yaml",
+            *(f"{split}_{kind}.npy" for split in splits for kind in ("images", "labels")),
+        }
+        assert (folder_path / "dataset.yaml").read_text(encoding="utf-8") == expected_metadata
+    assert {path.name for path in output_path.iterdir()} == {"training", "test"}
 
 
 @pytest.mark.parametrize("size", [0, 32, 256])
@@ -153,9 +162,7 @@ def test_main_uses_size_from_params(
     output_path = tmp_path / "raw_data"
     monkeypatch.setattr(download_data, "download_dermapred_dataset", fake_download)
 
-    exit_code = download_data.main(
-        [str(output_path), "--params", str(params_path)]
-    )
+    exit_code = download_data.main([str(output_path), "--params", str(params_path)])
 
     assert exit_code == 0
     assert calls == [(output_path, 28)]
@@ -167,6 +174,7 @@ def test_main_reports_download_failure(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """The CLI should turn expected download errors into a failure status."""
+
     def fake_download(output_dir: str | Path, size: int) -> None:
         raise OSError("download failed")
 

@@ -1,4 +1,11 @@
-"""Download the DermaMNIST data used by the Dermapred example.
+r"""Download the DermaMNIST data used by the Dermapred example.
+
+This downloader is for the public, openly available DermaMNIST example data.
+It downloads all splits, including test data, for anyone who runs it. Separate
+output folders organize this example; they do not enforce restricted access.
+Real projects should obtain restricted training and held-out test datasets
+through institution-approved access controls (e.g. RDS directories with explicit 
+access permissions for maintainers and contributors) instead of using this downloader.
 
 The image size is read from ``data.dermamnist.image_size`` in ``params.yaml``.
 Run these commands from the repository root to install the training
@@ -18,14 +25,27 @@ benign and ``1`` means clinically concerning. The original seven-class labels
 are converted before saving. The script replaces files with the same names in
 the output directory.
 
-After inspecting the arrays, add them individually to DVC, stage their
-metadata in Git, and upload the data to the configured DVC remote::
+Data will be stored in separate locations for training/validation and test:
 
-    uv run dvc add data/raw_data/*.npy
-    git add params.yaml data/raw_data/*.dvc data/raw_data/.gitignore \
-        data/raw_data/dataset.yaml
-    uv run dvc push
-    git commit -m "Track DermaMNIST data"
+    - data/raw_data/training: Contains the training and validation images and labels.
+    - data/raw_data/test: Contains the test images and labels.
+
+After inspecting the arrays, add them individually to DVC. A ``-r`` option
+on ``dvc push`` selects a destination for each group separately::
+
+Training:
+    uv run dvc add data/raw_data/training/*.npy
+    git add params.yaml data/raw_data/training/*.dvc data/raw_data/training/.gitignore \
+        data/raw_data/training/dataset.yaml
+    uv run dvc push -r rds-train data/raw_data/training/*.dvc
+    git commit -m "Track DermaMNIST training data"
+
+Test:
+    uv run dvc add data/raw_data/test/*.npy
+    git add params.yaml data/raw_data/test/*.dvc data/raw_data/test/.gitignore \
+        data/raw_data/test/dataset.yaml
+    uv run dvc push -r rds-test data/raw_data/test/*.dvc
+    git commit -m "Track DermaMNIST test data"
 
 ``dvc add`` stores each array in the local cache and creates a corresponding
 ``.npy.dvc`` file. Tracking the arrays separately allows DVC to transfer only
@@ -34,6 +54,49 @@ dataset. ``dvc push`` uploads content not already present in the remote.
 Commit the ``.dvc`` files so Git records which data versions belong with the
 code. A DVC remote must be configured before running ``dvc push``.
 
+An optional alternative is to assign remote fields within each ``.npy.dvc`` file before
+staging them in Git. Open each .npy.dvc file and add the appropriate remote field::
+
+    outs:
+    - md5: ...       # Keep the generated value
+      size: ...      # Keep the generated value
+      hash: md5
+      path: ...      # Keep the generated value
+      remote: rds-train
+        
+Use ``remote: rds-test`` for the test arrays.
+
+Once the remote fields are assigned, an authorized person with access to both
+remotes can use a single command to upload all tracked content to its assigned
+remote (or the default remote for any unassigned outputs)::
+
+    uv run dvc push
+
+Dermapred deliberately keeps remote selection manual instead of recording
+``remote`` fields in the generated ``.npy.dvc`` files. Contributors may have
+access to training and validation data without access to the test remote.
+Selecting both the dataset targets and the remote makes each transfer explicit.
+A blanket ``dvc pull`` with saved test-remote assignments can fail when test
+data need downloading and that remote is inaccessible. Without assignments,
+a blanket pull uses the default remote and may fail because test data are not
+stored there. Use targeted commands in either case.
+
+After cloning or updating the Git repository, pull the datasets you are
+authorized to access. The committed ``.dvc`` files must be present first;
+there is no need to run this downloader or ``dvc add`` again::
+
+    # Contributors: retrieve training and validation arrays only.
+    uv run dvc pull -r rds-train data/raw_data/training/*.dvc
+
+    # Authorized evaluators: retrieve test arrays only.
+    uv run dvc pull -r rds-test data/raw_data/test/*.dvc
+
+These commands retrieve the raw arrays, not processed data or model outputs.
+``dataset.yaml`` comes from Git. Without saved remote assignments, always
+specify ``-r rds-test`` when pulling or pushing test data; otherwise DVC uses
+the default remote. Storage permissions, rather than these commands, enforce
+who can access each remote.
+    
 Note:
     ``dataset.yaml`` is written beside the arrays as a human-readable record
     of their source, size, and MedMNIST dependency version. It is deliberately
@@ -152,8 +215,11 @@ def download_dermapred_dataset(output_dir: str | Path, size: int) -> None:
         valid_sizes = ", ".join(str(valid_size) for valid_size in AVAILABLE_SIZES)
         raise ValueError(f"Invalid size: {size}. Must be one of {valid_sizes}.")
 
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    output_path_train = Path(output_dir) / "training"
+    output_path_test = Path(output_dir) / "test"
+
+    for path in [output_path_train, output_path_test]:
+        path.mkdir(parents=True, exist_ok=True)
 
     with TemporaryDirectory() as temporary_directory:
         # Download dataset to temp directory.
@@ -165,22 +231,22 @@ def download_dermapred_dataset(output_dir: str | Path, size: int) -> None:
 
         # Convert the seven source diagnoses into the binary modelling target.
         np.save(
-            output_path / "train_labels.npy",
+            output_path_train / "train_labels.npy",
             create_binary_labels(data_train.labels),
         )
         np.save(
-            output_path / "validation_labels.npy",
+            output_path_train / "validation_labels.npy",
             create_binary_labels(data_val.labels),
         )
         np.save(
-            output_path / "test_labels.npy",
+            output_path_test / "test_labels.npy",
             create_binary_labels(data_test.labels),
         )
 
         # Save the images as numpy arrays in the output directory.
-        np.save(output_path / "train_images.npy", data_train.imgs)
-        np.save(output_path / "validation_images.npy", data_val.imgs)
-        np.save(output_path / "test_images.npy", data_test.imgs)
+        np.save(output_path_train / "train_images.npy", data_train.imgs)
+        np.save(output_path_train / "validation_images.npy", data_val.imgs)
+        np.save(output_path_test / "test_images.npy", data_test.imgs)
 
         # Keep Git-tracked provenance beside the individually DVC-tracked arrays.
         metadata = (
@@ -192,7 +258,8 @@ def download_dermapred_dataset(output_dir: str | Path, size: int) -> None:
             f'medmnist_version: "{package_version("medmnist")}"\n'
             "source: https://medmnist.com/\n"
         )
-        (output_path / "dataset.yaml").write_text(metadata, encoding="utf-8")
+        (output_path_train / "dataset.yaml").write_text(metadata, encoding="utf-8")
+        (output_path_test / "dataset.yaml").write_text(metadata, encoding="utf-8")
 
 
 def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
