@@ -339,7 +339,78 @@ Commit both files to Git. Together with the source code, dependency lockfile,
 parameters, and DVC remote, they allow another authorised researcher to
 identify and reproduce the same workflow.
 
-### A simple general-purpose pipeline
+### Pipeline locations in this repository
+
+The development pipeline is now defined in `pipelines/training/dvc.yaml`.
+It contains preprocessing, training, and calibration; preprocessing uses only
+training and validation images. Run commands from the repository root:
+
+```bash
+# Preview the development pipeline
+uv run --group train dvc repro --dry pipelines/training/dvc.yaml
+
+# Reproduce the complete development pipeline
+uv run --group train dvc repro pipelines/training/dvc.yaml
+
+# Reproduce one stage and its required upstream stages
+uv run --group train dvc repro pipelines/training/dvc.yaml:preprocess
+uv run --group train dvc repro pipelines/training/dvc.yaml:train
+uv run --group train dvc repro pipelines/training/dvc.yaml:calibrate
+```
+
+Plain `dvc repro` targets a pipeline at the root; use the explicit path now.
+Each pipeline file must be named `dvc.yaml`. Its generated `dvc.lock` belongs
+beside it. Keep `.dvc/` at the repository root and dataset `.dvc` files beside
+their datasets.
+
+Stages in `pipelines/training/dvc.yaml` need `wdir: ../..` to preserve existing
+paths relative to the repository root:
+
+```yaml
+stages:
+  preprocess:
+    wdir: ../..
+    # Existing cmd, deps, outs, and params follow here.
+```
+
+Apply this working directory to every stage, including training and calibration.
+If the previous lockfile is still at the root, move it alongside the YAML:
+
+```bash
+git mv dvc.lock pipelines/training/dvc.lock
+```
+
+After adding the working directories, reproduce the pipeline and review the
+generated lockfile. Do not edit hashes manually. Review and commit both files:
+
+```bash
+git diff -- pipelines/training/dvc.yaml pipelines/training/dvc.lock
+git add pipelines/training/dvc.yaml pipelines/training/dvc.lock
+```
+
+Final test evaluation is no longer part of development. Its intended location
+is `pipelines/evaluation/dvc.yaml`, with its own adjacent lockfile and
+`wdir: ../..` on each stage. That pipeline has not yet been added. Once
+configured, an authorized evaluator can explicitly run:
+
+```bash
+uv run --group train dvc repro pipelines/evaluation/dvc.yaml
+```
+
+The evaluator must use the selected candidate weights and calibrator. DVC can
+follow dependencies between pipeline files, so selecting evaluation alone does
+not guarantee training cannot rerun. For final release evaluation, use a fixed
+candidate whose code, configuration, and inputs have not changed.
+
+These locations organize execution; storage permissions control access. Assign
+test datasets, processed test data, and restricted evaluation outputs to the
+test remote. Commit shared remote locations in `.dvc/config`; machine-specific
+mount paths can override them in `.dvc/config.local`.
+
+### A simple general-purpose pipeline at the repository root
+
+The generic examples below assume a `dvc.yaml` at the repository root. Use the
+explicit pipeline paths above when working with this repository.
 
 The following example makes no assumption about whether the workflow is for
 machine learning, image processing, or another form of analysis:

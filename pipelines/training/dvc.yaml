@@ -1,7 +1,9 @@
 # Source data are acquired separately and tracked with `dvc add`, so
 # downloading them is deliberately not a pipeline stage.
+
 stages:
   preprocess:
+    wdir: ../..  # Need to get back to root
     cmd: >-  # This allows the command to be written on multiple lines for readability.
       uv run --group train
       python -m dermapred.dvcstages.preprocessing
@@ -18,6 +20,7 @@ stages:
     - data/processed_data/validation_images.npy
 
   train:
+    wdir: ../..
     cmd: >-
       uv run --group train
       python -m dermapred.dvcstages.training
@@ -45,6 +48,7 @@ stages:
     - results/training/history.csv
 
   calibrate:
+    wdir: ../..
     cmd: >-
       uv run --group train
       python -m dermapred.dvcstages.calibration
