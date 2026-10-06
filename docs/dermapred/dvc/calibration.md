@@ -37,10 +37,10 @@ to the untouched test predictions.
 
 ## Run the stage
 
-Run calibration and any required upstream stages with:
+From the repository root, run calibration and any required upstream stages with:
 
 ```bash
-uv run --group train dvc repro calibrate
+uv run --group train dvc repro pipelines/train/dvc.yaml:calibrate
 ```
 
 The stage creates:

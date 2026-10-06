@@ -32,13 +32,14 @@ Each image array and its corresponding label array are stored separately:
 
 | File | Contents |
 | --- | --- |
-| `raw_data/dataset.yaml` | Dataset source, image size, and MedMNIST package version |
-| `raw_data/train_images.npy` | Images used to fit the model |
-| `raw_data/train_labels.npy` | Binary benign/concerning labels for the training images |
-| `raw_data/validation_images.npy` | Images used to select and tune the model |
-| `raw_data/validation_labels.npy` | Binary benign/concerning labels for the validation images |
-| `raw_data/test_images.npy` | Images reserved for final evaluation |
-| `raw_data/test_labels.npy` | Binary benign/concerning labels for the test images |
+| `raw_data/train/dataset.yaml` | Dataset source, image size, and MedMNIST package version |
+| `raw_data/train/train_images.npy` | Images used to fit the model |
+| `raw_data/train/train_labels.npy` | Binary benign/concerning labels for the training images |
+| `raw_data/train/validation_images.npy` | Images used to select and tune the model |
+| `raw_data/train/validation_labels.npy` | Binary benign/concerning labels for the validation images |
+| `raw_data/test/dataset.yaml` | Dataset source, image size, and MedMNIST package version |
+| `raw_data/test/test_images.npy` | Images reserved for final evaluation |
+| `raw_data/test/test_labels.npy` | Binary benign/concerning labels for the test images |
 
 The project deliberately does not retain an additional raw archive or create
 raw, intermediate, and processed subdirectories. The downloader writes the

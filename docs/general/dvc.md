@@ -339,7 +339,81 @@ Commit both files to Git. Together with the source code, dependency lockfile,
 parameters, and DVC remote, they allow another authorised researcher to
 identify and reproduce the same workflow.
 
-### A simple general-purpose pipeline
+### Pipeline locations in this repository
+
+The development pipeline is now defined in `pipelines/train/dvc.yaml`.
+It contains preprocessing, training, and calibration; preprocessing uses only
+training and validation images. Run commands from the repository root:
+
+```bash
+# Preview the development pipeline
+uv run --group train dvc repro --dry pipelines/train/dvc.yaml
+
+# Reproduce the complete development pipeline
+uv run --group train dvc repro pipelines/train/dvc.yaml
+
+# Reproduce one stage and its required upstream stages
+uv run --group train dvc repro pipelines/train/dvc.yaml:preprocess
+uv run --group train dvc repro pipelines/train/dvc.yaml:train
+uv run --group train dvc repro pipelines/train/dvc.yaml:calibrate
+```
+
+Plain `dvc repro` targets a pipeline at the root; use the explicit path now.
+Each pipeline file must be named `dvc.yaml`. Its generated `dvc.lock` belongs
+beside it. Keep `.dvc/` at the repository root and dataset `.dvc` files beside
+their datasets.
+
+Stages in `pipelines/train/dvc.yaml` need `wdir: ../..` to preserve existing
+paths relative to the repository root:
+
+```yaml
+stages:
+  preprocess:
+    wdir: ../..
+    # Existing cmd, deps, outs, and params follow here.
+```
+
+All three current stages set this working directory. The lockfile is already
+beside the YAML. Each stage also declares `pyproject.toml` and `uv.lock` as
+dependencies: changes to dependency declarations, package configuration, or
+locked versions cause the stages to reproduce. These are conservative checks;
+an unrelated documentation dependency change can also trigger reproduction.
+
+After changing dependencies or stage definitions, reproduce the pipeline and
+review the generated lockfile. Do not edit hashes manually. Review and commit
+both files:
+
+```bash
+git diff -- pipelines/train/dvc.yaml pipelines/train/dvc.lock
+git add pipelines/train/dvc.yaml pipelines/train/dvc.lock
+```
+
+Final test evaluation is no longer part of development. Its intended location
+is `pipelines/evaluation/dvc.yaml`, with its own adjacent lockfile and
+`wdir: ../..` on each stage. That pipeline has not yet been added. Once
+configured, an authorized evaluator can explicitly run:
+
+```bash
+uv run --group train dvc repro pipelines/evaluation/dvc.yaml
+```
+
+The evaluator must use the selected candidate weights and calibrator. DVC can
+follow dependencies between pipeline files, so selecting evaluation alone does
+not guarantee training cannot rerun. For final release evaluation, use a fixed
+candidate whose code, configuration, and inputs have not changed.
+
+These locations organize execution; storage permissions control access.
+The example records remote assignments for raw datasets and pipeline outputs,
+and uses targeted pulls to exclude inaccessible test data, as described in
+[Downloading data](../dermapred/data_download.md).
+Apply the same care to restricted processed data and evaluation outputs.
+Commit shared remote locations in
+`.dvc/config`; machine-specific mount paths can override them in `.dvc/config.local`.
+
+### A simple general-purpose pipeline at the repository root
+
+The generic examples below assume a `dvc.yaml` at the repository root. Use the
+explicit pipeline paths above when working with this repository.
 
 The following example makes no assumption about whether the workflow is for
 machine learning, image processing, or another form of analysis:

@@ -3,3 +3,4 @@ outs:
   size: 1131
   hash: md5
   path: validation_labels.npy
+  remote: rds-train

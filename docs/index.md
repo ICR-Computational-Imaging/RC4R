@@ -71,7 +71,7 @@ to files in `docs/` are rebuilt automatically while the server is running.
 Run the automated test suite with:
 
 ```bash
-uv run pytest
+uv run --locked --group pytest --group train pytest
 ```
 
 Data acquisition, DVC, training, inference, and browser-interface commands will
@@ -110,9 +110,6 @@ Detailed guides will be added for:
 
 - Installing and adapting the template
 - Understanding the repository structure
-- Acquiring and versioning data
-- Reproducing the training pipeline
-- Evaluating and comparing models
 - Installing and using the Dermapred package
 - Running the browser-based interface
 - Contributing changes and creating releases

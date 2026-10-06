@@ -1,0 +1,4 @@
+# This is a configuration file for flake8, a tool for checking the style and quality of Python code.
+
+[flake8]
+max-line-length = 100  # Set the maximum allowed line length to 100 characters.

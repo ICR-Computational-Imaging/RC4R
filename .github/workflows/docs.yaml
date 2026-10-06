@@ -32,7 +32,7 @@ jobs:  # Define the tasks performed by this workflow.  Must be defind as "jobs".
         uses: actions/checkout@v7  # Use GitHub's maintained repository checkout action.
 
       - name: Install uv 
-        uses: astral-sh/setup-uv@v10  # Use Astral's maintained uv setup action.
+        uses: astral-sh/setup-uv@v6.0.1  # Pin Astral's uv setup action to a published release.
         with:  # Provide configuration values to the setup action.
           enable-cache: true  # Cache downloaded dependencies to make later runs faster.
 

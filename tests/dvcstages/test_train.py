@@ -6,13 +6,13 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from dermapred.dvcstages.training import TrainingStage, load_training_parameters
+from dermapred.dvcstages.train import TrainingStage, load_training_parameters
 
 
 def _write_parameters(path: Path, epochs: int = 1) -> None:
     """Write a minimal training configuration for a test stage."""
     path.write_text(
-        "training:\n"
+        "train:\n"
         "  batch_size: 2\n"
         f"  epochs: {epochs}\n"
         "  learning_rate: 0.001\n"

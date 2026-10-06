@@ -78,5 +78,27 @@ confirm that the implementation change makes that test pass.
 
 ## Tests in this repository
 
+### Synthetic final-evaluation pipeline check
+
+Run the test pipeline integration check from the repository root:
+
+```bash
+uv run --group pytest --group train pytest tests/dvcstages/test_test_pipeline.py -v
+```
+
+This test copies `pipelines/test/dvc.yaml` and its source dependencies into a
+temporary project, then generates 20 synthetic RGB images, binary labels, a
+temporary model checkpoint, a calibration mapping, and evaluation parameters.
+It runs `dvc repro` on the copied pipeline and checks processed images,
+predictions, metrics, figures, and the generated lockfile.
+
+Both preprocessing and evaluation execute their actual pipeline commands.
+They reuse the installed Python environment with uv syncing disabled and
+offline mode enabled. The temporary DVC repository has its own local cache
+and a temporary `rds-test` remote; no pull or push is performed. Real datasets,
+model outputs, pipeline lockfiles, and institutional remotes are untouched.
+Pytest removes the temporary files through its normal temporary-directory
+retention policy. This checks pipeline operation, not model quality.
+
 The sections below describe the purpose, scope, fixtures, and any special
 requirements of each test area in this project.

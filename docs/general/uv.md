@@ -49,8 +49,9 @@ uv sync
 ```
 
 This creates `.venv/`, installs Dermapred as an editable package, and installs
-the default `dev` dependency group. In this project, `dev` includes the test,
-lint, type-checking, and documentation groups.
+the default `dev` dependency group. In this project, `dev` includes `pytest`,
+`lint`, `type`, `docs`, and `notebooks`. The `pytest` group contains software-test
+tools; `train` contains dependencies for the model pipeline and its unit tests.
 
 Training dependencies are deliberately separate. Include them when working on
 the data or model pipeline:
@@ -74,7 +75,7 @@ The available selection options are described in the
 Prefix project commands with `uv run` so they use the managed environment:
 
 ```bash
-uv run pytest
+uv run --group pytest --group train pytest
 uv run ruff check .
 uv run mypy
 uv run mkdocs serve
@@ -120,10 +121,10 @@ Add a repository-only training dependency:
 uv add --group train <package>
 ```
 
-Add a test dependency:
+Add a software-test dependency to the `pytest` group:
 
 ```bash
-uv add --group test <package>
+uv add --group pytest <package>
 ```
 
 Remove a dependency from the corresponding group:
@@ -154,7 +155,7 @@ than silently resolving a new environment:
 
 ```bash
 uv sync --locked
-uv run --locked pytest
+uv run --locked --group pytest --group train pytest
 ```
 
 The lockfile does not update merely because newer packages are published. To
