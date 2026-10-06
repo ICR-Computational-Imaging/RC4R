@@ -31,3 +31,24 @@ Only files ending in `.yml` or `.yaml` are interpreted as workflows. This
 
 The sections below describe the purpose, triggers, and requirements of each
 workflow included in this repository.
+
+### Unit tests (`tests.yaml`)
+
+Runs the full pytest suite on Ubuntu with Python 3.11 and 3.12 for pushes to
+*any branch*, pull requests, and manual requests. It installs the locked
+`pytest` and `train` dependency groups; training imports require the latter
+even for unit tests.
+Tests use synthetic data and mocked transfers, so no private data, DVC remotes,
+or release credentials are needed. Pytest's configured coverage report appears
+in the job log.
+
+After pushing the workflow, inspect the **Actions** tab or the PR checks. The
+jobs are named `Pytest (Python 3.11)` and `Pytest (Python 3.12)`. An admin can
+require both checks in the rules for `main`; adding the workflow alone does not
+make them mandatory. Fork PRs may require a maintainer to approve the run.
+
+Run the same checks locally with:
+
+```bash
+uv run --locked --no-default-groups --group pytest --group train pytest
+```

@@ -71,7 +71,7 @@ to files in `docs/` are rebuilt automatically while the server is running.
 Run the automated test suite with:
 
 ```bash
-uv run --locked --group train pytest
+uv run --locked --group pytest --group train pytest
 ```
 
 Data acquisition, DVC, training, inference, and browser-interface commands will

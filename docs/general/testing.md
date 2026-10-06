@@ -32,35 +32,40 @@ where representative inputs are required.
 
 ## Install and run the tests
 
+The dependency group is named `pytest` to distinguish software testing from
+held-out model evaluation. It contains pytest and its coverage plugin. Tests
+of model code also need the `train` dependencies, but use synthetic fixtures
+rather than private datasets.
+
 Install the project development environment from the repository root:
 
 ```bash
-uv sync --locked --group train
+uv sync --locked --group pytest --group train
 ```
 
 Run the complete test suite with:
 
 ```bash
-uv run --locked --group train pytest
+uv run --locked --group pytest --group train pytest
 ```
 
 Useful variations include:
 
 ```bash
 # Run one file
-uv run pytest tests/test_example.py
+uv run --group pytest --group train pytest tests/test_example.py
 
 # Run one test
-uv run pytest tests/test_example.py::test_expected_behaviour
+uv run --group pytest --group train pytest tests/test_example.py::test_expected_behaviour
 
 # Run tests whose names match an expression
-uv run pytest -k "expected_behaviour"
+uv run --group pytest --group train pytest -k "expected_behaviour"
 
 # Stop after the first failure
-uv run pytest -x
+uv run --group pytest --group train pytest -x
 
 # Show more detail
-uv run pytest -v
+uv run --group pytest --group train pytest -v
 ```
 
 Run commands from the repository root so pytest can find the shared project
@@ -216,7 +221,7 @@ markers = [
 They can then be selected or excluded:
 
 ```bash
-uv run pytest -m "not slow"
+uv run --group pytest --group train pytest -m "not slow"
 ```
 
 Strict marker checking treats unknown markers as errors, helping catch
@@ -272,8 +277,8 @@ Continuous integration should recreate the committed environment and run the
 same test command used locally:
 
 ```bash
-uv sync --locked
-uv run --locked pytest
+uv sync --locked --no-default-groups --group pytest --group train
+uv run --locked --no-default-groups --group pytest --group train pytest
 ```
 
 A test that passes locally but fails in automation may depend on undeclared

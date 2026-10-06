@@ -74,10 +74,11 @@ a [fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo), your ow
 GitHub copy of the project.
 
 !!! note "GitHub checks need to be configured"
-    This repository currently includes a documentation publishing workflow.
-    Branch and PR test workflows, model verification, issue/version checks,
-    and package publication still need to be added. Repository protection
-    settings also need to be confirmed by a maintainer. This walkthrough
+    This repository includes documentation publishing and a unit-test workflow
+    for branch pushes and PRs. Unit tests run on Python 3.11 and 3.12 without
+    private data access. Model verification, issue/version checks, and package
+    publication still need to be added. Repository protection settings also
+    need to be confirmed by a maintainer. This walkthrough
     describes the intended process. No checks appearing on GitHub does not
     mean that the tests have passed.
 
@@ -201,7 +202,7 @@ other checking tools.
 Run these commands one at a time:
 
 ```bash
-uv run --locked --group train pytest
+uv run --locked --group pytest --group train pytest
 uv run --locked ruff check .
 uv run --locked mypy
 uv run --locked mkdocs build --strict
