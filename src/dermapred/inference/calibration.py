@@ -6,8 +6,6 @@ import json
 from pathlib import Path
 
 import numpy as np
-from sklearn.isotonic import IsotonicRegression
-from sklearn.linear_model import LogisticRegression
 
 CALIBRATION_METHODS = ("isotonic", "platt")
 
@@ -132,6 +130,8 @@ class ProbabilityCalibrator:
         if set(np.unique(labels).tolist()) != {0, 1}:
             raise ValueError("Calibration labels must contain both binary classes.")
         if method == "isotonic":
+            from sklearn.isotonic import IsotonicRegression
+
             raw_probabilities = logits_to_probabilities(logits)
             estimator = IsotonicRegression(out_of_bounds="clip")
             estimator.fit(raw_probabilities, labels)
@@ -141,6 +141,8 @@ class ProbabilityCalibrator:
                 np.asarray(estimator.y_thresholds_),
             )
         if method == "platt":
+            from sklearn.linear_model import LogisticRegression
+
             estimator = LogisticRegression(C=np.inf, solver="lbfgs")
             estimator.fit(logits.reshape(-1, 1), labels)
             return cls(method, estimator.coef_.reshape(-1), estimator.intercept_.reshape(-1))

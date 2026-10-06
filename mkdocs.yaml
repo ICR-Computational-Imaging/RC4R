@@ -54,6 +54,7 @@ markdown_extensions:
 nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - DermaPred:
+      - Image inference: dermapred/inference.md
       - Downloading data: dermapred/data_download.md
       - Releasing and downloading models: dermapred/model_download.md
       - Image preprocessing: dermapred/dvc/preprocessing.md

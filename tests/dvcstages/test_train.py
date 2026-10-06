@@ -74,6 +74,7 @@ def test_training_stage_writes_checkpoint_history_and_plot(tmp_path: Path) -> No
 
     checkpoint = torch.load(model_path, map_location="cpu", weights_only=True)
     assert checkpoint["best_epoch"] == 1
+    assert checkpoint["image_size"] == [28, 28]
     assert "model_state_dict" in checkpoint
     with history_path.open(encoding="utf-8", newline="") as history_file:
         rows = list(csv.DictReader(history_file))

@@ -399,6 +399,7 @@ class TrainingStage:
             {
                 "model_state_dict": best_state,
                 "input_channels": int(train_images.shape[1]),
+                "image_size": [int(train_images.shape[2]), int(train_images.shape[3])],
                 "best_epoch": best_epoch,
                 "best_validation_loss": best_validation_loss,
                 "training_parameters": parameters.as_dict(),

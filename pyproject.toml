@@ -15,6 +15,9 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 dependencies = ["torch", "pillow", "numpy"]
 
+[project.scripts]
+dermapred = "dermapred.inference.cli:main"
+
 [dependency-groups]
 train = [
     "dvc>=2.0",
