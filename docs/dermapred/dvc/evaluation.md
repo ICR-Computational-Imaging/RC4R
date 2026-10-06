@@ -1,9 +1,10 @@
 # Evaluating a selected model on the test set
 
 Final test evaluation is separate from the development pipeline in
-`pipelines/training/dvc.yaml`. The old `evaluate` stage, its test data tracking,
-and its generated results have been removed. The evaluation Python source
-remains available for a new pipeline.
+`pipelines/train/dvc.yaml`. The old `evaluate` stage and its generated results
+have been removed. Raw test data are now tracked separately in
+`data/raw_data/test/`; the evaluation Python source remains available for a
+new pipeline.
 
 ## Planned evaluation pipeline
 

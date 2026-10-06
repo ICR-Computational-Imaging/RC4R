@@ -38,7 +38,7 @@ introductory CPU example straightforward and reproducible.
 From the repository root, run:
 
 ```bash
-uv run --group train dvc repro pipelines/training/dvc.yaml:train
+uv run --group train dvc repro pipelines/train/dvc.yaml:train
 ```
 
 DVC runs preprocessing first if its inputs or code have changed. Training

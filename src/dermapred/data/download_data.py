@@ -30,73 +30,95 @@ Data will be stored in separate locations for training/validation and test:
     - data/raw_data/train: Contains the training and validation images and labels.
     - data/raw_data/test: Contains the test images and labels.
 
-After inspecting the arrays, add them individually to DVC. A ``-r`` option
-on ``dvc push`` selects a destination for each group separately::
+After inspecting the arrays, add each group to DVC::
 
-Training:
-    uv run dvc add data/raw_data/train/*.npy
-    git add params.yaml data/raw_data/train/*.dvc data/raw_data/train/.gitignore \
-        data/raw_data/train/dataset.yaml
-    uv run dvc push -r rds-train data/raw_data/train/*.dvc
-    git commit -m "Track DermaMNIST training data"
+    uv run --group train dvc add data/raw_data/train/*.npy
+    uv run --group train dvc add data/raw_data/test/*.npy
 
-Test:
-    uv run dvc add data/raw_data/test/*.npy
-    git add params.yaml data/raw_data/test/*.dvc data/raw_data/test/.gitignore \
-        data/raw_data/test/dataset.yaml
-    uv run dvc push -r rds-test data/raw_data/test/*.dvc
-    git commit -m "Track DermaMNIST test data"
+DVC creates a pointer for each array and ignores the arrays in Git. It stores
+content in the local cache; it does not upload it yet. Configure both remotes,
+then record their names under each pointer's ``outs`` entry before staging:
 
-``dvc add`` stores each array in the local cache and creates a corresponding
-``.npy.dvc`` file. Tracking the arrays separately allows DVC to transfer only
-the files that change instead of treating the complete directory as one
-dataset. ``dvc push`` uploads content not already present in the remote.
-Commit the ``.dvc`` files so Git records which data versions belong with the
-code. A DVC remote must be configured before running ``dvc push``.
+    - Training and validation pointers: ``remote: rds-train``.
+    - Test pointers: ``remote: rds-test``.
 
-An optional alternative is to assign remote fields within each ``.npy.dvc`` file before
-staging them in Git. Open each .npy.dvc file and add the appropriate remote field::
+For example, preserve the generated fields and add the remote::
 
     outs:
-    - md5: ...       # Keep the generated value
-      size: ...      # Keep the generated value
+    - md5: ...        # Keep the generated value
+      size: ...       # Keep the generated value
       hash: md5
-      path: ...      # Keep the generated value
-      remote: rds-train
-        
-Use ``remote: rds-test`` for the test arrays.
+      path: test_images.npy
+      remote: rds-test
 
-Once the remote fields are assigned, an authorized person with access to both
-remotes can use a single command to upload all tracked content to its assigned
-remote (or the default remote for any unassigned outputs)::
+The downloader and ordinary ``dvc add`` do not assign these remotes for you.
+Saved assignments prevent accidental uploads to the wrong default remote.
+Upload the raw arrays using their recorded destinations::
 
-    uv run dvc push
+    uv run --group train dvc push data/raw_data/train/*.npy.dvc
+    uv run --group train dvc push data/raw_data/test/*.npy.dvc
 
-Dermapred deliberately keeps remote selection manual instead of recording
-``remote`` fields in the generated ``.npy.dvc`` files. Contributors may have
-access to training and validation data without access to the test remote.
-Selecting both the dataset targets and the remote makes each transfer explicit.
-A blanket ``dvc pull`` with saved test-remote assignments can fail when test
-data need downloading and that remote is inaccessible. Without assignments,
-a blanket pull uses the default remote and may fail because test data are not
-stored there. Use targeted commands in either case.
+Review and stage the pointers, ignore rules, and provenance for each group::
 
-After cloning or updating the Git repository, pull the datasets you are
-authorized to access. The committed ``.dvc`` files must be present first;
-there is no need to run this downloader or ``dvc add`` again::
+    git add data/raw_data/train/*.npy.dvc data/raw_data/train/.gitignore \
+        data/raw_data/train/dataset.yaml
+    git add data/raw_data/test/*.npy.dvc data/raw_data/test/.gitignore \
+        data/raw_data/test/dataset.yaml
+    git diff --staged
+    git commit -m "Track DermaMNIST data with separate remotes"
 
-    # Contributors: retrieve training and validation arrays only.
-    uv run dvc pull -r rds-train data/raw_data/train/*.dvc
+Stage ``params.yaml`` too if you intentionally changed it. Commit only after
+uploads succeed. Commit each group separately if appropriate. Arrays belong
+in DVC storage; their pointers and provenance belong in Git.
 
-    # Authorized evaluators: retrieve test arrays only.
-    uv run dvc pull -r rds-test data/raw_data/test/*.dvc
+After cloning or updating the Git repository, use targeted pulls. Contributors
+can retrieve training and validation without requesting test data::
 
-These commands retrieve the raw arrays, not processed data or model outputs.
-``dataset.yaml`` comes from Git. Without saved remote assignments, always
-specify ``-r rds-test`` when pulling or pushing test data; otherwise DVC uses
-the default remote. Storage permissions, rather than these commands, enforce
-who can access each remote.
-    
+    uv run --group train dvc pull data/raw_data/train/*.npy.dvc
+
+Authorized evaluators can retrieve test arrays separately::
+
+    uv run --group train dvc pull data/raw_data/test/*.npy.dvc
+
+No ``-r`` option is needed when the remote assignments are saved. A blanket
+``dvc pull`` can fail if test data need downloading and the test remote is
+inaccessible. Selecting targets excludes those data; specifying ``-r`` alone
+is not a dataset filter. Storage permissions enforce access.
+
+The raw dataset pulls do not include processed data or model outputs. Retrieve
+all declared development outputs by targeting the pipeline file::
+
+    uv run --group train dvc pull pipelines/train/dvc.yaml
+
+Or retrieve both raw development data and pipeline outputs together::
+
+    uv run --group train dvc pull \
+        data/raw_data/train/*.npy.dvc pipelines/train/dvc.yaml
+
+After changing inputs, dependencies, parameters, or pipeline definitions,
+reproduce the development pipeline and review its generated lockfile::
+
+    uv run --group train dvc repro pipelines/train/dvc.yaml
+
+Unchanged stages are skipped. Changing only remote assignments does not require
+recomputing outputs. Upload all declared pipeline outputs with::
+
+    uv run --group train dvc push pipelines/train/dvc.yaml
+
+These outputs include processed training and validation images, model weights,
+training history, and the calibrator. Each output records ``remote: rds-train``
+in the pipeline YAML. Do not run ``dvc add`` on pipeline outputs. An authorized
+person can upload both raw datasets and pipeline outputs in one command::
+
+    uv run --group train dvc push \
+        data/raw_data/train/*.npy.dvc data/raw_data/test/*.npy.dvc \
+        pipelines/train/dvc.yaml
+
+DVC uploads cached content, not the pipeline YAML itself. Review and commit
+``pipelines/train/dvc.yaml`` and ``pipelines/train/dvc.lock`` after pipeline
+changes. Git-tracked plots and calibration metrics, like provenance and code,
+are shared with ``git push`` rather than ``dvc push``.
+
 Note:
     ``dataset.yaml`` is written beside the arrays as a human-readable record
     of their source, size, and MedMNIST dependency version. It is deliberately

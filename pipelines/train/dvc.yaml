@@ -8,16 +8,20 @@ stages:
       uv run --group train
       python -m dermapred.dvcstages.preprocessing
       --input-dir data/raw_data/train
-      --output-dir data/train/processed_data
+      --output-dir data/processed_data/train
       --splits train validation
-    deps:
+    deps:  # The dependencies for this stage are the preprocessing code and the raw data.
+    - pyproject.toml
+    - uv.lock
     - src/dermapred/data/preprocessing.py
     - src/dermapred/dvcstages/preprocessing.py
     - data/raw_data/train/train_images.npy
     - data/raw_data/train/validation_images.npy
-    outs:
-    - data/processed_data/train/train_images.npy
-    - data/processed_data/train/validation_images.npy
+    outs:  # The DVC-tracked outputs of this stage.  They are not managed by Git, but tracked by DVC.
+    - data/processed_data/train/train_images.npy:
+        remote: rds-train
+    - data/processed_data/train/validation_images.npy:
+        remote: rds-train  # This ensures that outputs are pushed to the training remote.
 
   train:
     wdir: ../..
@@ -33,6 +37,8 @@ stages:
       --history-output results/train/history.csv
       --plot-output results/train/loss_curve.png
     deps:
+    - pyproject.toml
+    - uv.lock
     - src/dermapred/models/binary_classifier.py
     - src/dermapred/plotting/train.py
     - src/dermapred/dvcstages/train.py
@@ -44,8 +50,10 @@ stages:
     - params.yaml:
       - train
     outs:
-    - results/trained_models/binary_classifier.pt
-    - results/train/history.csv
+    - results/trained_models/binary_classifier.pt:
+        remote: rds-train
+    - results/train/history.csv:
+        remote: rds-train
 
   calibrate:
     wdir: ../..
@@ -60,6 +68,8 @@ stages:
       --metrics-output results/calibration/validation_metrics.json
       --plot-output results/calibration/validation_calibration.png
     deps:
+    - pyproject.toml
+    - uv.lock
     - src/dermapred/inference/calibration.py
     - src/dermapred/models/binary_classifier.py
     - src/dermapred/plotting/calibration.py
@@ -71,4 +81,5 @@ stages:
     - params.yaml:
       - calibration
     outs:
-    - results/calibration/probability_calibrator.json
+    - results/calibration/probability_calibrator.json:
+        remote: rds-train

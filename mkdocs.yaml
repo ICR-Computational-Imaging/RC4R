@@ -57,7 +57,7 @@ nav:
       - Downloading data: dermapred/data_download.md
       - Releasing and downloading models: dermapred/model_download.md
       - Image preprocessing: dermapred/dvc/preprocessing.md
-      - Model training: dermapred/dvc/training.md
+      - Model training: dermapred/dvc/train.md
       - Probability calibration: dermapred/dvc/calibration.md
       - Final test evaluation: dermapred/dvc/evaluation.md
   - DermaPred API:

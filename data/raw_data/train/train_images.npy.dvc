@@ -3,3 +3,4 @@ outs:
   size: 86102144
   hash: md5
   path: train_images.npy
+  remote: rds-train

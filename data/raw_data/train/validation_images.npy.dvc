@@ -3,3 +3,4 @@ outs:
   size: 12324992
   hash: md5
   path: validation_images.npy
+  remote: rds-train

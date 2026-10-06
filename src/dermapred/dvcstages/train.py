@@ -161,7 +161,7 @@ def load_training_parameters(params_path: Path) -> TrainingParameters:
     """Load the training section from a YAML parameters file.
 
     Args:
-        params_path: YAML file containing the ``training`` configuration.
+        params_path: YAML file containing the ``train`` configuration.
 
     Returns:
         Validated training parameters.
@@ -172,7 +172,7 @@ def load_training_parameters(params_path: Path) -> TrainingParameters:
         ValueError: If required parameters are missing or invalid.
     """
     try:
-        parameters = yaml.safe_load(params_path.read_text(encoding="utf-8"))["training"]
+        parameters = yaml.safe_load(params_path.read_text(encoding="utf-8"))["train"]
         augmentation = parameters["augmentation"]
         return TrainingParameters(
             batch_size=int(parameters["batch_size"]),

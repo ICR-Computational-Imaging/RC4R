@@ -3,3 +3,4 @@ outs:
   size: 24637568
   hash: md5
   path: test_images.npy
+  remote: rds-test

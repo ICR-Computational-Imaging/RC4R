@@ -18,7 +18,7 @@ A maintenance script should:
 
 Code used to acquire or process research data, train or evaluate models, or
 run inference belongs in `src/dermapred/`. Repeatable pipeline stages belong
-in `pipelines/training/dvc.yaml` for development, with final evaluation defined
+in `pipelines/train/dvc.yaml` for development, with final evaluation defined
 separately when configured. For example, the DermaMNIST downloader is package code under
 `src/dermapred/data/`, and its manual acquisition and DVC workflow are covered
 in the [data-download guide](../docs/dermapred/data_download.md).

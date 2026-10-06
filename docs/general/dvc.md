@@ -341,21 +341,21 @@ identify and reproduce the same workflow.
 
 ### Pipeline locations in this repository
 
-The development pipeline is now defined in `pipelines/training/dvc.yaml`.
+The development pipeline is now defined in `pipelines/train/dvc.yaml`.
 It contains preprocessing, training, and calibration; preprocessing uses only
 training and validation images. Run commands from the repository root:
 
 ```bash
 # Preview the development pipeline
-uv run --group train dvc repro --dry pipelines/training/dvc.yaml
+uv run --group train dvc repro --dry pipelines/train/dvc.yaml
 
 # Reproduce the complete development pipeline
-uv run --group train dvc repro pipelines/training/dvc.yaml
+uv run --group train dvc repro pipelines/train/dvc.yaml
 
 # Reproduce one stage and its required upstream stages
-uv run --group train dvc repro pipelines/training/dvc.yaml:preprocess
-uv run --group train dvc repro pipelines/training/dvc.yaml:train
-uv run --group train dvc repro pipelines/training/dvc.yaml:calibrate
+uv run --group train dvc repro pipelines/train/dvc.yaml:preprocess
+uv run --group train dvc repro pipelines/train/dvc.yaml:train
+uv run --group train dvc repro pipelines/train/dvc.yaml:calibrate
 ```
 
 Plain `dvc repro` targets a pipeline at the root; use the explicit path now.
@@ -363,7 +363,7 @@ Each pipeline file must be named `dvc.yaml`. Its generated `dvc.lock` belongs
 beside it. Keep `.dvc/` at the repository root and dataset `.dvc` files beside
 their datasets.
 
-Stages in `pipelines/training/dvc.yaml` need `wdir: ../..` to preserve existing
+Stages in `pipelines/train/dvc.yaml` need `wdir: ../..` to preserve existing
 paths relative to the repository root:
 
 ```yaml
@@ -373,19 +373,19 @@ stages:
     # Existing cmd, deps, outs, and params follow here.
 ```
 
-Apply this working directory to every stage, including training and calibration.
-If the previous lockfile is still at the root, move it alongside the YAML:
+All three current stages set this working directory. The lockfile is already
+beside the YAML. Each stage also declares `pyproject.toml` and `uv.lock` as
+dependencies: changes to dependency declarations, package configuration, or
+locked versions cause the stages to reproduce. These are conservative checks;
+an unrelated documentation dependency change can also trigger reproduction.
+
+After changing dependencies or stage definitions, reproduce the pipeline and
+review the generated lockfile. Do not edit hashes manually. Review and commit
+both files:
 
 ```bash
-git mv dvc.lock pipelines/training/dvc.lock
-```
-
-After adding the working directories, reproduce the pipeline and review the
-generated lockfile. Do not edit hashes manually. Review and commit both files:
-
-```bash
-git diff -- pipelines/training/dvc.yaml pipelines/training/dvc.lock
-git add pipelines/training/dvc.yaml pipelines/training/dvc.lock
+git diff -- pipelines/train/dvc.yaml pipelines/train/dvc.lock
+git add pipelines/train/dvc.yaml pipelines/train/dvc.lock
 ```
 
 Final test evaluation is no longer part of development. Its intended location
@@ -402,10 +402,13 @@ follow dependencies between pipeline files, so selecting evaluation alone does
 not guarantee training cannot rerun. For final release evaluation, use a fixed
 candidate whose code, configuration, and inputs have not changed.
 
-These locations organize execution; storage permissions control access. Assign
-test datasets, processed test data, and restricted evaluation outputs to the
-test remote. Commit shared remote locations in `.dvc/config`; machine-specific
-mount paths can override them in `.dvc/config.local`.
+These locations organize execution; storage permissions control access.
+The example records remote assignments for raw datasets and pipeline outputs,
+and uses targeted pulls to exclude inaccessible test data, as described in
+[Downloading data](../dermapred/data_download.md).
+Apply the same care to restricted processed data and evaluation outputs.
+Commit shared remote locations in
+`.dvc/config`; machine-specific mount paths can override them in `.dvc/config.local`.
 
 ### A simple general-purpose pipeline at the repository root
 
