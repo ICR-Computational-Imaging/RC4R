@@ -35,13 +35,13 @@ where representative inputs are required.
 Install the project development environment from the repository root:
 
 ```bash
-uv sync
+uv sync --locked --group train
 ```
 
 Run the complete test suite with:
 
 ```bash
-uv run pytest
+uv run --locked --group train pytest
 ```
 
 Useful variations include:
