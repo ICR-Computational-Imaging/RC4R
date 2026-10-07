@@ -1,0 +1,92 @@
+name: Publish Python package
+
+on:
+  workflow_dispatch:
+    inputs:
+      registry:
+        description: Package registry
+        required: true
+        type: choice
+        default: testpypi
+        options:
+          - testpypi
+          - pypi
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}-${{ inputs.registry }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Publication is allowed only from a version tag, never from a branch.
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6.0.1
+        with:
+          python-version: "3.11"
+      - name: Install Python
+        run: uv python install
+      - name: Check tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          version = Path("VERSION").read_text().strip()
+          if os.environ["RELEASE_TAG"] != f"v{version}":
+              raise SystemExit("Release tag does not match VERSION")
+          PY
+      - name: Run synthetic tests
+        run: |
+          uv sync --locked --no-default-groups --group pytest --group train
+          uv run --locked --no-default-groups --group pytest --group train pytest
+      - name: Build distributions
+        run: uv build
+      - name: Check installed wheel outside the source checkout
+        working-directory: ${{ runner.temp }}
+        run: |
+          uv run --isolated --no-project \
+            --with "$GITHUB_WORKSPACE"/dist/*.whl \
+            python -c "from dermapred.inference import Predictor; print('Installed wheel imports successfully')"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.registry }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+      - uses: astral-sh/setup-uv@v6.0.1
+      - name: Publish verified distributions
+        env:
+          REGISTRY: ${{ inputs.registry }}
+        run: |
+          case "$REGISTRY" in
+            testpypi)
+              uv publish --trusted-publishing always \
+                --publish-url https://test.pypi.org/legacy/ dist/*
+              ;;
+            pypi)
+              uv publish --trusted-publishing always dist/*
+              ;;
+            *) exit 1 ;;
+          esac

@@ -380,6 +380,10 @@ The version files identify the intended release. No release tag exists yet.
 
 ## 10. Tag the reviewed commit, then publish
 
+For PyPI and TestPyPI accounts, pip installation checks, GitHub Trusted
+Publishing, and the token-secret alternative, follow the separate
+[package publishing walkthrough](publishing_to_pypi.md).
+
 **Responsible: maintainer. Location: local terminal, then GitHub and PyPI.**
 
 Copy the resulting commit identifier from the merged release PR on GitHub.

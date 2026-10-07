@@ -69,6 +69,7 @@ nav:
   - General:
       - "Collaborating: issue to pull request": general/collaborating_on_github.md
       - Development and release workflow: general/development_workflow.md
+      - Publishing a Python package: general/publishing_to_pypi.md
       - Managing Python with uv: general/uv.md
       - Managing data with DVC: general/dvc.md
       - Semantic versioning: general/semantic_versioning.md

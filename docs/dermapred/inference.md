@@ -138,18 +138,6 @@ Future training runs save `image_size` in their checkpoint. This metadata does
 not modify existing checkpoints; they require an explicit size. The inference
 API rejects overrides that disagree with stored training dimensions.
 
-## Prepare the pip release
-
-The maintainer sets the release version with the existing bumpversion workflow,
-reviews the release PR, builds the wheel and source distribution, and tests the
-installed wheel. Publish the matching approved model bundle using the model
-release instructions, then publish the Python distributions using the
-[development and release workflow](../general/development_workflow.md).
-
-Before publishing, choose the model bundle for this software version and
-document its trained input dimensions and decision threshold. Automatic model
-selection is not configured yet; users currently pass the release manifest.
-
 ## API reference
 
 ::: dermapred.inference.predictor.Predictor
