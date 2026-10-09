@@ -8,7 +8,7 @@ untouched for a later evaluation stage.
 ## Training configuration
 
 Training and augmentation settings are versioned in `params.yaml` under
-`train`. DVC records these parameters in `pipelines/train/dvc.lock`, so
+`train`. DVC records these parameters in `dvc.lock`, so
 changing a value causes the stage to run again.
 
 Current training parameters are:
@@ -38,7 +38,7 @@ introductory CPU example straightforward and reproducible.
 From the repository root, run:
 
 ```bash
-uv run --group train dvc repro pipelines/train/dvc.yaml:train
+uv run --group train dvc repro dvc.yaml:train
 ```
 
 DVC runs preprocessing first if its inputs or code have changed. Training
@@ -59,7 +59,7 @@ their presentation.
 `binary_classifier.pt` and `history.csv` are DVC pipeline outputs.
 Do not add them with `dvc add` or commit them directly to Git.
 `loss_curve.png` should be added to git to ensure that it is visible in the GitHub repository.
-Also, commit `pipelines/train/dvc.yaml`, `pipelines/train/dvc.lock`,
+Also, commit `dvc.yaml`, `dvc.lock`,
 and the generated `.gitignore` files,
 then use `dvc push` to upload the artifacts.
 

@@ -88,22 +88,22 @@ is not a dataset filter. Storage permissions enforce access.
 The raw dataset pulls do not include processed data or model outputs. Retrieve
 all declared development outputs by targeting the pipeline file::
 
-    uv run --group train dvc pull pipelines/train/dvc.yaml
+    uv run --group train dvc pull dvc.yaml
 
 Or retrieve both raw development data and pipeline outputs together::
 
     uv run --group train dvc pull \
-        data/raw_data/train/*.npy.dvc pipelines/train/dvc.yaml
+        data/raw_data/train/*.npy.dvc dvc.yaml
 
 After changing inputs, dependencies, parameters, or pipeline definitions,
 reproduce the development pipeline and review its generated lockfile::
 
-    uv run --group train dvc repro pipelines/train/dvc.yaml
+    uv run --group train dvc repro
 
 Unchanged stages are skipped. Changing only remote assignments does not require
 recomputing outputs. Upload all declared pipeline outputs with::
 
-    uv run --group train dvc push pipelines/train/dvc.yaml
+    uv run --group train dvc push dvc.yaml
 
 These outputs include processed training and validation images, model weights,
 training history, and the calibrator. Each output records ``remote: rds-train``
@@ -112,10 +112,10 @@ person can upload both raw datasets and pipeline outputs in one command::
 
     uv run --group train dvc push \
         data/raw_data/train/*.npy.dvc data/raw_data/test/*.npy.dvc \
-        pipelines/train/dvc.yaml
+        dvc.yaml
 
 DVC uploads cached content, not the pipeline YAML itself. Review and commit
-``pipelines/train/dvc.yaml`` and ``pipelines/train/dvc.lock`` after pipeline
+``dvc.yaml`` and ``dvc.lock`` after pipeline
 changes. Git-tracked plots and calibration metrics, like provenance and code,
 are shared with ``git push`` rather than ``dvc push``.
 

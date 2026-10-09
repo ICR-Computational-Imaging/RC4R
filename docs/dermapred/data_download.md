@@ -249,13 +249,16 @@ per-output assignments take precedence over that option.
 
 ## 6. Reproduce and transfer pipeline outputs
 
-When inputs, dependencies, parameters, or pipeline definitions change, run:
+The training pipeline is in the root `dvc.yaml`. Final evaluation stays in
+`pipelines/test/dvc.yaml` and is requested separately to keep held-out testing
+out of routine training. When training inputs, dependencies, parameters, or
+pipeline definitions change, run:
 
 ```bash
-uv run --group train dvc repro pipelines/train/dvc.yaml
+uv run --group train dvc repro
 ```
 
-DVC runs stages as needed and updates `pipelines/train/dvc.lock`. Unchanged
+DVC runs stages as needed and updates `dvc.lock`. Unchanged
 stages are skipped; changing remote assignments alone does not require
 recomputing outputs. Review the lockfile and commit it with the pipeline YAML.
 
@@ -273,7 +276,7 @@ DVC-managed; do not run `dvc add` on them. Upload all of them by targeting the
 pipeline file:
 
 ```bash
-uv run --group train dvc push pipelines/train/dvc.yaml
+uv run --group train dvc push dvc.yaml
 ```
 
 An authorized person with write access to both remotes can upload the raw
@@ -282,20 +285,20 @@ arrays and pipeline outputs together:
 ```bash
 uv run --group train dvc push \
     data/raw_data/train/*.npy.dvc data/raw_data/test/*.npy.dvc \
-    pipelines/train/dvc.yaml
+    dvc.yaml
 ```
 
 To retrieve the pipeline outputs, use:
 
 ```bash
-uv run --group train dvc pull pipelines/train/dvc.yaml
+uv run --group train dvc pull dvc.yaml
 ```
 
 To retrieve raw development data and all training pipeline outputs together:
 
 ```bash
 uv run --group train dvc pull \
-    data/raw_data/train/*.npy.dvc pipelines/train/dvc.yaml
+    data/raw_data/train/*.npy.dvc dvc.yaml
 ```
 
 These targets exclude test data. New outputs declared in the training pipeline

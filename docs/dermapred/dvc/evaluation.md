@@ -1,29 +1,27 @@
 # Evaluating a selected model on the test set
 
-Final test evaluation is separate from the development pipeline in
-`pipelines/train/dvc.yaml`. The old `evaluate` stage and its generated results
-have been removed. Raw test data are now tracked separately in
-`data/raw_data/test/`; the evaluation Python source remains available for a
-new pipeline.
+Final test evaluation is separate from the training pipeline in the root
+`dvc.yaml`. Test preprocessing and evaluation are defined in
+`pipelines/test/dvc.yaml` so using the held-out data is an explicit step,
+separate from routine training.
 
-## Planned evaluation pipeline
+## Run the evaluation pipeline
 
-The intended location is `pipelines/evaluation/dvc.yaml`, with its own
-`pipelines/evaluation/dvc.lock`. This pipeline has not yet been added. Once
-configured, run it explicitly from the repository root:
+Run it explicitly from the repository root:
 
 ```bash
-uv run --group train dvc repro pipelines/evaluation/dvc.yaml
+uv run --group train dvc repro pipelines/test/dvc.yaml
 ```
 
-Set `wdir: ../..` on each stage so commands, dependencies, outputs, and parameter
-paths are relative to the repository root. See
-[the pipeline layout and migration steps](../../general/dvc.md#pipeline-locations-in-this-repository).
+DVC generates `pipelines/test/dvc.lock` beside the pipeline YAML. Each stage
+uses `wdir: ../..` so its paths are relative to the repository root. See
+[the pipeline layout](../../general/dvc.md#pipeline-locations-in-this-repository).
 
-Test preprocessing can use the existing preprocessing implementation with
-`--splits test`. Assign raw and processed test data and restricted evaluation
-outputs to the test remote. The network or storage administrator controls who
-can access it. Missing required test data should cause evaluation to fail.
+The preprocessing stage reads `data/raw_data/test/` and processes only the
+`test` split into `data/processed_data/test/`. Raw and processed test data and
+sample predictions are assigned to `rds-test`. The network or storage
+administrator controls who can access it. Missing required test data causes
+evaluation to fail.
 
 Evaluate the selected, fixed classifier and validation-fitted calibrator.
 Evaluation must not fit a model, choose a checkpoint, tune a threshold, or alter
@@ -70,8 +68,8 @@ sensitivity, specificity, precision, negative predictive value, F1, Brier score,
 and expected calibration error. Sample counts, prevalence, threshold, and
 configuration provide context for interpreting those results.
 
-Declare the chosen outputs in the new DVC pipeline and store restricted outputs
-in the test remote. The old figures and performance summary are no longer
-published on this page. A maintainer should review any new report before public
-release. Omit the optional `--documentation-figures-directory` argument unless
-copying figures into public documentation has been explicitly approved.
+The pipeline tracks processed test images and sample predictions in DVC using
+`rds-test`. It also generates metrics and plots in `results/evaluation/` and
+copies figures into `docs/assets/evaluation/`; these reports and figure copies
+are not declared DVC outputs. A maintainer should review them before publishing
+reports or documentation.

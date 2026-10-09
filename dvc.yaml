@@ -3,7 +3,6 @@
 
 stages:
   preprocess:
-    wdir: ../..  # Need to get back to root
     cmd: >-  # This allows the command to be written on multiple lines for readability.
       uv run --group train
       python -m dermapred.dvcstages.preprocessing
@@ -24,7 +23,6 @@ stages:
         remote: rds-train  # This ensures that outputs are pushed to the training remote.
 
   train:
-    wdir: ../..
     cmd: >-
       uv run --group train
       python -m dermapred.dvcstages.train
@@ -56,7 +54,6 @@ stages:
         remote: rds-train
 
   calibrate:
-    wdir: ../..
     cmd: >-
       uv run --group train
       python -m dermapred.dvcstages.calibration

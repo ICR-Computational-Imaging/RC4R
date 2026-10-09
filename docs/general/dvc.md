@@ -341,60 +341,60 @@ identify and reproduce the same workflow.
 
 ### Pipeline locations in this repository
 
-The development pipeline is now defined in `pipelines/train/dvc.yaml`.
-It contains preprocessing, training, and calibration; preprocessing uses only
-training and validation images. Run commands from the repository root:
+The training pipeline is defined in `dvc.yaml` at the repository root, with
+its generated `dvc.lock` beside it. It contains preprocessing, training, and
+calibration using only training and validation data. Run commands from the
+repository root:
 
 ```bash
-# Preview the development pipeline
-uv run --group train dvc repro --dry pipelines/train/dvc.yaml
+# Preview the training pipeline
+uv run --group train dvc repro --dry
 
-# Reproduce the complete development pipeline
-uv run --group train dvc repro pipelines/train/dvc.yaml
+# Reproduce the complete training pipeline
+uv run --group train dvc repro
 
 # Reproduce one stage and its required upstream stages
-uv run --group train dvc repro pipelines/train/dvc.yaml:preprocess
-uv run --group train dvc repro pipelines/train/dvc.yaml:train
-uv run --group train dvc repro pipelines/train/dvc.yaml:calibrate
+uv run --group train dvc repro preprocess
+uv run --group train dvc repro train
+uv run --group train dvc repro calibrate
 ```
 
-Plain `dvc repro` targets a pipeline at the root; use the explicit path now.
-Each pipeline file must be named `dvc.yaml`. Its generated `dvc.lock` belongs
-beside it. Keep `.dvc/` at the repository root and dataset `.dvc` files beside
-their datasets.
+The root pipeline uses paths relative to the repository root and does not need
+`wdir: ../..`. Keep `.dvc/` at the repository root and dataset `.dvc` files
+beside their datasets.
 
-Stages in `pipelines/train/dvc.yaml` need `wdir: ../..` to preserve existing
-paths relative to the repository root:
-
-```yaml
-stages:
-  preprocess:
-    wdir: ../..
-    # Existing cmd, deps, outs, and params follow here.
-```
-
-All three current stages set this working directory. The lockfile is already
-beside the YAML. Each stage also declares `pyproject.toml` and `uv.lock` as
-dependencies: changes to dependency declarations, package configuration, or
-locked versions cause the stages to reproduce. These are conservative checks;
-an unrelated documentation dependency change can also trigger reproduction.
+Each training stage declares `pyproject.toml` and `uv.lock` as dependencies:
+changes to dependency declarations, package configuration, or locked versions
+cause the stages to reproduce. These are conservative checks; an unrelated
+documentation dependency change can also trigger reproduction.
 
 After changing dependencies or stage definitions, reproduce the pipeline and
 review the generated lockfile. Do not edit hashes manually. Review and commit
 both files:
 
 ```bash
-git diff -- pipelines/train/dvc.yaml pipelines/train/dvc.lock
-git add pipelines/train/dvc.yaml pipelines/train/dvc.lock
+git diff -- dvc.yaml dvc.lock
+git add dvc.yaml dvc.lock
 ```
 
-Final test evaluation is no longer part of development. Its intended location
-is `pipelines/evaluation/dvc.yaml`, with its own adjacent lockfile and
-`wdir: ../..` on each stage. That pipeline has not yet been added. Once
-configured, an authorized evaluator can explicitly run:
+Test preprocessing and final evaluation remain in `pipelines/test/dvc.yaml`
+so they are run deliberately, separately from routine training. Plain
+`dvc repro` targets the root training pipeline. To run final evaluation explicitly:
 
 ```bash
-uv run --group train dvc repro pipelines/evaluation/dvc.yaml
+uv run --group train dvc repro pipelines/test/dvc.yaml
+```
+
+The test stages use `wdir: ../..` so their paths resolve from the repository
+root. Their lockfile is generated beside the test YAML.
+
+Unlike `dvc repro`, untargeted `dvc status`, `dvc pull`, and `dvc push` include
+files across the repository. Target the root YAML to work with training only:
+
+```bash
+uv run --group train dvc status dvc.yaml
+uv run --group train dvc pull dvc.yaml
+uv run --group train dvc push dvc.yaml
 ```
 
 The evaluator must use the selected candidate weights and calibrator. DVC can
@@ -412,8 +412,8 @@ Commit shared remote locations in
 
 ### A simple general-purpose pipeline at the repository root
 
-The generic examples below assume a `dvc.yaml` at the repository root. Use the
-explicit pipeline paths above when working with this repository.
+The generic examples below use a `dvc.yaml` at the repository root, like the
+training pipeline in this repository.
 
 The following example makes no assumption about whether the workflow is for
 machine learning, image processing, or another form of analysis:

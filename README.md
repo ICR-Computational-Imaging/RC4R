@@ -165,13 +165,15 @@ held-out test data have their own location and remote assignment.
 
 | Purpose | Pipeline | Remote |
 | --- | --- | --- |
-| Training preprocessing, training, and validation-based calibration | `pipelines/train/dvc.yaml` | `rds-train` |
+| Training preprocessing, training, and validation-based calibration | `dvc.yaml` | `rds-train` |
 | Test-only preprocessing and final evaluation | `pipelines/test/dvc.yaml` | `rds-test` |
 
 The committed remote paths are institutional examples. Configure local mount
 paths and obtain the relevant storage permissions before pulling or pushing
 data. Remote assignments route artifacts; storage permissions enforce access.
-The training pipeline excludes the held-out test split.
+The training pipeline excludes the held-out test split. From the repository
+root, `uv run --group train dvc repro` runs training; the test pipeline must be
+requested explicitly for final evaluation.
 
 See [data acquisition](docs/dermapred/data_download.md) and
 [DVC setup](docs/general/dvc.md) for dataset tracking, local remote overrides,
@@ -214,7 +216,8 @@ uv run --locked --group docs mkdocs build --strict
 | --- | --- |
 | `src/dermapred/` | Installable package and pipeline stage code |
 | `tests/` | Synthetic unit and integration tests |
-| `pipelines/` | Separate training and test DVC pipelines |
+| `dvc.yaml`, `dvc.lock` | Training pipeline and its recorded state |
+| `pipelines/test/` | Separate final-test evaluation pipeline |
 | `data/` | Dataset pointers, provenance, and ignored local arrays |
 | `results/` | Model artifacts, metrics, and figures |
 | `scripts/` | Manifest generation and model-release upload utilities |
