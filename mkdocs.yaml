@@ -25,6 +25,9 @@ theme:
     - content.code.select
     - content.code.annotate
 
+hooks:
+  - scripts/docs_optional_figures.py  # Show placeholders until evaluation figures are available.
+
 plugins:
   - search  # Keep enabled to provide client-side documentation search.
   - mkdocstrings:

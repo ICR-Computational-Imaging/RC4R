@@ -73,3 +73,43 @@ The pipeline tracks processed test images and sample predictions in DVC using
 copies figures into `docs/assets/evaluation/`; these reports and figure copies
 are not declared DVC outputs. A maintainer should review them before publishing
 reports or documentation.
+
+## Evaluation figures
+
+Each section below shows a placeholder until its figure is available in the
+current documentation checkout. The documentation build checks the files
+individually and displays available figures automatically. A missing figure
+means that no copy is available here; it does not establish whether evaluation
+has been run elsewhere.
+
+### Confusion matrix
+
+The confusion matrix shows reference and predicted class counts at the fixed
+calibrated probability threshold.
+
+<!-- optional-figure: ../../assets/evaluation/confusion_matrix.png | Test confusion matrix -->
+> **Results not yet available.** No confusion-matrix figure is available in this documentation yet.
+<!-- /optional-figure -->
+
+### ROC curve
+
+The ROC curve shows sensitivity against false-positive rate across thresholds,
+with ROC AUC and bootstrap uncertainty for the selected model.
+
+<!-- optional-figure: ../../assets/evaluation/roc_curve.png | Calibrated test ROC curve -->
+> **Results not yet available.** No ROC figure is available in this documentation yet.
+<!-- /optional-figure -->
+
+### Probability calibration
+
+The reliability plots compare raw and calibrated probabilities with observed
+positive frequencies, including bootstrap intervals.
+
+<!-- optional-figure: ../../assets/evaluation/calibration_curve.png | Test probability calibration -->
+> **Results not yet available.** No calibration figure is available in this documentation yet.
+<!-- /optional-figure -->
+
+After an authorised evaluation, the pipeline copies these figures into
+`docs/assets/evaluation/`. Review and commit the approved copies, then rebuild
+the documentation. The placeholders are replaced on the built site without
+editing this page. Building documentation does not run evaluation.
