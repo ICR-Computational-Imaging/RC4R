@@ -73,3 +73,5 @@ def test_evaluation_stage_writes_predictions_metrics_and_figures(tmp_path: Path)
     assert (documentation_figures / "confusion.png").stat().st_size > 0
     assert (documentation_figures / "roc.png").stat().st_size > 0
     assert (documentation_figures / "calibration.png").stat().st_size > 0
+
+    assert (documentation_figures / "metrics.csv").read_bytes() == metrics_path.read_bytes()

@@ -70,9 +70,26 @@ configuration provide context for interpreting those results.
 
 The pipeline tracks processed test images and sample predictions in DVC using
 `rds-test`. It also generates metrics and plots in `results/evaluation/` and
-copies figures into `docs/assets/evaluation/`; these reports and figure copies
+copies figures and the metrics CSV into `docs/assets/evaluation/`; these reports and figure copies
 are not declared DVC outputs. A maintainer should review them before publishing
 reports or documentation.
+
+## Evaluation metrics
+
+The table reports the selected model's calibrated test metrics, using the same
+metric definitions as the validation report. Lower and upper limits describe
+bootstrap uncertainty at the confidence level recorded in the evaluation
+context. The context also records sample counts, threshold, calibration method,
+and raw Brier score and calibration error for comparison.
+
+<!-- optional-metrics: ../../assets/evaluation/test_metrics.csv -->
+> **Results not yet available.** No evaluation metrics report is available in this documentation yet.
+<!-- /optional-metrics -->
+
+The table appears automatically when `docs/assets/evaluation/test_metrics.csv`
+is available. A missing report means no copy is available in this checkout,
+not necessarily that evaluation has never been run. Review the approved CSV
+before committing it; documentation builds do not access test data.
 
 ## Evaluation figures
 
@@ -109,7 +126,7 @@ positive frequencies, including bootstrap intervals.
 > **Results not yet available.** No calibration figure is available in this documentation yet.
 <!-- /optional-figure -->
 
-After an authorised evaluation, the pipeline copies these figures into
+After an authorised evaluation, the pipeline copies these figures and the metrics CSV into
 `docs/assets/evaluation/`. Review and commit the approved copies, then rebuild
 the documentation. The placeholders are replaced on the built site without
 editing this page. Building documentation does not run evaluation.

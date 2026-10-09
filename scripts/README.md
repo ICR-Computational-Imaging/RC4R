@@ -97,8 +97,9 @@ Tests for this utility are located in
 ### Optional documentation figures
 
 `docs_optional_figures.py` is a MkDocs hook registered in `mkdocs.yaml`. It
-renders the optional figure blocks on the evaluation page as images when the
-assets exist, or keeps their explanatory placeholders when they do not. It
+renders optional figure blocks as images and optional metrics CSV blocks as
+tables when their assets exist, or keeps their explanatory placeholders when
+they do not. It
 runs automatically during documentation builds and previews; it does not run
 evaluation or modify source files. Raw Markdown on GitHub retains the fallback
 text; automatic image selection happens on the built documentation site.

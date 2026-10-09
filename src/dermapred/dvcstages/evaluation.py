@@ -129,7 +129,7 @@ class EvaluationStage:
             roc_curve_output: Destination ROC-curve PNG.
             calibration_curve_output: Destination reliability-diagram PNG.
             documentation_figures_directory: Optional MkDocs assets directory
-                that receives copies of the generated figures.
+                that receives copies of the generated figures and metrics CSV.
 
         Returns:
             None.
@@ -282,6 +282,10 @@ class EvaluationStage:
         )
         if self.documentation_figures_directory is not None:
             self.documentation_figures_directory.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(
+                self.metrics_output,
+                self.documentation_figures_directory / self.metrics_output.name,
+            )
             for figure_path in (
                 self.confusion_matrix_output,
                 self.roc_curve_output,
