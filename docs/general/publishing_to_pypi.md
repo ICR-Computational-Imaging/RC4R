@@ -110,41 +110,26 @@ means there is no visible project at that address; it does not guarantee that
 the name can be registered. PyPI can reject prohibited or conflicting names,
 including names with no visible releases. See [PyPI's project-name guidance](https://pypi.org/help/#project-name).
 
-### Create a new project using Trusted Publishing
+### Create a new project with the first upload
 
 You do not create an empty project separately or upload files through the
-browser. The first successful package upload creates the project. For this
-guide's recommended GitHub route, prepare a **pending publisher** first:
+browser. The first successful package upload creates the project using the
+name in `[project].name` in `pyproject.toml`.
 
-1. Sign in to the target registry and open **Publishing** in your account
-   settings. For PyPI, this is [account publishing settings](https://pypi.org/manage/account/publishing/);
-   for TestPyPI, use [its separate publishing settings](https://test.pypi.org/manage/account/publishing/).
-2. Find the form for adding a pending publisher and select **GitHub Actions**.
-3. Enter the project name from `[project].name`, the repository owner and
-   name, the workflow filename `publish.yaml`, and the environment name:
-   `pypi` for PyPI or `testpypi` for TestPyPI.
-4. Select **Add** and confirm that the pending publisher is listed. The full
-   field values for this repository are shown in step 5 below.
-5. Complete steps 4–6 to configure GitHub, then run the first publication in
-   step 7 for TestPyPI and step 8 for PyPI. Successful publication creates
-   the project and converts the pending publisher to a normal publisher.
-6. Reopen **Your projects** and the public project page to confirm the project
-   and its first release are present on that registry.
+For a new project, create an account-wide API token and store it in GitHub as
+explained in step 5. Once the first upload has created the project, replace
+that token with one scoped to the project. For an existing project, use a
+project-scoped token belonging to an owner or maintainer with upload access.
 
-Registering a pending publisher does not reserve the name or create the
-project yet. If someone registers it before your first upload, you must choose
-another available name. See [PyPI's new-project instructions](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/).
+After publishing, reopen **Your projects** and the public project page on the
+target registry to confirm the project and release are present. An API token
+does not reserve a project name; the registry checks it when the first upload
+is attempted. See [PyPI API-token help](https://pypi.org/help/#apitoken).
 
-For the token-based alternative at the end of this guide, the first authorised
-upload also creates a new project; a separate empty-project registration is
-not required. For a project you already manage, use its **Manage → Publishing**
-settings instead of creating a pending publisher.
-
-**Expected outcome:** you can sign in to both registries and know whether to
-configure an existing project or a pending publisher for a new one. The project
-itself is created when its first upload succeeds. TestPyPI has its own accounts
-and package records; see [the TestPyPI guide](https://packaging.python.org/en/latest/guides/using-testpypi/)
-and [PyPI account help](https://pypi.org/help/).
+**Expected outcome:** you can sign in to both registries and know whether the
+project already exists. The first successful upload creates a new project.
+TestPyPI has its own accounts, projects, and API tokens; see the
+[TestPyPI guide](https://packaging.python.org/en/latest/guides/using-testpypi/).
 
 ## 3. Build and check the release locally
 
@@ -201,70 +186,96 @@ want approval for practice uploads too.
 for any configured approval. These settings are configured on GitHub, not by
 committing YAML. See [GitHub environment protection rules](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments).
 
-## 5. Register Trusted Publishers
+## 5. Create API tokens and add GitHub secrets
 
-**Responsible: package owner. Location: PyPI and TestPyPI account settings.**
+**Responsible: package owner creates the tokens; repository admin stores them.**
 
-Trusted Publishing allows the named GitHub workflow to obtain a short-lived
-publishing credential. You do not create or store a PyPI API-token secret for
-this route.
+The workflow publishes using API tokens stored as **GitHub environment
+secrets**. It uses the secret named `PYPI_API_TOKEN` from the selected `pypi`
+or `testpypi` environment. Each environment holds a different token value.
 
-For a new project, open **Publishing** in your account settings and add a
-pending GitHub publisher. For an existing project, open **Your projects →
-Manage → Publishing** and add its publisher there.
+A PyPI API token is different from a GitHub token and from your account
+password. Create separate tokens for PyPI and TestPyPI.
 
-Register these values separately on both registries:
+### Create each registry token
 
-| Field | PyPI | TestPyPI |
+1. Sign in to [PyPI account settings](https://pypi.org/manage/account/) or
+   [TestPyPI account settings](https://test.pypi.org/manage/account/).
+2. Open **API tokens → Add API token**.
+3. Give it a descriptive name, such as `RC4R GitHub publishing`.
+4. For an existing project, select the scope for `dermapred`. For the first
+   upload of a project that does not exist yet, select **Entire account**.
+5. Create the token and copy the complete value, including its `pypi-` prefix.
+   The token is shown only once.
+6. Repeat on the other registry. A PyPI token cannot authenticate to TestPyPI.
+
+After the first upload creates the project, create a project-scoped token,
+replace the GitHub secret with it, then revoke the old account-wide token.
+See [PyPI API-token help](https://pypi.org/help/#apitoken).
+
+### Store each token in GitHub
+
+1. Open the repository's **Settings → Environments**.
+2. Select **pypi**.
+3. Under **Environment secrets**, choose **Add environment secret**.
+4. Enter `PYPI_API_TOKEN` as the name and paste the PyPI token as its value.
+5. Save the secret.
+6. Open the **testpypi** environment and add another secret also named
+   `PYPI_API_TOKEN`, using the TestPyPI token as its value.
+
+| GitHub environment | Secret name | Token issued by |
 | --- | --- | --- |
-| Project name, for a new project | `dermapred` | `dermapred`, if available |
-| Repository owner | `ICR-Computational-Imaging` | `ICR-Computational-Imaging` |
-| Repository name | `RC4R` | `RC4R` |
-| Workflow filename | `publish.yaml` | `publish.yaml` |
-| Environment name | `pypi` | `testpypi` |
+| `pypi` | `PYPI_API_TOKEN` | PyPI |
+| `testpypi` | `PYPI_API_TOKEN` | TestPyPI |
 
-Use your actual names if they differ. The workflow field is the filename,
-not `.github/workflows/publish.yaml` and not the workflow's display name.
-If you use a different project name for testing, change the package's build
-metadata in a separate test checkout; the registration must match the built
-distribution's name.
+Use **Environment secrets** for this workflow, rather than adding both tokens
+as repository secrets. The selected environment determines which value the
+publication step receives. See [GitHub's secret setup instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets).
 
-**Expected outcome:** each registry lists its publisher. For a new project,
-the first successful upload creates the project; a pending publisher does not
-reserve the name. See [creating a project through Trusted Publishing](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
-and [adding a publisher to an existing project](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
+The workflow references the secret by name and passes it to uv through
+`UV_PUBLISH_TOKEN`. It disables Trusted Publishing explicitly and requires no
+publisher registration or `id-token: write` permission. Keep the token value
+in GitHub settings; do not put it in repository files or terminal commands.
+See [uv publishing authentication](https://docs.astral.sh/uv/guides/publish/#publishing-your-package).
 
-## 6. Add the publishing workflow
+**Expected outcome:** both environments list a secret named `PYPI_API_TOKEN`.
+GitHub hides the values. Adding these secrets does not publish anything; a
+maintainer must start the tagged workflow manually.
+
+## 6. Review and enable the publishing workflow
 
 **Responsible: contributor prepares the PR; maintainer reviews and merges it.**
 
-The example below is stored in `docs/examples/publish.yaml`. It is a template,
-not an enabled GitHub workflow. Copy it to `.github/workflows/publish.yaml`
-after configuring the environments and publishers, then review it through a PR.
+The workflow is included in `.github/workflows/publish.yaml`. Configure the
+GitHub environments and API-token secrets from steps 4–5, then review and
+merge the workflow through a PR. When adapting another project, the original
+starting template is also available in `docs/examples/publish.yaml`.
 
-```bash
-cp docs/examples/publish.yaml .github/workflows/publish.yaml
-git add .github/workflows/publish.yaml
-git commit -m "Add reviewed Python package publishing workflow"
-```
+The workflow must be present on GitHub's default branch before manual runs
+are available. Include it in the reviewed commit before creating the release
+tag that you will use for publication. You create and push that tag manually,
+as described in the [development workflow](development_workflow.md).
+The publishing workflow does not bump versions, create tags, or commit changes.
 
-Push the branch and open the PR using the repository's normal workflow. The
-publishing workflow must be present on GitHub's default branch before manual
-runs are available. Include it in the reviewed commit before creating the
-release tag that you will use for publication.
+Run it manually against a version tag, with TestPyPI selected by default. It
+checks that the tag matches `VERSION`, runs synthetic tests, builds
+distributions, and checks the installed wheel outside the source checkout.
+The build summary records the tag, commit, target registry, filenames, and
+SHA-256 hashes. The distributions are attached to the workflow run for review.
 
-The template uses a manual run against a version tag, with TestPyPI selected
-by default. It checks that the tag matches `VERSION`, runs synthetic tests,
-builds distributions, and checks the installed wheel. A separate publication
-job receives the built files and the `id-token: write` permission needed for
-Trusted Publishing. See [uv's GitHub Actions publishing example](https://docs.astral.sh/uv/guides/integration/github/#publishing-to-pypi).
+A separate publication job receives those built files, names the selected
+GitHub environment, and passes its `PYPI_API_TOKEN` secret to uv only in the
+publication step. It waits for any reviewers configured on that environment.
+Reviewers must be configured in GitHub settings; the YAML alone does not require
+approval. See [uv's GitHub Actions publishing example](https://docs.astral.sh/uv/guides/integration/github/#publishing-to-pypi).
 
 ```yaml
---8<-- "docs/examples/publish.yaml"
+--8<-- ".github/workflows/publish.yaml"
 ```
 
-**Expected outcome:** **Publish Python package** appears in the Actions tab.
-Pushing a tag alone does not publish anything with this manual template.
+**Expected outcome:** **Publish Python package** appears in the Actions tab
+once the workflow is on the default branch. Pushing a tag alone does not
+publish anything; you start the publication run explicitly.
 
 ## 7. Publish to TestPyPI first
 
@@ -330,63 +341,12 @@ Published distribution filenames cannot be reused for corrected files. Make a
 new reviewed patch release, such as `0.1.1`, instead of replacing `0.1.0`.
 Deleting a release does not make its filenames reusable. See [PyPI file-reuse help](https://pypi.org/help/#file-name-reuse).
 
-## Alternative: publish using a GitHub secret
+## Maintain the publishing tokens
 
-**Responsible: package owner creates the token; repository admin stores it.**
-
-Use this route if Trusted Publishing is not being used. A PyPI API token is
-different from a GitHub token and different from the account password. PyPI
-and TestPyPI require separate tokens.
-
-On the target registry, open **Account settings → API tokens → Add API token**.
-Give it a descriptive name. Use project scope for an existing project; for
-a first upload, an account-wide token may be needed because the project does
-not yet exist. Replace that with a project-scoped token afterwards. Copy the
-token when displayed; see [PyPI API-token help](https://pypi.org/help/#apitoken).
-
-For an environment secret:
-
-1. Open the GitHub repository's **Settings → Environments**.
-2. Choose `pypi` or `testpypi`, matching the token's registry.
-3. Under **Environment secrets**, choose **Add environment secret**.
-4. Name it `PYPI_API_TOKEN` and paste the complete token as its value.
-
-Using the same secret name in both environments is fine: each environment
-holds its own value. The job must declare the environment to access its secret.
-
-For a repository secret instead, open **Settings → Secrets and variables →
-Actions → New repository secret**. Use `PYPI_API_TOKEN` for PyPI and
-`TEST_PYPI_API_TOKEN` for TestPyPI, then select the matching secret in the job.
-See [GitHub's secret setup instructions](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets).
-
-For the environment-secret route, replace the template's publication step with:
-
-```yaml
-- name: Publish using an environment token
-  env:
-    UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-    REGISTRY: ${{ inputs.registry }}
-  run: |
-    case "$REGISTRY" in
-      testpypi)
-        uv publish --trusted-publishing never \
-          --publish-url https://test.pypi.org/legacy/ dist/*
-        ;;
-      pypi)
-        uv publish --trusted-publishing never dist/*
-        ;;
-      *) exit 1 ;;
-    esac
-```
-
-Remove `id-token: write` from that job when using only the token route. Keep
-the environment and its review rules. Store the token in GitHub settings,
-not in YAML, `.env` files committed to Git, documentation, or shell commands.
-GitHub stores the secret; the workflow references its name. uv reads the value
-through `UV_PUBLISH_TOKEN`. See [uv authentication for publishing](https://docs.astral.sh/uv/guides/publish/#publishing-your-package).
-
-**Expected outcome:** the publication job receives the target environment's
-token and uploads to its registry. Adding the secret alone does not publish.
+To replace a token, create its replacement on the same registry, edit
+`PYPI_API_TOKEN` in the corresponding GitHub environment, and revoke the old
+token after checking the replacement. Use project scope once the project exists.
+No workflow edit is needed when a secret value changes.
 
 ## If something goes wrong
 
@@ -396,9 +356,9 @@ token and uploads to its registry. Adding the secret alone does not publish.
 | Jobs are skipped | Trigger the workflow using a reviewed `v` tag, not a branch. |
 | Tag/version mismatch | Compare the tag name with `VERSION` in the tagged commit. |
 | Waiting for approval | The environment's reviewer must approve the job. |
-| Trusted Publisher authentication fails | Check registry, owner, repo, workflow filename, environment, and `id-token: write`. |
+| Missing `PYPI_API_TOKEN` | Add the environment secret to the selected `pypi` or `testpypi` environment. |
 | Token authentication fails | Check the target registry, token scope, secret name, and job environment. |
-| Package name is unavailable | Choose an available name and update metadata and publisher registration. |
+| Package name is unavailable | Choose an available name and update metadata and token scope. |
 | Filename already exists | Publish a new version rather than replacing a file. |
 | TestPyPI cannot find a dependency | Install dependencies from PyPI, then use `--no-deps` for the TestPyPI package. |
 | Inference reports a missing manifest | Supply the selected model manifest; publication of code does not create it. |

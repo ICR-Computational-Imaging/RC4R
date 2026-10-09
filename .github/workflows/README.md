@@ -52,3 +52,40 @@ Run the same checks locally with:
 ```bash
 uv run --locked --no-default-groups --group pytest --group train pytest
 ```
+
+### Package publishing (`publish.yaml`)
+
+Runs manually against a version tag and publishes to the selected registry,
+`testpypi` by default or `pypi` when selected explicitly. It verifies the tag
+matches `VERSION`, runs synthetic tests, builds the wheel and source archive,
+and imports the installed wheel outside the checkout. The run summary records
+the source tag, commit, registry, distribution filenames, and SHA-256 hashes.
+The built distributions are available as a workflow artifact.
+
+The publication job uses an API token from the matching GitHub environment.
+Configure `testpypi` and `pypi` environments, each with an environment secret
+named `PYPI_API_TOKEN`. Store a TestPyPI token in `testpypi` and a PyPI token in
+`pypi`. Configure required reviewers on GitHub if publication
+should require approval; the workflow alone does not enforce that review.
+The token is passed to uv only in the upload step. Trusted Publishing is
+disabled and the job has no `id-token: write` permission. A missing secret
+causes a clear error before upload.
+
+Create and push the release tag yourself. The workflow does not change versions,
+create tags, commit, or run the DVC pipelines. Pushing a tag alone does not
+publish the package. After the workflow has been merged into the default branch,
+start a run explicitly:
+
+```bash
+gh workflow run publish.yaml --ref v0.1.0 -f registry=testpypi
+```
+
+After checking the TestPyPI installation, publish the same reviewed tag:
+
+```bash
+gh workflow run publish.yaml --ref v0.1.0 -f registry=pypi
+```
+
+See the [publishing walkthrough](../../docs/general/publishing_to_pypi.md)
+for account setup, API-token creation, GitHub secrets, tagging prerequisites,
+and checks.

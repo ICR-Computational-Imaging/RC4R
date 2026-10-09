@@ -20,7 +20,7 @@ for clinical use or medical decision-making.
   and offline support.
 - Separate DVC pipelines for training/validation and held-out test evaluation.
 - Synthetic-data tests, including a DVC pipeline integration check.
-- GitHub Actions for tests and documentation, plus a package-publishing template.
+- GitHub Actions for tests and documentation, plus a manually triggered package-publishing workflow.
 - Walkthroughs for Git collaboration, versioning, model releases, and PyPI.
 
 Python **3.11 or newer** is required. Inference needs only PyTorch, NumPy, and
@@ -76,7 +76,7 @@ uv add dermapred==VERSION
 
 Both installers use PyPI by default. See the
 [publishing walkthrough](docs/general/publishing_to_pypi.md) for release setup,
-TestPyPI, Trusted Publishing, and the GitHub-secret alternative.
+TestPyPI and API tokens stored in GitHub environment secrets.
 
 ## Run inference on an image
 
@@ -195,8 +195,9 @@ Review and merging are separate from publishing a release.
 
 Use bumpversion to set the approved version before tagging the reviewed release
 commit. PyPI distributes the Python package; model files are separate release
-assets selected through a manifest. The publishing workflow under
-`docs/examples/` is a template and must be configured before it is enabled.
+assets selected through a manifest. The publishing workflow is in
+`.github/workflows/publish.yaml`; configure the GitHub environments and their
+API-token secrets before running it manually against a reviewed release tag.
 
 ## Documentation and repository layout
 

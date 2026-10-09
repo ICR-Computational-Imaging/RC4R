@@ -1,0 +1,122 @@
+name: Publish Python package
+run-name: Publish ${{ github.ref_name }} to ${{ inputs.registry }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      registry:
+        description: Package registry
+        required: true
+        type: choice
+        default: testpypi
+        options:
+          - testpypi
+          - pypi
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.ref }}-${{ inputs.registry }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # Publication is allowed only from a version tag, never from a branch.
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6.0.1
+        with:
+          python-version: "3.11"
+      - name: Install Python
+        run: uv python install
+      - name: Check tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          version = Path("VERSION").read_text().strip()
+          if os.environ["RELEASE_TAG"] != f"v{version}":
+              raise SystemExit("Release tag does not match VERSION")
+          PY
+      - name: Run synthetic tests
+        run: |
+          uv sync --locked --no-default-groups --group pytest --group train
+          uv run --locked --no-default-groups --group pytest --group train pytest
+      - name: Build distributions
+        run: uv build
+      - name: Check installed wheel outside the source checkout
+        working-directory: ${{ runner.temp }}
+        run: |
+          uv run --isolated --no-project \
+            --with "$GITHUB_WORKSPACE"/dist/*.whl \
+            python -c "from dermapred.inference import Predictor; print('Installed wheel imports successfully')"
+      - name: Record distributions for review
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          REGISTRY: ${{ inputs.registry }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
+              summary.write(f"Release: **{os.environ['RELEASE_TAG']}**\n\n")
+              summary.write(f"Commit: `{os.environ['GITHUB_SHA']}`\n\n")
+              summary.write(f"Registry: **{os.environ['REGISTRY']}**\n\n")
+              summary.write("| Distribution | SHA-256 |\n| --- | --- |\n")
+              for artifact in sorted(Path("dist").iterdir()):
+                  digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+                  summary.write(f"| {artifact.name} | `{digest}` |\n")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: ${{ inputs.registry }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/
+      - uses: astral-sh/setup-uv@v6.0.1
+      - name: Publish verified distributions
+        env:
+          REGISTRY: ${{ inputs.registry }}
+          # Each GitHub environment stores its own registry token under this name.
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          if [ -z "${UV_PUBLISH_TOKEN:-}" ]; then
+            echo "::error::Add the PYPI_API_TOKEN secret to the selected GitHub environment."
+            exit 1
+          fi
+          case "$REGISTRY" in
+            testpypi)
+              uv publish --trusted-publishing never \
+                --publish-url https://test.pypi.org/legacy/ dist/*
+              ;;
+            pypi)
+              uv publish --trusted-publishing never dist/*
+              ;;
+            *) exit 1 ;;
+          esac
