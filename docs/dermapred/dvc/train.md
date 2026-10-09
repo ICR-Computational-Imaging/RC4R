@@ -52,16 +52,38 @@ results/train/loss_curve.png
 
 The checkpoint contains the best model state, input-channel count, best epoch,
 best validation loss, and training parameters. `history.csv` contains the mean
-training and validation loss for every epoch. The PNG is generated from that
+training and validation loss, plus validation ROC AUC, for every epoch. The PNG is generated from that
 CSV by `dermapred.plotting.train`, keeping numerical results separate from
 their presentation.
 
-`binary_classifier.pt` and `history.csv` are DVC pipeline outputs.
+`binary_classifier.pt`, `history.csv`, and `loss_curve.png` are cached DVC
+pipeline outputs assigned to `rds-train`.
 Do not add them with `dvc add` or commit them directly to Git.
-`loss_curve.png` should be added to git to ensure that it is visible in the GitHub repository.
+The documentation copy, `docs/assets/validation/training_progress.png`, is
+tracked by Git and is not a declared DVC output. DVC therefore does not detect
+if this copy is missing. To recreate a missing copy from the cached original:
+
+```bash
+cp results/train/loss_curve.png docs/assets/validation/training_progress.png
+```
+
 Also, commit `dvc.yaml`, `dvc.lock`,
 and the generated `.gitignore` files,
-then use `dvc push` to upload the artifacts.
+then use `uv run --group train dvc push dvc.yaml` to upload the artifacts.
+
+## Training progress
+
+![Training and validation loss alongside validation ROC AUC](../../assets/validation/training_progress.png)
+
+The left panel shows training and validation loss. The right panel shows
+validation ROC AUC measured at the end of each epoch with augmentation disabled.
+Training ROC AUC is not calculated. The vertical line marks the checkpoint
+selected by the lowest validation loss; the AUC curve does not change that
+selection rule.
+
+The training stage copies this figure into `docs/assets/validation/` on each
+run. Review and commit the documentation copy alongside the source changes.
 
 After training, continue to
-[calibrating the validation probabilities](calibration.md).
+[calibrating the validation probabilities](calibration.md) and reviewing
+[validation performance](validation.md).

@@ -262,7 +262,9 @@ DVC runs stages as needed and updates `dvc.lock`. Unchanged
 stages are skipped; changing remote assignments alone does not require
 recomputing outputs. Review the lockfile and commit it with the pipeline YAML.
 
-Each declared output in the training pipeline records `remote: rds-train`:
+Each cached data, model, plot, and report output in the training pipeline
+records `remote: rds-train`. Documentation copies use `cache: false` and are
+stored in Git instead:
 
 ```yaml
 outs:
@@ -303,7 +305,7 @@ uv run --group train dvc pull \
 
 These targets exclude test data. New outputs declared in the training pipeline
 are included automatically. DVC transfers cached output content; the pipeline
-YAML, lockfile, plots, calibration metrics, and provenance are Git-tracked and
+YAML, lockfile, documentation copies of plots and metrics, and provenance are Git-tracked and
 shared with `git push`.
 
 ## Updating the dataset

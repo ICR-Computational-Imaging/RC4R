@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 
 def plot_loss_curves(history_path: Path, output_path: Path) -> None:
-    """Plot training and validation loss from a training-history CSV file.
+    """Plot loss and, when available, validation ROC AUC in separate panels.
 
     Args:
         history_path: CSV file containing ``epoch``, ``training_loss``, and
@@ -39,12 +39,33 @@ def plot_loss_curves(history_path: Path, output_path: Path) -> None:
     validation_loss = [float(row["validation_loss"]) for row in rows]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    figure, axes = plt.subplots(figsize=(7, 4.5))
+    has_auc = "validation_roc_auc" in rows[0]
+    figure, panels = plt.subplots(
+        1, 2 if has_auc else 1, figsize=(12, 4.5) if has_auc else (7, 4.5)
+    )
+    axes = panels[0] if has_auc else panels
+    best_epoch = epochs[min(range(len(rows)), key=lambda index: validation_loss[index])]
     axes.plot(epochs, training_loss, marker="o", label="Training")
     axes.plot(epochs, validation_loss, marker="o", label="Validation")
     axes.set(xlabel="Epoch", ylabel="Weighted binary cross-entropy", title="Training loss")
     axes.grid(alpha=0.25)
     axes.legend()
+    axes.axvline(best_epoch, color="grey", linestyle=":", label="Selected checkpoint")
+    axes.legend()
+    if has_auc:
+        auc_axes = panels[1]
+        auc_axes.plot(
+            epochs,
+            [float(row["validation_roc_auc"]) for row in rows],
+            marker="o",
+            label="Validation",
+        )
+        auc_axes.axvline(best_epoch, color="grey", linestyle=":", label="Selected checkpoint")
+        auc_axes.set(
+            xlabel="Epoch", ylabel="ROC AUC", title="Validation discrimination", ylim=(0, 1)
+        )
+        auc_axes.grid(alpha=0.25)
+        auc_axes.legend()
     figure.tight_layout()
     figure.savefig(output_path, dpi=150)
     plt.close(figure)

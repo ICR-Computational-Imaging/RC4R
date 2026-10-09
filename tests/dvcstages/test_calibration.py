@@ -11,7 +11,9 @@ from dermapred.dvcstages.calibration import (
     CalibrationParameters,
     CalibrationStage,
     cross_validated_probabilities,
+    predict_logits,
 )
+from dermapred.evaluation.metrics import METRIC_NAMES, calculate_binary_metrics
 from dermapred.models.binary_classifier import LeNetBinary
 
 
@@ -45,6 +47,7 @@ def test_calibration_stage_writes_mapping_metrics_and_plot(tmp_path: Path) -> No
     np.save(labels_path, labels)
     params_path = tmp_path / "params.yaml"
     params_path.write_text(
+        "evaluation:\n  threshold: 0.7\n"
         "calibration:\n"
         "  method: isotonic\n"
         "  cross_validation_folds: 5\n"
@@ -65,9 +68,25 @@ def test_calibration_stage_writes_mapping_metrics_and_plot(tmp_path: Path) -> No
         calibrator_path,
         metrics_path,
         plot_path,
+        tmp_path / "docs",
     ).run()
 
     assert json.loads(calibrator_path.read_text(encoding="utf-8"))["method"] == "isotonic"
     metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
     assert metrics["cross_validation_folds"] == 5
     assert plot_path.stat().st_size > 0
+
+    assert metrics["threshold"] == 0.7
+    assert metrics["sample_count"] == 20
+    assert set(metrics["after_calibration_out_of_fold"]) == set(METRIC_NAMES)
+    for artifact in ("validation_roc.png", "validation_confusion_matrix.png", "metrics.md"):
+        assert (tmp_path / "docs" / artifact).stat().st_size > 0
+
+    oof_probabilities = cross_validated_probabilities(
+        predict_logits(model, images, 8),
+        labels,
+        CalibrationParameters("isotonic", 5, 5, 8, 42),
+    )
+    assert metrics["after_calibration_out_of_fold"] == calculate_binary_metrics(
+        labels, oof_probabilities, 0.7, 5
+    )

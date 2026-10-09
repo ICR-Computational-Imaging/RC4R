@@ -106,7 +106,8 @@ recomputing outputs. Upload all declared pipeline outputs with::
     uv run --group train dvc push dvc.yaml
 
 These outputs include processed training and validation images, model weights,
-training history, and the calibrator. Each output records ``remote: rds-train``
+training history, the calibrator, and original plots and reports. Each cached
+output records ``remote: rds-train``
 in the pipeline YAML. Do not run ``dvc add`` on pipeline outputs. An authorized
 person can upload both raw datasets and pipeline outputs in one command::
 
@@ -116,8 +117,9 @@ person can upload both raw datasets and pipeline outputs in one command::
 
 DVC uploads cached content, not the pipeline YAML itself. Review and commit
 ``dvc.yaml`` and ``dvc.lock`` after pipeline
-changes. Git-tracked plots and calibration metrics, like provenance and code,
-are shared with ``git push`` rather than ``dvc push``.
+changes. Documentation copies of plots and metrics use ``cache: false`` and
+remain Git-tracked. Share those copies, provenance, and code with ``git push``
+rather than ``dvc push``.
 
 Note:
     ``dataset.yaml`` is written beside the arrays as a human-readable record

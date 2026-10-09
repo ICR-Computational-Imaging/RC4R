@@ -5,8 +5,10 @@ from pathlib import Path
 
 import numpy as np
 import torch
+from sklearn.metrics import roc_auc_score
 
 from dermapred.dvcstages.train import TrainingStage, load_training_parameters
+from dermapred.models.binary_classifier import LeNetBinary
 
 
 def _write_parameters(path: Path, epochs: int = 1) -> None:
@@ -70,6 +72,7 @@ def test_training_stage_writes_checkpoint_history_and_plot(tmp_path: Path) -> No
         model_path,
         history_path,
         plot_path,
+        tmp_path / "docs",
     ).run()
 
     checkpoint = torch.load(model_path, map_location="cpu", weights_only=True)
@@ -79,5 +82,14 @@ def test_training_stage_writes_checkpoint_history_and_plot(tmp_path: Path) -> No
     with history_path.open(encoding="utf-8", newline="") as history_file:
         rows = list(csv.DictReader(history_file))
     assert len(rows) == 1
-    assert set(rows[0]) == {"epoch", "training_loss", "validation_loss"}
+    assert set(rows[0]) == {"epoch", "training_loss", "validation_loss", "validation_roc_auc"}
+    model = LeNetBinary()
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model.eval()
+    with torch.no_grad():
+        scores = model(torch.from_numpy(validation_images)).numpy().reshape(-1)
+    assert float(rows[0]["validation_roc_auc"]) == roc_auc_score(
+        validation_labels.reshape(-1), scores
+    )
+    assert (tmp_path / "docs" / "training_progress.png").read_bytes() == plot_path.read_bytes()
     assert plot_path.stat().st_size > 0

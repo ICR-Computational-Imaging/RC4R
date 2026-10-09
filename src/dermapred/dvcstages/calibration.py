@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -13,6 +14,7 @@ import yaml
 from sklearn.metrics import brier_score_loss
 from sklearn.model_selection import StratifiedKFold
 
+from dermapred.evaluation.metrics import calculate_binary_metrics
 from dermapred.inference.calibration import (
     CALIBRATION_METHODS,
     ProbabilityCalibrator,
@@ -20,7 +22,8 @@ from dermapred.inference.calibration import (
     logits_to_probabilities,
 )
 from dermapred.models.binary_classifier import LeNetBinary
-from dermapred.plotting.calibration import plot_calibration_curves
+from dermapred.plotting.calibration import plot_calibration_curves, plot_validation_roc_curves
+from dermapred.plotting.evaluation import plot_confusion_matrix
 
 
 class CalibrationParameters:
@@ -170,6 +173,7 @@ class CalibrationStage:
         calibrator_output: Path,
         metrics_output: Path,
         plot_output: Path,
+        documentation_figures_directory: Path | None = None,
     ) -> None:
         """Configure calibration inputs and outputs.
 
@@ -181,6 +185,8 @@ class CalibrationStage:
             calibrator_output: Destination for the fitted JSON mapping.
             metrics_output: Destination for validation calibration metrics.
             plot_output: Destination for the reliability diagram.
+            documentation_figures_directory: Optional directory for review copies
+                of generated figures and the metrics table.
 
         Returns:
             None.
@@ -206,6 +212,7 @@ class CalibrationStage:
         self.calibrator_output = calibrator_output
         self.metrics_output = metrics_output
         self.plot_output = plot_output
+        self.documentation_figures_directory = documentation_figures_directory
 
     def run(self) -> None:
         """Generate validation calibration evidence and a final calibrator.
@@ -235,7 +242,22 @@ class CalibrationStage:
         final_calibrator = ProbabilityCalibrator.fit(logits, labels, parameters.method)
         final_calibrator.save(self.calibrator_output)
 
+        configuration = yaml.safe_load(self.params_path.read_text(encoding="utf-8"))
+        threshold = float(configuration.get("evaluation", {}).get("threshold", 0.5))
+        before = calculate_binary_metrics(
+            labels, raw_probabilities, threshold, parameters.reliability_bins
+        )
+        after = calculate_binary_metrics(
+            labels, calibrated_probabilities, threshold, parameters.reliability_bins
+        )
         metrics = {
+            "threshold": threshold,
+            "sample_count": int(labels.size),
+            "negative_count": int(np.count_nonzero(labels == 0)),
+            "positive_count": int(np.count_nonzero(labels == 1)),
+            "best_epoch": checkpoint.get("best_epoch"),
+            "before_calibration": before,
+            "after_calibration_out_of_fold": after,
             "method": parameters.method,
             "cross_validation_folds": parameters.cross_validation_folds,
             "brier_score_before": float(brier_score_loss(labels, raw_probabilities)),
@@ -256,6 +278,39 @@ class CalibrationStage:
             self.plot_output,
             parameters.reliability_bins,
         )
+
+        roc_path = self.plot_output.with_name("validation_roc.png")
+        confusion_path = self.plot_output.with_name("validation_confusion_matrix.png")
+        plot_validation_roc_curves(labels, raw_probabilities, calibrated_probabilities, roc_path)
+        plot_confusion_matrix(
+            labels, calibrated_probabilities, threshold, confusion_path, dataset_name="Validation"
+        )
+        report = [
+            f"Validation samples: **{labels.size}** "
+            f"({metrics['positive_count']} positive, {metrics['negative_count']} negative).",
+            f"Calibrated probability threshold: **{threshold:g}**; "
+            f"selected checkpoint epoch: **{metrics['best_epoch']}**.",
+            "",
+            "| Metric | Before calibration | After calibration (out-of-fold) |",
+            "| --- | ---: | ---: |",
+        ]
+        metric_labels = {
+            "roc_auc": "ROC AUC",
+            "f1_score": "F1 score",
+            "expected_calibration_error": "Expected calibration error",
+        }
+        for name in before:
+            label = metric_labels.get(name, name.replace("_", " ").capitalize())
+            report.append(f"| {label} | {before[name]:.4f} | {after[name]:.4f} |")
+        report_path = self.metrics_output.with_suffix(".md")
+        report_path.write_text(
+            "\n\n".join(report[:2]) + "\n" + "\n".join(report[2:]) + "\n", encoding="utf-8"
+        )
+        if self.documentation_figures_directory is not None:
+            directory = self.documentation_figures_directory
+            directory.mkdir(parents=True, exist_ok=True)
+            for artifact in (self.plot_output, roc_path, confusion_path, report_path):
+                shutil.copyfile(artifact, directory / artifact.name)
 
 
 def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
@@ -282,6 +337,7 @@ def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
         "plot-output",
     ):
         parser.add_argument(f"--{option}", type=Path, required=True)
+    parser.add_argument("--documentation-figures-directory", type=Path)
     return parser.parse_args(arguments)
 
 
@@ -295,5 +351,6 @@ if __name__ == "__main__":
         calibrator_output=arguments.calibrator_output,
         metrics_output=arguments.metrics_output,
         plot_output=arguments.plot_output,
+        documentation_figures_directory=arguments.documentation_figures_directory,
     )
     stage.run()

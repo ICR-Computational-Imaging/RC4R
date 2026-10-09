@@ -1,8 +1,0 @@
-{
-  "method": "isotonic",
-  "cross_validation_folds": 5,
-  "brier_score_before": 0.15233161035992276,
-  "brier_score_after": 0.10740646263530194,
-  "expected_calibration_error_before": 0.16759594326594912,
-  "expected_calibration_error_after": 0.012788610873349798
-}

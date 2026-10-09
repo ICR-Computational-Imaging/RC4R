@@ -49,21 +49,57 @@ The stage creates:
 results/calibration/probability_calibrator.json
 results/calibration/validation_metrics.json
 results/calibration/validation_calibration.png
+results/calibration/validation_roc.png
+results/calibration/validation_confusion_matrix.png
+results/calibration/validation_metrics.md
 ```
 
 `probability_calibrator.json` is a DVC-managed output containing either the
 isotonic thresholds or the Platt coefficient and intercept. JSON keeps the
 mapping transparent and avoids loading a Python pickle during evaluation.
 
-The metrics and PNG are small review artifacts tracked directly by Git. The
-metrics report Brier score and expected calibration error before and after
-out-of-fold calibration. The reliability diagram compares both probability
-curves with perfect calibration, making the current model behaviour visible on
-GitHub.
+The original metrics and figures in `results/calibration/` are cached DVC
+outputs assigned to `rds-train`. The stage copies the figures and generated metrics table to
+`docs/assets/calibration/` for these documentation pages. Review and commit the
+copies after reproducing the pipeline. These copies are declared DVC outputs
+with `cache: false`, so their contents remain tracked by Git.
 
-Because the Git-tracked review files are not DVC outputs, deleting only one of
-them does not make DVC consider the stage incomplete. A calibration run always
-regenerates both files.
+## Calibration figure
+
+![Validation reliability before and after calibration](../../assets/calibration/validation_calibration.png)
+
+The reliability diagram compares raw and out-of-fold calibrated probabilities
+with perfect calibration. Brier score and expected calibration error in the
+table below describe probability quality; lower values are better.
+
+## Validation metrics
+
+--8<-- "docs/assets/calibration/validation_metrics.md"
+
+These are the same metric definitions used for final test evaluation. The
+classification metrics use the stated `evaluation.threshold` from `params.yaml`;
+changing that threshold reruns calibration reporting without retraining the
+classifier. The threshold is applied to each column's probabilities. Calibration
+does not select it automatically. At the same numerical threshold, calibration
+can change sensitivity and specificity because it changes the probabilities.
+Better probability calibration does not necessarily improve classification
+metrics at that threshold.
+
+The after-calibration column uses out-of-fold predictions, rather than applying
+the final calibrator back to its own fitting samples. The final saved calibrator
+is fitted on all validation samples for later inference and testing.
+
+Validation data also inform model selection, so these remain development
+results. See [validation performance](validation.md) for the final ROC curve
+and confusion matrix. No test data are used to produce this evidence.
+
+Precision, negative predictive value, and F1 follow the existing test metric
+implementation, which reports zero when a relevant prediction denominator is
+zero; interpret such values alongside the confusion matrix and class counts.
+
+DVC checks both the cached originals and the documentation copies. Missing or
+modified outputs make the stage out of date; a calibration run regenerates the
+review files and their documentation copies.
 
 After calibration, continue to the
 [final evaluation on the untouched test set](evaluation.md).

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import shutil
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
@@ -13,6 +14,7 @@ import yaml
 from monai.data import DataLoader
 from monai.transforms import Compose, RandFlip, RandRotate90
 from monai.utils import set_determinism
+from sklearn.metrics import roc_auc_score
 from torch import nn
 from torch.utils.data import Dataset
 from tqdm import tqdm
@@ -250,6 +252,7 @@ class TrainingStage:
         model_output: Path,
         history_output: Path,
         plot_output: Path,
+        documentation_figures_directory: Path | None = None,
     ) -> None:
         """Configure training inputs, parameters, and outputs.
 
@@ -262,6 +265,8 @@ class TrainingStage:
             model_output: Destination for the best model checkpoint.
             history_output: Destination for per-epoch loss values.
             plot_output: Destination for the rendered loss curves.
+            documentation_figures_directory: Optional directory for review copies
+                of generated figures.
 
         Returns:
             None.
@@ -289,6 +294,7 @@ class TrainingStage:
         self.model_output = model_output
         self.history_output = history_output
         self.plot_output = plot_output
+        self.documentation_figures_directory = documentation_figures_directory
 
     def run(self) -> None:
         """Train the classifier and write its checkpoint and loss history.
@@ -313,6 +319,8 @@ class TrainingStage:
         validation_labels = np.load(self.validation_labels, allow_pickle=False)
         validate_training_arrays(train_images, train_labels, "Training")
         validate_training_arrays(validation_images, validation_labels, "Validation")
+        if set(np.unique(validation_labels).tolist()) != {0, 1}:
+            raise ValueError("Validation labels must contain both classes for ROC AUC.")
 
         train_dataset = ImageArrayDataset(
             train_images,
@@ -361,9 +369,12 @@ class TrainingStage:
 
             model.eval()
             validation_loss_total = 0.0
+            validation_scores: list[np.ndarray] = []
             with torch.no_grad():
                 for images, labels in validation_loader:
-                    validation_loss = criterion(model(images), labels)
+                    logits = model(images)
+                    validation_scores.append(logits.cpu().numpy().reshape(-1))
+                    validation_loss = criterion(logits, labels)
                     validation_loss_total += float(validation_loss.item()) * images.shape[0]
 
             training_loss = training_loss_total / len(train_dataset)
@@ -373,6 +384,11 @@ class TrainingStage:
                     "epoch": epoch,
                     "training_loss": training_loss,
                     "validation_loss": validation_loss,
+                    "validation_roc_auc": float(
+                        roc_auc_score(
+                            validation_labels.reshape(-1), np.concatenate(validation_scores)
+                        )
+                    ),
                 }
             )
             if validation_loss < best_validation_loss:
@@ -389,7 +405,7 @@ class TrainingStage:
         with self.history_output.open("w", encoding="utf-8", newline="") as history_file:
             writer = csv.DictWriter(
                 history_file,
-                fieldnames=["epoch", "training_loss", "validation_loss"],
+                fieldnames=["epoch", "training_loss", "validation_loss", "validation_roc_auc"],
             )
             writer.writeheader()
             writer.writerows(history)
@@ -407,6 +423,11 @@ class TrainingStage:
             self.model_output,
         )
         plot_loss_curves(self.history_output, self.plot_output)
+        if self.documentation_figures_directory is not None:
+            self.documentation_figures_directory.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(
+                self.plot_output, self.documentation_figures_directory / "training_progress.png"
+            )
 
 
 def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
@@ -434,6 +455,7 @@ def _parse_args(arguments: Sequence[str] | None = None) -> argparse.Namespace:
         "plot-output",
     ):
         parser.add_argument(f"--{option}", type=Path, required=True)
+    parser.add_argument("--documentation-figures-directory", type=Path)
     return parser.parse_args(arguments)
 
 
@@ -448,5 +470,6 @@ if __name__ == "__main__":
         model_output=arguments.model_output,
         history_output=arguments.history_output,
         plot_output=arguments.plot_output,
+        documentation_figures_directory=arguments.documentation_figures_directory,
     )
     stage.run()

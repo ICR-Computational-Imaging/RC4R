@@ -5,7 +5,9 @@ site_name: DermaPred v0.0.1.dev3  # Replace DermaPred with your project name; bu
 site_url: https://ICR-Computational-Imaging.github.io/RC4R/  # Replace with the canonical URL where this site is published.
 repo_url: https://github.com/ICR-Computational-Imaging/RC4R  # Replace with the source repository URL.
 docs_dir: docs  # Change only if the Markdown source files are stored elsewhere.
-exclude_docs: README.md  # Keep the contributor README in docs/ without publishing it as a page.
+exclude_docs: |  # Keep contributor notes and embedded report snippets out of standalone pages.
+  README.md
+  assets/calibration/validation_metrics.md
 
 copyright: Copyright &copy; The Institute of Cancer Research  # Replace with the responsible person or organisation.
 edit_uri: ""  # Keep empty to hide edit links; this does not change repository permissions.
@@ -60,6 +62,7 @@ nav:
       - Image preprocessing: dermapred/dvc/preprocessing.md
       - Model training: dermapred/dvc/train.md
       - Probability calibration: dermapred/dvc/calibration.md
+      - Validation performance: dermapred/dvc/validation.md
       - Final test evaluation: dermapred/dvc/evaluation.md
   - DermaPred API:
       - Image preprocessing: dermapred/api/preprocessing.md

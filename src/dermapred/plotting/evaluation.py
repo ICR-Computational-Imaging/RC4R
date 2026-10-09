@@ -17,6 +17,7 @@ def plot_confusion_matrix(
     probabilities: np.ndarray,
     threshold: float,
     output_path: Path,
+    dataset_name: str = "Test",
 ) -> None:
     """Plot test confusion-matrix counts at a fixed probability threshold.
 
@@ -25,6 +26,7 @@ def plot_confusion_matrix(
         probabilities: Aligned calibrated probabilities.
         threshold: Fixed positive-classification threshold.
         output_path: Destination PNG file.
+        dataset_name: Dataset label used in the confusion-matrix title.
 
     Returns:
         None.
@@ -51,7 +53,7 @@ def plot_confusion_matrix(
         yticklabels=["Benign", "Concerning"],
         xlabel="Predicted class",
         ylabel="Reference class",
-        title=f"Test confusion matrix (threshold = {threshold:.2f})",
+        title=f"{dataset_name} confusion matrix (threshold = {threshold:.2f})",
     )
     figure.colorbar(image, ax=axes, fraction=0.046, pad=0.04)
     figure.tight_layout()
@@ -168,9 +170,7 @@ def _calibration_points(
         valid_bootstrap = bootstrap_observed[:, index]
         valid_bootstrap = valid_bootstrap[np.isfinite(valid_bootstrap)]
         if valid_bootstrap.size:
-            lower[index], upper[index] = np.quantile(
-                valid_bootstrap, [tail, 1 - tail]
-            )
+            lower[index], upper[index] = np.quantile(valid_bootstrap, [tail, 1 - tail])
     return means, observed, lower, upper, counts
 
 
@@ -220,12 +220,7 @@ def plot_calibration_curve(
         means, observed, lower, upper, counts = _calibration_points(
             labels, probabilities, bootstrap_indices, bins, confidence_level
         )
-        valid = (
-            np.isfinite(means)
-            & np.isfinite(observed)
-            & np.isfinite(lower)
-            & np.isfinite(upper)
-        )
+        valid = np.isfinite(means) & np.isfinite(observed) & np.isfinite(lower) & np.isfinite(upper)
         errors = np.vstack(
             (
                 np.maximum(0, observed[valid] - lower[valid]),
