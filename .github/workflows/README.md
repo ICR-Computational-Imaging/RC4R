@@ -58,9 +58,11 @@ uv run --locked --no-default-groups --group pytest --group train pytest
 Runs manually against a version tag and publishes to the selected registry,
 `testpypi` by default or `pypi` when selected explicitly. It verifies the tag
 matches `VERSION`, runs synthetic tests, builds the wheel and source archive,
-and imports the installed wheel outside the checkout. The run summary records
-the source tag, commit, registry, distribution filenames, and SHA-256 hashes.
-The built distributions are available as a workflow artifact.
+and imports the installed wheel outside the checkout. GitHub shows the source
+tag and commit on the run; the run name shows the target registry. The built
+distributions are saved as the `python-distributions` artifact, then retrieved
+by the publication job. This keeps package building and uploading as separate,
+visible steps.
 
 The publication job uses an API token from the matching GitHub environment.
 Configure `testpypi` and `pypi` environments, each with an environment secret

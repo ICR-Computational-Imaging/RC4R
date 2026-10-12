@@ -260,8 +260,9 @@ The publishing workflow does not bump versions, create tags, or commit changes.
 Run it manually against a version tag, with TestPyPI selected by default. It
 checks that the tag matches `VERSION`, runs synthetic tests, builds
 distributions, and checks the installed wheel outside the source checkout.
-The build summary records the tag, commit, target registry, filenames, and
-SHA-256 hashes. The distributions are attached to the workflow run for review.
+GitHub records the source tag and commit on the run, and the run name shows
+the target registry. The distributions are attached as the
+`python-distributions` artifact for review and transfer to the publishing job.
 
 A separate publication job receives those built files, names the selected
 GitHub environment, and passes its `PYPI_API_TOKEN` secret to uv only in the

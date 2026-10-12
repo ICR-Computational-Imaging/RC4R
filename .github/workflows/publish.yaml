@@ -1,110 +1,96 @@
-name: Publish Python package
-run-name: Publish ${{ github.ref_name }} to ${{ inputs.registry }}
+name: Publish Python package  # Workflow name shown in the GitHub Actions tab.
+run-name: Publish ${{ github.ref_name }} to ${{ inputs.registry }}  # Identify the tag and destination.
 
-on:
-  workflow_dispatch:
-    inputs:
-      registry:
+on:  # Define when this workflow starts.
+  workflow_dispatch:  # Start manually; pushes to main or tags do not start publication.
+    inputs:  # Values chosen when starting the workflow.
+      registry:  # Choose the package registry that will receive the upload.
         description: Package registry
-        required: true
-        type: choice
-        default: testpypi
-        options:
+        required: true  # A destination must be selected.
+        type: choice  # Display a dropdown rather than a free-text field.
+        default: testpypi  # Start with the practice registry.
+        options:  # The two supported destinations.
           - testpypi
           - pypi
 
-permissions:
-  contents: read
+permissions:  # Limit the workflow GitHub token to the access it needs.
+  contents: read  # Allow reading repository files; no commits or tags are created.
 
-concurrency:
-  group: publish-${{ github.ref }}-${{ inputs.registry }}
-  cancel-in-progress: false
+concurrency:  # Control overlapping publication runs.
+  group: publish-${{ github.ref }}-${{ inputs.registry }}  # Group runs for the same tag and registry.
+  cancel-in-progress: false  # Let an active publication finish before the next starts.
 
-jobs:
-  build:
+jobs:  # Separate package preparation from the job that receives the upload token.
+  build:  # Internal identifier for the test-and-build job.
     # Publication is allowed only from a version tag, never from a branch.
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      MPLBACKEND: Agg
-      OMP_NUM_THREADS: "2"
-      MKL_NUM_THREADS: "2"
-    steps:
-      - uses: actions/checkout@v7
+    if: startsWith(github.ref, 'refs/tags/v')  # Skip when a branch is selected instead of a v tag.
+    runs-on: ubuntu-latest  # Use a temporary GitHub-hosted Ubuntu runner.
+    timeout-minutes: 30  # Stop the build if it exceeds 30 minutes.
+    env:  # Settings shared by the build steps.
+      MPLBACKEND: Agg  # Render test plots without a graphical display.
+      OMP_NUM_THREADS: "2"  # Limit CPU threads used by numerical libraries during tests.
+      MKL_NUM_THREADS: "2"  # Apply the same limit to libraries using MKL.
+    steps:  # Execute these operations in order within this job.
+      - uses: actions/checkout@v7  # Download repository files at the selected tag.
         with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v6.0.1
+          persist-credentials: false  # Do not leave GitHub credentials in the checkout.
+      - uses: astral-sh/setup-uv@v6.0.1  # Install uv using a published setup-action version.
         with:
-          python-version: "3.11"
-      - name: Install Python
-        run: uv python install
-      - name: Check tag matches package version
+          python-version: "3.11"  # Select the Python version for the build and tests.
+      - name: Install Python  # Ensure the selected Python interpreter is available.
+        run: uv python install  # Install Python through uv if it is not already available.
+      - name: Check tag matches package version  # Require, for example, v0.1.0 to match VERSION 0.1.0.
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_TAG: ${{ github.ref_name }}  # Pass the selected tag name to the shell safely.
         run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-          version = Path("VERSION").read_text().strip()
-          if os.environ["RELEASE_TAG"] != f"v{version}":
-              raise SystemExit("Release tag does not match VERSION")
-          PY
-      - name: Run synthetic tests
+          package_version="$(tr -d '\r\n' < VERSION)"
+          if [ "$RELEASE_TAG" != "v$package_version" ]; then
+            echo "::error::Release tag does not match VERSION."
+            exit 1
+          fi
+      # Install only locked test and training dependencies, then run pytest.
+      - name: Run synthetic tests  # Check the code without private data or DVC remotes.
         run: |
           uv sync --locked --no-default-groups --group pytest --group train
           uv run --locked --no-default-groups --group pytest --group train pytest
-      - name: Build distributions
-        run: uv build
-      - name: Check installed wheel outside the source checkout
-        working-directory: ${{ runner.temp }}
+      - name: Build distributions  # Create the installable wheel and source archive.
+        run: uv build  # Write both package formats to dist/.
+      # Use an isolated environment containing the wheel and its runtime dependencies.
+      - name: Check installed wheel outside the source checkout  # Check the built package, not source imports.
+        working-directory: ${{ runner.temp }}  # Run outside the repository in a temporary directory.
         run: |
           uv run --isolated --no-project \
             --with "$GITHUB_WORKSPACE"/dist/*.whl \
             python -c "from dermapred.inference import Predictor; print('Installed wheel imports successfully')"
-      - name: Record distributions for review
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
-          REGISTRY: ${{ inputs.registry }}
-        run: |
-          python - <<'PY'
-          import hashlib
-          import os
-          from pathlib import Path
-          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as summary:
-              summary.write(f"Release: **{os.environ['RELEASE_TAG']}**\n\n")
-              summary.write(f"Commit: `{os.environ['GITHUB_SHA']}`\n\n")
-              summary.write(f"Registry: **{os.environ['REGISTRY']}**\n\n")
-              summary.write("| Distribution | SHA-256 |\n| --- | --- |\n")
-              for artifact in sorted(Path("dist").iterdir()):
-                  digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
-                  summary.write(f"| {artifact.name} | `{digest}` |\n")
-          PY
-      - uses: actions/upload-artifact@v4
+      - name: Save packages for the publishing job  # Transfer the tested build to the upload job.
+        uses: actions/upload-artifact@v4  # Store the files as an artifact attached to this run.
         with:
-          name: python-distributions
-          path: dist/
-          if-no-files-found: error
+          name: python-distributions  # Shared artifact name used by both jobs.
+          path: dist/  # Directory containing the wheel and source archive.
+          if-no-files-found: error  # Fail rather than continue with no packages to upload.
 
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment:
-      name: ${{ inputs.registry }}
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/download-artifact@v4
+  publish:  # Internal identifier for the package upload job.
+    needs: build  # Run only after tests, building, and the installed-package check succeed.
+    runs-on: ubuntu-latest  # Use a temporary GitHub-hosted Ubuntu runner.
+    timeout-minutes: 10  # Stop an upload job that exceeds 10 minutes.
+    environment:  # Select the environment holding the token and any approval rules.
+      name: ${{ inputs.registry }}  # Use pypi or testpypi, matching the selected destination.
+    permissions:  # PyPI authentication comes from the secret, not this GitHub token.
+      contents: read  # No repository writes or OIDC permission are required.
+    steps:  # Execute these operations in order within this job.
+      - name: Retrieve the built packages  # Reuse files from the successful build job.
+        uses: actions/download-artifact@v4  # Download the artifact into this new runner.
         with:
-          name: python-distributions
-          path: dist/
-      - uses: astral-sh/setup-uv@v6.0.1
-      - name: Publish verified distributions
+          name: python-distributions  # Shared artifact name used by both jobs.
+          path: dist/  # Directory containing the wheel and source archive.
+      - uses: astral-sh/setup-uv@v6.0.1  # Install uv using a published setup-action version.
+      # Fail if the secret is missing; otherwise route to TestPyPI or PyPI.
+      # --trusted-publishing never makes uv authenticate using the API token.
+      - name: Publish verified distributions  # This is the step that actually uploads packages.
         env:
-          REGISTRY: ${{ inputs.registry }}
+          REGISTRY: ${{ inputs.registry }}  # Choose the appropriate upload endpoint below.
           # Each GitHub environment stores its own registry token under this name.
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}  # uv reads the selected environment secret.
         run: |
           if [ -z "${UV_PUBLISH_TOKEN:-}" ]; then
             echo "::error::Add the PYPI_API_TOKEN secret to the selected GitHub environment."

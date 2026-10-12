@@ -37,13 +37,11 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-          version = Path("VERSION").read_text().strip()
-          if os.environ["RELEASE_TAG"] != f"v{version}":
-              raise SystemExit("Release tag does not match VERSION")
-          PY
+          package_version="$(tr -d '\r\n' < VERSION)"
+          if [ "$RELEASE_TAG" != "v$package_version" ]; then
+            echo "::error::Release tag does not match VERSION."
+            exit 1
+          fi
       - name: Run synthetic tests
         run: |
           uv sync --locked --no-default-groups --group pytest --group train
@@ -56,7 +54,8 @@ jobs:
           uv run --isolated --no-project \
             --with "$GITHUB_WORKSPACE"/dist/*.whl \
             python -c "from dermapred.inference import Predictor; print('Installed wheel imports successfully')"
-      - uses: actions/upload-artifact@v4
+      - name: Save packages for the publishing job
+        uses: actions/upload-artifact@v4
         with:
           name: python-distributions
           path: dist/
@@ -70,7 +69,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Retrieve the built packages
+        uses: actions/download-artifact@v4
         with:
           name: python-distributions
           path: dist/
