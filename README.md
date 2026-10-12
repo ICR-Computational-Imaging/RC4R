@@ -9,8 +9,9 @@ public DermaMNIST dataset. Its installable package is named `dermapred` and
 provides a small CPU inference API and an image-file command. A user interface
 is planned for a later step.
 
-This repository is an educational template. The example model is not intended
-for clinical use or medical decision-making.
+>! Note: This repository is an educational template. The example model is not intended
+  for clinical use or medical decision-making.
+>
 
 ## What is included
 
