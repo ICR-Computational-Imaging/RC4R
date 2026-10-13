@@ -15,8 +15,8 @@ stages:
       size: 12324992
     - path: pyproject.toml
       hash: md5
-      md5: b2e85596fcf35a4a9d0128c2f3cdb96e
-      size: 1932
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
     - path: src/dermapred/data/preprocessing.py
       hash: md5
       md5: 481d9c28ca7c26fa423ab3d7d67a02c5
@@ -27,8 +27,8 @@ stages:
       size: 3818
     - path: uv.lock
       hash: md5
-      md5: 9d217dd9c7c8bde88f5e41dc8922dd4c
-      size: 1114387
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
     outs:
     - path: data/processed_data/train/train_images.npy
       hash: md5
@@ -67,8 +67,8 @@ stages:
       size: 1131
     - path: pyproject.toml
       hash: md5
-      md5: b2e85596fcf35a4a9d0128c2f3cdb96e
-      size: 1932
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
     - path: src/dermapred/dvcstages/train.py
       hash: md5
       md5: be0f83c0bed22fad8ae5e024133abfbb
@@ -83,8 +83,8 @@ stages:
       size: 2575
     - path: uv.lock
       hash: md5
-      md5: 9d217dd9c7c8bde88f5e41dc8922dd4c
-      size: 1114387
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
     params:
       params.yaml:
         train:
@@ -131,8 +131,8 @@ stages:
       size: 1131
     - path: pyproject.toml
       hash: md5
-      md5: b2e85596fcf35a4a9d0128c2f3cdb96e
-      size: 1932
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
     - path: results/trained_models/binary_classifier.pt
       hash: md5
       md5: 882797c78700e05387b617fe6b70e94c
@@ -163,8 +163,8 @@ stages:
       size: 9620
     - path: uv.lock
       hash: md5
-      md5: 9d217dd9c7c8bde88f5e41dc8922dd4c
-      size: 1114387
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
     params:
       params.yaml:
         calibration:
@@ -175,22 +175,6 @@ stages:
           random_seed: 42
         evaluation.threshold: 0.5
     outs:
-    - path: docs/assets/calibration/validation_calibration.png
-      hash: md5
-      md5: 715fa757632fb06c32b0568c37859633
-      size: 79939
-    - path: docs/assets/calibration/validation_confusion_matrix.png
-      hash: md5
-      md5: 7f579026519932ba40ab0da7241d3db5
-      size: 36155
-    - path: docs/assets/calibration/validation_metrics.md
-      hash: md5
-      md5: 7c47556a1e7449fc99c54c622428457b
-      size: 630
-    - path: docs/assets/calibration/validation_roc.png
-      hash: md5
-      md5: 2e094b9a78300a9a5b0118f6755a355d
-      size: 65197
     - path: results/calibration/probability_calibrator.json
       hash: md5
       md5: 671e579614e2d97283d73530d84e636d
