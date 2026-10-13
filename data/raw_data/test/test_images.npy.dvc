@@ -1,0 +1,6 @@
+outs:
+- md5: a9f712e8706ddb6fa35e52d11af95ff4
+  size: 24637568
+  hash: md5
+  path: test_images.npy
+  remote: rds-test

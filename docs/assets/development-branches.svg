@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="740" viewBox="0 0 1440 740" role="img" aria-labelledby="title description">
+  <title id="title">Issue and release branches start from main and return through reviewed pull requests</title>
+  <desc id="description">
+    Time runs from left to right. A contributor creates issue-42/installation-docs
+    from main, edits and tests there, and submits a pull request. After review
+    and passing checks it merges into main. Later a maintainer creates
+    issue-57/release-0.1.0 from updated main, prepares the version and release notes,
+    and merges a reviewed release pull request. Only then is v0.1.0 tagged on the
+    resulting main commit. Later work may continue beyond that tagged commit.
+    Each dot represents a commit; the diagram illustrates a merge with shared
+    history, while squash and rebase merging can combine or recreate commits.
+  </desc>
+  <rect width="1440" height="740" rx="20" fill="#f7f9fc" />
+  <text x="48" y="61" class="title" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="34px" font-weight="700">Branches for work. Tags for published versions.</text>
+  <text x="48" y="97" class="subtitle" font-family="Arial, Helvetica, sans-serif" fill="#526479" font-size="20px">Read left to right. Each dot is a saved commit.</text>
+  <rect x="32" y="194" width="1376" height="102" rx="14" fill="#edf3f9" />
+  <rect x="32" y="320" width="728" height="148" rx="14" fill="#f1eef7" />
+  <rect x="786" y="474" width="502" height="140" rx="14" fill="#f1eef7" />
+  <text x="50" y="247" class="label" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="20px" font-weight="700">main</text>
+  <path d="M128 242 H1376" fill="none" stroke="#245a78" stroke-width="4" stroke-opacity="1" />
+  <path d="M150 242 C214 242 208 382 290 382 H520 C612 382 602 242 682 242" fill="none" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <path d="M830 242 C930 242 890 528 1002 528 H1058 C1140 528 1094 242 1192 242" fill="none" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <circle cx="150" cy="242" r="12" class="main-dot" fill="#ffffff" stroke="#245a78" stroke-width="4" stroke-opacity="1" />
+  <circle cx="698" cy="242" r="12" class="main-dot" fill="#ffffff" stroke="#245a78" stroke-width="4" stroke-opacity="1" />
+  <circle cx="830" cy="242" r="12" class="main-dot" fill="#ffffff" stroke="#245a78" stroke-width="4" stroke-opacity="1" />
+  <circle cx="1208" cy="242" r="14" fill="#27816b" stroke="#ffffff" stroke-width="4" stroke-opacity="1" />
+  <circle cx="1332" cy="242" r="12" class="main-dot" fill="#ffffff" stroke="#245a78" stroke-width="4" stroke-opacity="1" />
+  <text x="150" y="278" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">start</text>
+  <text x="698" y="278" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">PR merged</text>
+  <text x="1332" y="278" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">later work</text>
+  <circle cx="312" cy="382" r="11" class="branch-dot" fill="#ffffff" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <circle cx="426" cy="382" r="11" class="branch-dot" fill="#ffffff" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <circle cx="520" cy="382" r="11" class="branch-dot" fill="#ffffff" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <text x="312" y="359" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">edit</text>
+  <text x="466" y="359" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">test + commit</text>
+  <text x="60" y="432" class="mono" font-family="Consolas, Menlo, monospace" fill="#173b61" font-size="19px">issue-42/installation-docs</text>
+  <text x="60" y="455" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Contributor’s branch</text>
+  <text x="60" y="336" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Branch from main</text>
+  <rect x="476" y="150" width="292" height="56" rx="10" fill="#deeee8" />
+  <text x="622" y="173" text-anchor="middle" class="label" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="20px" font-weight="700">Review + passing checks</text>
+  <text x="622" y="196" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Required before merging the PR</text>
+  <path d="M698 206 V225" fill="none" stroke="#27816b" stroke-width="2" stroke-opacity="1" />
+  <circle cx="1002" cy="528" r="11" class="branch-dot" fill="#ffffff" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <circle cx="1058" cy="528" r="11" class="branch-dot" fill="#ffffff" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
+  <text x="1027" y="484" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px" text-anchor="middle">Version + notes</text>
+  <text x="802" y="574" class="mono" font-family="Consolas, Menlo, monospace" fill="#173b61" font-size="19px">issue-57/release-0.1.0</text>
+  <text x="802" y="599" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Review and merge this release PR too</text>
+  <rect x="1097" y="128" width="222" height="74" rx="12" fill="#deeee8" stroke="#9cc9bb" stroke-opacity="1" />
+  <text x="1208" y="158" text-anchor="middle" class="label" font-family="Arial, Helvetica, sans-serif" fill="#173b61" font-size="20px" font-weight="700">Tag: v0.1.0</text>
+  <text x="1208" y="186" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Created after merge</text>
+  <path d="M1208 202 V224" fill="none" stroke="#27816b" stroke-width="3" stroke-opacity="1" />
+  <text x="1236" y="325" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Release commit</text>
+  <rect x="32" y="644" width="1376" height="68" rx="12" fill="#ffffff" stroke="#c9d5e1" stroke-opacity="1" />
+  <text x="56" y="672" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">The release tag stays on the approved commit even when main moves on.</text>
+  <text x="56" y="698" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Squash or rebase merges can change commit IDs: tag the resulting commit on main.</text>
+  <polygon points="1382,242 1366,232 1366,252" fill="#245a78" />
+  <polygon points="484,382 472,374 472,390" fill="#713a74" />
+  <polygon points="1040,528 1028,520 1028,536" fill="#713a74" />
+</svg>

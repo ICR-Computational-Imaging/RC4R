@@ -1,0 +1,55 @@
+# Source data are acquired separately and tracked with `dvc add`, so
+# downloading them is deliberately not a pipeline stage.
+stages:
+  preprocess:
+    wdir: ../..
+    cmd: >-
+      uv run --group train
+      python -m dermapred.dvcstages.preprocessing
+      --input-dir data/raw_data/test
+      --output-dir data/processed_data/test
+      --splits test
+    deps:
+      - pyproject.toml
+      - uv.lock
+      - src/dermapred/data/preprocessing.py
+      - src/dermapred/dvcstages/preprocessing.py
+      - data/raw_data/test/test_images.npy
+    outs:
+      - data/processed_data/test/test_images.npy:
+          remote: rds-test
+
+  evaluate:
+    wdir: ../..  # Need to get back to root
+    cmd: >-
+      uv run --group train
+      python -m dermapred.dvcstages.evaluation
+      --model-path results/trained_models/binary_classifier.pt
+      --calibrator-path results/calibration/probability_calibrator.json
+      --test-images data/processed_data/test/test_images.npy
+      --test-labels data/raw_data/test/test_labels.npy
+      --params-path params.yaml
+      --predictions-output results/evaluation/test_predictions.csv
+      --metrics-output results/evaluation/test_metrics.csv
+      --confusion-matrix-output results/evaluation/confusion_matrix.png
+      --roc-curve-output results/evaluation/roc_curve.png
+      --calibration-curve-output results/evaluation/calibration_curve.png
+      --documentation-figures-directory docs/assets/evaluation
+    deps:
+      - pyproject.toml
+      - uv.lock
+      - src/dermapred/inference/calibration.py
+      - src/dermapred/evaluation/metrics.py
+      - src/dermapred/models/binary_classifier.py
+      - src/dermapred/plotting/evaluation.py
+      - src/dermapred/dvcstages/evaluation.py
+      - results/trained_models/binary_classifier.pt
+      - results/calibration/probability_calibrator.json
+      - data/processed_data/test/test_images.npy
+      - data/raw_data/test/test_labels.npy
+    params:
+      - params.yaml:
+          - evaluation
+    outs:
+      - results/evaluation/test_predictions.csv:
+          remote: rds-test

@@ -1,0 +1,6 @@
+outs:
+- md5: fcd769cfc98c72ef28280e02c5fdb828
+  size: 2133
+  hash: md5
+  path: test_labels.npy
+  remote: rds-test

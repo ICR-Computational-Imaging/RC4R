@@ -1,0 +1,6 @@
+outs:
+- md5: 26876f84602d81c9c760fd4cf16a8f1e
+  size: 1131
+  hash: md5
+  path: validation_labels.npy
+  remote: rds-train

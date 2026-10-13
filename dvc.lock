@@ -1,0 +1,201 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: uv run --group train python -m dermapred.dvcstages.preprocessing 
+      --input-dir data/raw_data/train --output-dir data/processed_data/train 
+      --splits train validation
+    deps:
+    - path: data/raw_data/train/train_images.npy
+      hash: md5
+      md5: 20ae98dfecb9ddb9e12b6b4bb57e0aa7
+      size: 86102144
+    - path: data/raw_data/train/validation_images.npy
+      hash: md5
+      md5: 4e0890396551d3d720f096194b7d44aa
+      size: 12324992
+    - path: pyproject.toml
+      hash: md5
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
+    - path: src/dermapred/data/preprocessing.py
+      hash: md5
+      md5: 481d9c28ca7c26fa423ab3d7d67a02c5
+      size: 3250
+    - path: src/dermapred/dvcstages/preprocessing.py
+      hash: md5
+      md5: 20b802a2ad7d63ec8a65f09b614c5262
+      size: 3818
+    - path: uv.lock
+      hash: md5
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
+    outs:
+    - path: data/processed_data/train/train_images.npy
+      hash: md5
+      md5: b9c52ad93f0eebd7d78939a5ec25c33e
+      size: 344408192
+    - path: data/processed_data/train/validation_images.npy
+      hash: md5
+      md5: bb30853c895b3e6ff9b3bde5f7847f40
+      size: 49299584
+  train:
+    cmd: uv run --group train python -m dermapred.dvcstages.train --train-images
+      data/processed_data/train/train_images.npy --train-labels 
+      data/raw_data/train/train_labels.npy --validation-images 
+      data/processed_data/train/validation_images.npy --validation-labels 
+      data/raw_data/train/validation_labels.npy --params-path params.yaml 
+      --model-output results/trained_models/binary_classifier.pt 
+      --history-output results/train/history.csv --plot-output 
+      results/train/loss_curve.png --documentation-figures-directory 
+      docs/assets/validation
+    deps:
+    - path: data/processed_data/train/train_images.npy
+      hash: md5
+      md5: b9c52ad93f0eebd7d78939a5ec25c33e
+      size: 344408192
+    - path: data/processed_data/train/validation_images.npy
+      hash: md5
+      md5: bb30853c895b3e6ff9b3bde5f7847f40
+      size: 49299584
+    - path: data/raw_data/train/train_labels.npy
+      hash: md5
+      md5: b6e671527f2cbe42474499f5162a2851
+      size: 7135
+    - path: data/raw_data/train/validation_labels.npy
+      hash: md5
+      md5: 26876f84602d81c9c760fd4cf16a8f1e
+      size: 1131
+    - path: pyproject.toml
+      hash: md5
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
+    - path: src/dermapred/dvcstages/train.py
+      hash: md5
+      md5: be0f83c0bed22fad8ae5e024133abfbb
+      size: 18688
+    - path: src/dermapred/models/binary_classifier.py
+      hash: md5
+      md5: b83a182ad1c83fa730fb4fb6166cc41c
+      size: 3589
+    - path: src/dermapred/plotting/train.py
+      hash: md5
+      md5: 07a061a426ac7bfc35fa654481f18d74
+      size: 2575
+    - path: uv.lock
+      hash: md5
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
+    params:
+      params.yaml:
+        train:
+          batch_size: 64
+          epochs: 40
+          learning_rate: 0.001
+          random_seed: 42
+          num_workers: 0
+          augmentation:
+            horizontal_flip_probability: 0.5
+            vertical_flip_probability: 0.5
+            rotation_probability: 0.5
+    outs:
+    - path: results/train/history.csv
+      hash: md5
+      md5: 269634ce67cfa7af14efc434d4f4daf8
+      size: 2473
+    - path: results/train/loss_curve.png
+      hash: md5
+      md5: c7e06d94ff807f4111a3fd4d652c1383
+      size: 95215
+    - path: results/trained_models/binary_classifier.pt
+      hash: md5
+      md5: 882797c78700e05387b617fe6b70e94c
+      size: 181107
+  calibrate:
+    cmd: uv run --group train python -m dermapred.dvcstages.calibration 
+      --model-path results/trained_models/binary_classifier.pt 
+      --validation-images data/processed_data/train/validation_images.npy 
+      --validation-labels data/raw_data/train/validation_labels.npy 
+      --params-path params.yaml --calibrator-output 
+      results/calibration/probability_calibrator.json --metrics-output 
+      results/calibration/validation_metrics.json --plot-output 
+      results/calibration/validation_calibration.png 
+      --documentation-figures-directory docs/assets/calibration
+    deps:
+    - path: data/processed_data/train/validation_images.npy
+      hash: md5
+      md5: bb30853c895b3e6ff9b3bde5f7847f40
+      size: 49299584
+    - path: data/raw_data/train/validation_labels.npy
+      hash: md5
+      md5: 26876f84602d81c9c760fd4cf16a8f1e
+      size: 1131
+    - path: pyproject.toml
+      hash: md5
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
+    - path: results/trained_models/binary_classifier.pt
+      hash: md5
+      md5: 882797c78700e05387b617fe6b70e94c
+      size: 181107
+    - path: src/dermapred/dvcstages/calibration.py
+      hash: md5
+      md5: 45e46f64590bcb9c1f233b96ed60c6e1
+      size: 14552
+    - path: src/dermapred/evaluation/metrics.py
+      hash: md5
+      md5: be3dc134054c0152f5ca54670a05d989
+      size: 8153
+    - path: src/dermapred/inference/calibration.py
+      hash: md5
+      md5: 233bd39f3fdae7a58c3efb817ba8b124
+      size: 8480
+    - path: src/dermapred/models/binary_classifier.py
+      hash: md5
+      md5: b83a182ad1c83fa730fb4fb6166cc41c
+      size: 3589
+    - path: src/dermapred/plotting/calibration.py
+      hash: md5
+      md5: 399482f2216214985f98501a46a7c3b2
+      size: 4050
+    - path: src/dermapred/plotting/evaluation.py
+      hash: md5
+      md5: 6b34e9e99d90825871422573d55c62f4
+      size: 9620
+    - path: uv.lock
+      hash: md5
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
+    params:
+      params.yaml:
+        calibration:
+          method: isotonic
+          cross_validation_folds: 5
+          reliability_bins: 10
+          inference_batch_size: 256
+          random_seed: 42
+        evaluation.threshold: 0.5
+    outs:
+    - path: results/calibration/probability_calibrator.json
+      hash: md5
+      md5: 671e579614e2d97283d73530d84e636d
+      size: 1934
+    - path: results/calibration/validation_calibration.png
+      hash: md5
+      md5: 715fa757632fb06c32b0568c37859633
+      size: 79939
+    - path: results/calibration/validation_confusion_matrix.png
+      hash: md5
+      md5: 7f579026519932ba40ab0da7241d3db5
+      size: 36155
+    - path: results/calibration/validation_metrics.json
+      hash: md5
+      md5: 818d0f76ecdd7dcb14edd19890371f9e
+      size: 1373
+    - path: results/calibration/validation_metrics.md
+      hash: md5
+      md5: 7c47556a1e7449fc99c54c622428457b
+      size: 630
+    - path: results/calibration/validation_roc.png
+      hash: md5
+      md5: 2e094b9a78300a9a5b0118f6755a355d
+      size: 65197

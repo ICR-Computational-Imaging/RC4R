@@ -1,0 +1,91 @@
+# MkDocs configuration for the project documentation website.
+# Review each commented setting when adapting this repository as a template.
+
+site_name: DermaPred v0.0.1.dev3  # Replace DermaPred with your project name; bumpversion updates the version.
+site_url: https://ICR-Computational-Imaging.github.io/RC4R/  # Replace with the canonical URL where this site is published.
+repo_url: https://github.com/ICR-Computational-Imaging/RC4R  # Replace with the source repository URL.
+docs_dir: docs  # Change only if the Markdown source files are stored elsewhere.
+exclude_docs: |  # Keep contributor notes and embedded report snippets out of standalone pages.
+  README.md
+  assets/calibration/validation_metrics.md
+
+not_in_nav: |  # Keep the old collaboration URL as a pointer to the merged guide.
+  /general/collaborating_on_github.md
+
+copyright: Copyright &copy; The Institute of Cancer Research  # Replace with the responsible person or organisation.
+edit_uri: ""  # Keep empty to hide edit links; this does not change repository permissions.
+use_directory_urls: true  # Keep enabled for clean URLs such as /guide/ instead of /guide.html.
+
+theme:
+  name: material  # Requires the mkdocs-material package in the docs dependency group.
+  language: en  # Replace with another supported language code if required.
+  logo: assets/logo/dermapred-logo.svg  # Path is relative to docs_dir; replace with the project logo.
+  favicon: assets/logo/favicon.ico  # Path is relative to docs_dir; replace with the project favicon.
+  palette:
+    - scheme: default  # Customize this palette to change the site's colour scheme.
+  features:
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+
+hooks:
+  - scripts/docs_optional_figures.py  # Show placeholders until evaluation figures and metrics are available.
+
+plugins:
+  - search  # Keep enabled to provide client-side documentation search.
+  - mkdocstrings:
+      default_handler: python  # Use the Python handler unless a page selects another language.
+      handlers:
+        python:
+          paths: [src]  # Import dermapred from the repository's src layout.
+
+# Markdown features used throughout the documentation.
+markdown_extensions:
+  - pymdownx.highlight:  # See: https://squidfunk.github.io/mkdocs-material/reference/code-blocks/
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path:
+        - .  # Allows sections from any base file to be embedded in the docs.
+        - docs/examples  # Replace or extend when reusable snippets are stored elsewhere.
+        - .github/workflows
+  - attr_list  # Enables attributes on images and other Markdown elements.
+  - md_in_html  # Enables Markdown content inside HTML blocks.
+  - admonition
+  - pymdownx.details
+
+# Navigation labels and their Markdown sources, relative to docs_dir.
+# --8<-- [start:navigation]
+nav:
+  - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
+  - DermaPred:
+      - Image inference: dermapred/inference.md
+      - Downloading data: dermapred/data_download.md
+      - Releasing and downloading models: dermapred/model_download.md
+      - Image preprocessing: dermapred/dvc/preprocessing.md
+      - Model training: dermapred/dvc/train.md
+      - Probability calibration: dermapred/dvc/calibration.md
+      - Validation performance: dermapred/dvc/validation.md
+      - Final test evaluation: dermapred/dvc/evaluation.md
+  - DermaPred API:
+      - Image preprocessing: dermapred/api/preprocessing.md
+      - Binary classifier: dermapred/api/binary_classifier.md
+      - Probability calibration: dermapred/api/calibration.md
+      - Model evaluation: dermapred/api/evaluation.md
+  - General:
+      - Development and release workflow: general/development_workflow.md
+      - Publishing a Python package: general/publishing_to_pypi.md
+      - Managing Python with uv: general/uv.md
+      - Managing data with DVC: general/dvc.md
+      - Semantic versioning: general/semantic_versioning.md
+      - Using Git and GitHub: general/github.md
+      - Testing with pytest: general/testing.md
+      - Code quality: general/code_quality.md
+      - Automation with GitHub Actions: general/github_actions.md
+      - Writing documentation with MkDocs: general/mkdocs.md
+      - Publishing with GitHub Pages: general/github-pages.md
+# --8<-- [end:navigation]
+# Note: The --8<-- block helps mkdocs snippets identify specific blocks of content to incorporate into Markdown documentation files.

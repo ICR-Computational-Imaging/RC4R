@@ -1,0 +1,6 @@
+[core]
+    remote = rds-train
+['remote "rds-train"']
+    url = /Volumes/COMPIMAG/dermapred/train
+['remote "rds-test"']
+    url = /Volumes/COMPIMAG/dermapred/test
