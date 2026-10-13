@@ -614,7 +614,6 @@ package release that depends on them. The
 describes the download checks; the
 [package-publishing walkthrough](publishing_to_pypi.md) covers TestPyPI and PyPI.
 
-
 For package publication, build from the tagged code and check that the installed
 package works in a fresh environment. A separate checkout avoids accidentally
 building later changes from `main`:
