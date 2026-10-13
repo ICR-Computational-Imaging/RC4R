@@ -9,6 +9,9 @@ exclude_docs: |  # Keep contributor notes and embedded report snippets out of st
   README.md
   assets/calibration/validation_metrics.md
 
+not_in_nav: |  # Keep the old collaboration URL as a pointer to the merged guide.
+  /general/collaborating_on_github.md
+
 copyright: Copyright &copy; The Institute of Cancer Research  # Replace with the responsible person or organisation.
 edit_uri: ""  # Keep empty to hide edit links; this does not change repository permissions.
 use_directory_urls: true  # Keep enabled for clean URLs such as /guide/ instead of /guide.html.
@@ -73,7 +76,6 @@ nav:
       - Probability calibration: dermapred/api/calibration.md
       - Model evaluation: dermapred/api/evaluation.md
   - General:
-      - "Collaborating: issue to pull request": general/collaborating_on_github.md
       - Development and release workflow: general/development_workflow.md
       - Publishing a Python package: general/publishing_to_pypi.md
       - Managing Python with uv: general/uv.md

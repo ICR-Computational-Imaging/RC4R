@@ -188,8 +188,7 @@ the scope and target release with a maintainer, create a working branch, run
 the relevant checks, and submit a pull request to the agreed destination branch.
 Review and merging are separate from publishing a release.
 
-- [Beginner walkthrough: issue, branch, and pull request](docs/general/collaborating_on_github.md)
-- [Project development and release workflow](docs/general/development_workflow.md)
+- [Development and release workflow: issues, branches, PRs, and releases](docs/general/development_workflow.md)
 - [Publishing the Python package to PyPI](docs/general/publishing_to_pypi.md)
 - [Releasing model weights and generating a manifest](docs/dermapred/model_download.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)

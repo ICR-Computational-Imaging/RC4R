@@ -44,7 +44,7 @@ stability; tests, model verification, and review provide that evidence.
 
 ## What bumpversion updates
 
-[bumpversion](https://github.com/peritus/bumpversion) applies a version change
+[bumpversion, provided by bump2version](https://github.com/c4urself/bump2version) applies a version change
 consistently across the repository. Its configuration is stored in
 `.bumpversion.cfg`.
 
@@ -60,13 +60,40 @@ The Python package reads `VERSION` through the configuration in
 The current configuration also creates a Git commit for each bump because
 `commit = True`. It does not create a tag by default because `tag = False`.
 
+## Run bumpversion through uv
+
+The `bump2version` package is included in the `dev` dependency group in
+`pyproject.toml`; its command is named `bumpversion`. Use `uv run bumpversion`
+so the command uses the project environment and the version recorded in
+`uv.lock`. A separate `uv tool install` is not needed.
+
+Start from a clean working tree. Normal bump commands can create a commit
+because this repository has `commit = True`; dry runs do not change files.
+Release tags are still created manually after review because `tag = False`.
+
+## Bump MAJOR, MINOR, or PATCH
+
+Choose one command, depending on the approved change:
+
+| Change | Preview without changing files | Apply the change | Example result from `1.4.2` |
+| --- | --- | --- | --- |
+| MAJOR | `uv run bumpversion --dry-run --verbose major` | `uv run bumpversion major` | `2.0.0.dev0` |
+| MINOR | `uv run bumpversion --dry-run --verbose minor` | `uv run bumpversion minor` | `1.5.0.dev0` |
+| PATCH | `uv run bumpversion --dry-run --verbose patch` | `uv run bumpversion patch` | `1.4.3.dev0` |
+
+A major bump resets the minor and patch parts; a minor bump resets the patch
+part. These examples each start independently from `1.4.2`; do not run all
+three commands in sequence. This repository's configuration also starts the
+new version in its `dev` phase. The development suffix is removed separately when preparing
+the stable release, as described below.
+
 ## Previewing a change
 
 Start from a clean working tree and preview the files and version that would be
 changed:
 
 ```bash
-bumpversion --dry-run --verbose build
+uv run bumpversion --dry-run --verbose build
 ```
 
 A dry run does not modify files or create a commit. Review its output before
@@ -77,7 +104,7 @@ performing an important release bump.
 Increment the development build number with:
 
 ```bash
-bumpversion build
+uv run bumpversion build
 ```
 
 For example, this changes `0.1.0.dev4` to `0.1.0.dev5`. Because committing is
@@ -91,7 +118,7 @@ On an approved release-preparation branch, when the development version targets
 the agreed release, remove its development suffix with:
 
 ```bash
-bumpversion release
+uv run bumpversion release
 ```
 
 For example, `0.1.0.dev45` becomes `0.1.0`. This command updates the version
@@ -117,14 +144,14 @@ When starting a new project from this template or moving to a deliberately
 chosen release series, set the complete target version explicitly:
 
 ```bash
-bumpversion --new-version 0.1.0.dev1 build
+uv run bumpversion --new-version 0.1.0.dev1 build
 ```
 
 The final `build` argument is still required by bumpversion, even though
 `--new-version` supplies the complete target. Preview the operation first:
 
 ```bash
-bumpversion --dry-run --verbose --new-version 0.1.0.dev1 build
+uv run bumpversion --dry-run --verbose --new-version 0.1.0.dev1 build
 ```
 
 To update the files without creating bumpversion's automatic commit, add
@@ -132,7 +159,7 @@ To update the files without creating bumpversion's automatic commit, add
 version change with other template-renaming changes:
 
 ```bash
-bumpversion --no-commit --new-version 0.1.0.dev1 build
+uv run bumpversion --no-commit --new-version 0.1.0.dev1 build
 ```
 
 ## Example release sequence
@@ -142,7 +169,7 @@ For an approved release targeting `0.1.0`, with the current version
 
 1. Create a release-preparation branch from updated `main`, associated with
    the approved release issue.
-2. Run `bumpversion release` on that branch to set `0.1.0`.
+2. Run `uv run bumpversion release` on that branch to set `0.1.0`.
 3. Run the required checks and obtain review, including model verification
    when the release changes model artifacts.
 4. Merge the PR into `main`, update local `main`, and tag the exact reviewed
@@ -179,4 +206,4 @@ change to `.bumpversion.cfg` and should be tested with `--dry-run` first.
 
 - [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 - [Python packaging version specifiers](https://packaging.python.org/en/latest/specifications/version-specifiers/)
-- [bumpversion documentation and command reference](https://github.com/peritus/bumpversion)
+- [bumpversion documentation and command reference](https://github.com/c4urself/bump2version)

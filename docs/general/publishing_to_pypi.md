@@ -216,12 +216,16 @@ See [PyPI API-token help](https://pypi.org/help/#apitoken).
 ### Store each token in GitHub
 
 1. Open the repository's **Settings → Environments**.
-2. Select **pypi**.
+2. If **pypi** is listed, select it. If it is missing, choose **New environment**,
+   enter `pypi`, then select **Configure environment**. The environments are
+   created by you in step 4; they are not present by default.
 3. Under **Environment secrets**, choose **Add environment secret**.
 4. Enter `PYPI_API_TOKEN` as the name and paste the PyPI token as its value.
 5. Save the secret.
-6. Open the **testpypi** environment and add another secret also named
-   `PYPI_API_TOKEN`, using the TestPyPI token as its value.
+6. Return to **Settings → Environments** and open **testpypi**. If it is
+   missing, create it with **New environment → testpypi → Configure environment**.
+   Add another environment secret named `PYPI_API_TOKEN`, using the TestPyPI
+   token as its value.
 
 | GitHub environment | Secret name | Token issued by |
 | --- | --- | --- |

@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="740" viewBox="0 0 1440 740" role="img" aria-labelledby="title description">
   <title id="title">Issue and release branches start from main and return through reviewed pull requests</title>
   <desc id="description">
-    Time runs from left to right. A contributor creates issue-42/download-errors
+    Time runs from left to right. A contributor creates issue-42/installation-docs
     from main, edits and tests there, and submits a pull request. After review
     and passing checks it merges into main. Later a maintainer creates
     issue-57/release-0.1.0 from updated main, prepares the version and release notes,
@@ -34,7 +34,7 @@
   <circle cx="520" cy="382" r="11" class="branch-dot" fill="#ffffff" stroke="#713a74" stroke-width="4" stroke-opacity="1" />
   <text x="312" y="359" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">edit</text>
   <text x="466" y="359" text-anchor="middle" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">test + commit</text>
-  <text x="60" y="432" class="mono" font-family="Consolas, Menlo, monospace" fill="#173b61" font-size="19px">issue-42/download-errors</text>
+  <text x="60" y="432" class="mono" font-family="Consolas, Menlo, monospace" fill="#173b61" font-size="19px">issue-42/installation-docs</text>
   <text x="60" y="455" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Contributor’s branch</text>
   <text x="60" y="336" class="small" font-family="Arial, Helvetica, sans-serif" fill="#354b62" font-size="18px">Branch from main</text>
   <rect x="476" y="150" width="292" height="56" rx="10" fill="#deeee8" />

@@ -39,6 +39,7 @@ dev = [
     { include-group = "type" },
     { include-group = "docs" },
     { include-group = "notebooks" },
+    "bump2version==1.0.1",
 ]
 
 [tool.setuptools.dynamic]
