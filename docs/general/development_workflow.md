@@ -282,11 +282,19 @@ preview the Markdown. A Python project using uv, pytest, Ruff, and MkDocs
 These tools are examples, not prerequisites for using Git:
 
 ```bash
-uv sync --locked
-uv run --locked pytest
+uv sync --locked --group train
+uv run --locked --group train pytest
 uv run --locked ruff check .
 uv run --locked mkdocs build --strict
 ```
+
+The test suite in this example imports training and data-acquisition modules,
+so it needs the `train` dependency group, including `medmnist` and `monai`,
+even when tests use synthetic data. Include `--group train` on both the sync
+and pytest commands: `uv run` also syncs the environment, and omitting the
+group can remove those libraries. The default development group supplies the
+testing and documentation tools. When adapting this guide, use the groups
+required by your project's own tests.
 
 | Check | Expected result |
 | --- | --- |
