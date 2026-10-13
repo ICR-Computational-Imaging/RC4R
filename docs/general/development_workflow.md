@@ -345,6 +345,11 @@ git push -u origin issue-42/installation-docs
 `-u` remembers which remote branch goes with this local branch. After later
 commits on the same branch, use `git push`.
 
+If this change includes DVC-managed data or model outputs, also follow
+[uploading DVC artifacts](#upload-dvc-artifacts-for-review) below before asking
+reviewers to retrieve them. `git push` sends the tracking files and commits;
+`dvc push` sends the associated artifact contents to their configured storage.
+
 On GitHub, select your branch to confirm the files and commit are present.
 Open **Actions** and inspect the run for the latest commit if branch checks
 are configured. Some projects run checks only when a PR opens. For failed
@@ -515,6 +520,17 @@ and development-suffix handling are explained in the linked versioning guide.
 If a dependency lockfile records the project version, refresh it using the
 project's normal command, such as `uv lock`, and commit the update.
 
+If the release includes model artifacts, follow
+[Prepare a model release](../dermapred/model_download.md#prepare-a-release)
+after setting the final release version and before reviewing the release PR.
+The contributor prepares the manifest for the selected weights and matching
+calibrator, the reviewer verifies those files, and the maintainer confirms
+that they may be distributed publicly. Include the manifest in the release PR
+and make the private artifacts available for review using the
+[DVC upload step](#upload-dvc-artifacts-for-review), where applicable.
+Keep those exact files for the later GitHub upload; generating the manifest
+does not upload them.
+
 Run the agreed release checks, including installation from a built package
 when applicable. Push the release branch and open a PR using steps 6–8.
 Review covers the version, notes, code, and any selected release assets.
@@ -562,6 +578,26 @@ prepare a new version for later corrections.
 commit. A tag labels code; it does not itself create a GitHub Release or upload
 a package unless the team has configured automation to do so.
 
+### Upload model artifacts to GitHub, when applicable
+
+**Responsible: maintainer uploads the approved files; reviewer checks the draft.**
+**Location: your terminal, then GitHub Releases.**
+
+After the release PR has merged and its matching tag has been pushed, follow
+[Upload the files to a draft GitHub Release](../dermapred/model_download.md#upload-the-files-to-a-draft-github-release).
+That guide covers authentication, a local dry run, the upload command, and
+verification of the uploaded attachments. Use the manifest reviewed in step 9
+and the same selected files, without retraining or refitting calibration.
+
+This is the step that sends the model artifacts to GitHub. A DVC push stores
+artifacts in the configured data remote; the package-publishing workflow
+uploads code distributions to the package registry. Neither performs this
+GitHub Release upload.
+
+**Expected result:** the existing release tag has a draft GitHub Release
+containing the verified weights, matching calibrator, and reviewed manifest.
+The maintainer publishes that draft after its notes and attachments are approved.
+
 ### Publish and check the release
 
 **Responsible: maintainer; configured release reviewer approves publication; admin manages credentials.**
@@ -570,6 +606,14 @@ a package unless the team has configured automation to do so.
 Use the project's agreed publishing process. For a GitHub Release, open
 **Releases → Draft a new release**, select the existing `v0.1.0` tag, review the
 notes and approved attachments, then publish when authorised.
+If the model-upload step already created a draft, open and review that draft
+rather than creating another release. Publish its approved artifacts and
+verify their public downloads and inference behaviour before publishing a
+package release that depends on them. The
+[model-release guide](../dermapred/model_download.md#download-a-model)
+describes the download checks; the
+[package-publishing walkthrough](publishing_to_pypi.md) covers TestPyPI and PyPI.
+
 
 For package publication, build from the tagged code and check that the installed
 package works in a fresh environment. A separate checkout avoids accidentally
@@ -669,6 +713,87 @@ Upload the approved bytes without retraining or replacing them after review.
 Check the public download, integrity verification, and normal usage before
 publishing the final release. Changed files need fresh verification. Keep
 private evaluation reports private unless their publication is approved.
+
+### Upload DVC artifacts for review
+
+**Responsible: contributor with storage write access; otherwise an authorised maintainer uploads them.**
+**Location: your terminal and the configured DVC remote.**
+
+This step applies only to projects using DVC. Complete it when a change
+introduces or updates tracked datasets or pipeline outputs, before the PR is
+ready for artifact review. Reviewers need both the Git tracking files and the
+corresponding cached files in the remote; committing a lockfile alone does not
+make the model or data available to them.
+
+1. Check the selected pipeline. Reproduce it if its inputs or outputs are out
+   of date, then review the generated tracking changes:
+
+   ```bash
+   dvc status dvc.yaml
+   dvc repro dvc.yaml
+   ```
+
+   `dvc.yaml` is an example pipeline target; substitute the intended pipeline
+   path. Reproduction runs commands when needed; status only reports changes.
+   Do not run a separate held-out evaluation pipeline merely to prepare a PR.
+
+2. Upload the selected pipeline's cached outputs:
+
+   ```bash
+   dvc push dvc.yaml
+   ```
+
+   This includes declared cached outputs such as model files, processed data,
+   or plots. For source datasets tracked with `dvc add`, also target their
+   `.dvc` files when those datasets need uploading. For example, replace the
+   dataset path below with the actual tracking file:
+
+   ```bash
+   dvc push path/to/dataset.dvc dvc.yaml
+   ```
+
+   Use explicit targets when the repository contains pipelines or datasets
+   with different access requirements. Untargeted `dvc push` and `dvc pull`
+   include tracked artifacts across the repository, including held-out test
+   data if those data are tracked. A default training remote does not filter
+   out test data: the targets select the files, while saved remote assignments
+   or the default select their storage destination. Target the intended
+   pipeline and dataset `.dvc` files to avoid transferring other datasets or
+   contacting a remote you cannot access. Files declared with `cache: false`
+   are not uploaded to a DVC remote; keep their contents in Git.
+
+3. Review and commit the changed pipeline definitions, lockfile, dataset
+   `.dvc` files, and generated ignore files, following step 5. For example:
+
+   ```bash
+   git add dvc.yaml dvc.lock
+   git diff --staged
+   git commit -m "Update pipeline artifact versions"
+   git push
+   ```
+
+   Stage any changed dataset tracking and ignore files explicitly too. Use
+   `git push -u origin YOUR-BRANCH` for a branch's first push, as in step 6.
+   Keep cached artifact contents out of Git. If the tracking changes were
+   already committed, upload the artifacts and push those existing commits;
+   another commit is not needed solely because `dvc push` ran.
+
+For a uv-managed project with DVC installed in a `train` dependency group,
+prefix the DVC commands accordingly, for example:
+
+```bash
+uv run --group train dvc push dvc.yaml
+```
+
+In the PR description, identify the pipeline or dataset targets, the relevant
+checks, and whether their artifacts have been uploaded. After checking out the
+PR commit, an authorised reviewer can retrieve the same pipeline outputs with
+`dvc pull dvc.yaml`; raw datasets may need their own `.dvc` targets too.
+
+**Expected result:** the PR identifies the exact artifact versions, and reviewers
+with storage access can retrieve them. Uploading to the configured DVC remote
+is separate from publishing approved files on a GitHub Release or uploading
+the Python package to PyPI. See [DVC push documentation](https://doc.dvc.org/command-reference/push).
 
 ## Repository setup: make the rules enforceable
 
@@ -816,4 +941,6 @@ Copy this file and `development-workflow.svg` and `development-branches.svg`.
 Keep the figures in the relative `../assets/` location or update the two image
 paths. The numbered steps match the figures. Replace the example repository,
 issue numbers, versions, and optional tool commands as needed; no other local
-documentation pages or project-specific scripts are required by this guide.
+documentation pages or project-specific scripts are required for the core Git
+walkthrough. When reusing the optional release steps, update the model-release
+and package-publishing links to your project's equivalent guides.
