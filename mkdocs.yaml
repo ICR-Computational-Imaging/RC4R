@@ -1,7 +1,7 @@
 # MkDocs configuration for the project documentation website.
 # Review each commented setting when adapting this repository as a template.
 
-site_name: DermaPred v0.0.1  # Replace DermaPred with your project name; bumpversion updates the version.
+site_name: DermaPred v0.0.2.dev0  # Replace DermaPred with your project name; bumpversion updates the version.
 site_url: https://ICR-Computational-Imaging.github.io/RC4R/  # Replace with the canonical URL where this site is published.
 repo_url: https://github.com/ICR-Computational-Imaging/RC4R  # Replace with the source repository URL.
 docs_dir: docs  # Change only if the Markdown source files are stored elsewhere.
