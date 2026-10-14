@@ -97,3 +97,28 @@ stages:
         remote: rds-train
     - results/calibration/validation_confusion_matrix.png:
         remote: rds-train
+
+  provenance:
+    cmd: >-
+      uv run --group train
+      python -m dermapred.dvcstages.provenance
+      --artifact weights=results/trained_models/binary_classifier.pt
+      --artifact calibrator=results/calibration/probability_calibrator.json
+      --artifact parameters=params.yaml
+      --artifact training_history=results/train/history.csv
+      --artifact validation_metrics=results/calibration/validation_metrics.json
+      --artifact project=pyproject.toml
+      --artifact environment=uv.lock
+      --output results/trained_models/model-provenance.json
+    deps:
+    - src/dermapred/dvcstages/provenance.py
+    - results/trained_models/binary_classifier.pt
+    - results/calibration/probability_calibrator.json
+    - params.yaml
+    - results/train/history.csv
+    - results/calibration/validation_metrics.json
+    - pyproject.toml
+    - uv.lock
+    outs:
+    - results/trained_models/model-provenance.json:
+        cache: false

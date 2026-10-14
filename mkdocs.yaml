@@ -68,6 +68,7 @@ nav:
       - Image preprocessing: dermapred/dvc/preprocessing.md
       - Model training: dermapred/dvc/train.md
       - Probability calibration: dermapred/dvc/calibration.md
+      - Model provenance: dermapred/dvc/provenance.md
       - Validation performance: dermapred/dvc/validation.md
       - Final test evaluation: dermapred/dvc/evaluation.md
   - DermaPred API:

@@ -19,36 +19,7 @@ appropriate step, not a script to execute all at once.
 | --- | --- |
 | Admin | Grants access, configures repository rules, and manages publishing credentials and approval settings. |
 | Maintainer | Approves the scope and target version, assigns reviewers, merges approved changes, and prepares and publishes releases. |
-| Contributor | Raises an issue, makes changes on a branch, runs checks, opens a PR, and responds to review. |
-| Reviewer | Checks the proposed changes and evidence, then approves or requests corrections. |
-| User | Installs or uses a published release and reports problems through issues. |
-
-One person may hold several roles. GitHub permissions determine what someone
-can do; the team agrees who is responsible for doing it. GitHub Actions runs
-the configured checks but does not replace human review.
-
-# Development and release workflow: a walkthrough
-
-![Overview of the development and release workflow](../assets/development-workflow.svg)
-
-Use this guide to take a change from an idea to a reviewed contribution and,
-later, a software release. The sequence is **issue → approved plan → branch →
-changes and checks → pull request → review and merge → release preparation →
-tag and publication**. Contributors normally finish at step 8; maintainers
-continue with steps 9–10 when a release is ready.
-
-The example is issue **#42**, “Clarify installation instructions”, targeting
-version **0.1.0**. Replace `OWNER`, `REPOSITORY`, issue numbers, branch names,
-file paths, and versions with your own. Commands are examples to run at the
-appropriate step, not a script to execute all at once.
-
-## Who does what?
-
-| Role | Responsibility |
-| --- | --- |
-| Admin | Grants access, configures repository rules, and manages publishing credentials and approval settings. |
-| Maintainer | Approves the scope and target version, assigns reviewers, merges approved changes, and prepares and publishes releases. |
-| Contributor | Raises an issue, makes changes on a branch, runs checks, opens a PR, and responds to review. |
+| Contributor | Raises an issue, sets the approved development version on their branch, makes changes, runs checks, opens a PR, and responds to review. |
 | Reviewer | Checks the proposed changes and evidence, then approves or requests corrections. |
 | User | Installs or uses a published release and reports problems through issues. |
 
@@ -220,8 +191,10 @@ Target release: 0.1.0.
 
 Assign the issue to a [milestone](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/about-milestones)
 such as `v0.1.0` if useful. A milestone groups work planned for a release; the comment records approval.
-Several issues may share a target version. The contributor does not need to change version files
-on every issue branch.
+Several issues may share a target version. The maintainer coordinates that
+target; contributors set it as a development version on their own branches.
+If a branch already has the agreed development version, keep it rather than
+incrementing the release number again.
 
 Versions usually follow `MAJOR.MINOR.PATCH`. For a stable public API, compatible
 fixes change PATCH, compatible features change MINOR, and incompatible changes
@@ -267,6 +240,45 @@ issue-42/installation-docs
 This branch exists locally. It appears on GitHub after you push it in step 6.
 If `pull --ff-only` refuses to update, your local and remote histories differ;
 ask for help reconciling them before starting the new branch.
+
+### Set the approved development version
+
+**Responsible: contributor. Location: your issue branch, in your terminal.**
+
+Before changing the code, check the current version in `VERSION` and the target
+approved in the issue. Use [bumpversion](semantic_versioning.md) to start that
+target in its development phase. Start from a clean working tree and choose
+one command:
+
+| Approved change | Command | Example from `0.1.0` |
+| --- | --- | --- |
+| MAJOR | `uv run bumpversion major` | `1.0.0.dev0` |
+| MINOR | `uv run bumpversion minor` | `0.2.0.dev0` |
+| PATCH | `uv run bumpversion patch` | `0.1.1.dev0` |
+
+For example, for an approved patch targeting `0.1.1` from `0.1.0`:
+
+```bash
+uv run bumpversion --dry-run --verbose patch
+uv run bumpversion patch
+```
+
+The dry run previews the change. The second command updates the configured
+version files and creates a commit when `commit = True`. If the dependency
+lockfile records the project version, refresh it with `uv lock` and commit
+the lockfile update too.
+
+**Contributors must not run `bumpversion release` or remove the `.devN` suffix.**
+The maintainer does that during release preparation in step 9. Keep `tag = False`;
+release tags are created only after the release PR is reviewed and merged.
+
+If several branches target the same release, they should use the same base
+development version. Do not bump `0.1.1.dev0` to `0.1.2.dev0` when the approved
+target is still `0.1.1`. Ask the maintainer before changing an existing target
+or resolving conflicting version changes.
+
+**Expected result:** your branch identifies the approved target as a development
+version, such as `0.1.1.dev0`, until the maintainer prepares the stable release.
 
 ## How the branches fit together
 
@@ -637,30 +649,26 @@ git pull --ff-only origin main
 git switch -c issue-57/release-0.1.0
 ```
 
-Agree the version, list the included changes in the release notes, and check
-that completed issues match the release scope. Update the configured version
-files together using the project's agreed version tool.
+Confirm that the development version already targets the approved release,
+list the included changes in the release notes, and check that completed
+issues match the release scope. Contributors set the MAJOR, MINOR, or PATCH
+target in step 3; do not increment that target again here.
 
-Use [bumpversion](semantic_versioning.md), which is included in the development dependencies.
-Start from a clean working tree and choose **one** command for the approved change:
-
-| Change | Command | When to use it |
-| --- | --- | --- |
-| MAJOR | `uv run bumpversion major` | An incompatible change to the public interface. |
-| MINOR | `uv run bumpversion minor` | New functionality compatible with the previous interface. |
-| PATCH | `uv run bumpversion patch` | A compatible bug fix. |
-
-For example, preview a minor bump before applying it:
+Start from a clean working tree. The maintainer uses
+[bumpversion](semantic_versioning.md#creating-a-stable-release) to remove the
+development suffix:
 
 ```bash
-uv run bumpversion --dry-run --verbose minor
-uv run bumpversion minor
+uv run bumpversion --dry-run --verbose release
+uv run bumpversion release
 ```
 
-The preview does not change files. The second command applies the version
-change and creates a commit if `commit = True`. Keep `tag = False` so the
-maintainer creates the release tag only after review and merge. Configuration
-and development-suffix handling are explained in the linked versioning guide.
+For example, `0.1.1.dev0` becomes `0.1.1`. The preview does not change files.
+The second command updates the version and creates a commit if `commit = True`.
+**Only the maintainer runs `bumpversion release`; contributors leave their
+branches on development versions.** Keep `tag = False` so the maintainer
+creates the release tag only after review and merge. If the development
+version does not match the approved target, resolve that before proceeding.
 
 If a dependency lockfile records the project version, refresh it using the
 project's normal command, such as `uv lock`, and commit the update.

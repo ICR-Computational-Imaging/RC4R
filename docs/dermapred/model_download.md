@@ -12,6 +12,11 @@ workflow](../general/development_workflow.md).
 
 ## Prepare a release
 
+The training pipeline creates a [model provenance record](dvc/provenance.md)
+after training and calibration. This records file hashes without a release
+version or public URLs. Prepare the release manifest below separately once
+the final release version and selected artifacts are known.
+
 First identify the code commit and corresponding DVC checkpoint and calibrator.
 Retrieve those artifacts inside the institutional environment. Public release
 of those specific artifacts must be permitted; changing the download mechanism

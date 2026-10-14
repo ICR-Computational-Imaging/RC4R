@@ -193,8 +193,10 @@ Review and merging are separate from publishing a release.
 - [Releasing model weights and generating a manifest](docs/dermapred/model_download.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)
 
-Use bumpversion to set the approved version before tagging the reviewed release
-commit. PyPI distributes the Python package; model files are separate release
+Contributors use bumpversion to set the approved development target on their
+branches. The maintainer runs `bumpversion release` during release preparation,
+then tags the reviewed release commit after merge. Contributors must not run
+`bumpversion release`. PyPI distributes the Python package; model files are separate release
 assets selected through a manifest. The publishing workflow is in
 `.github/workflows/publish.yaml`; configure the GitHub environments and their
 API-token secrets before running it manually against a reviewed release tag.

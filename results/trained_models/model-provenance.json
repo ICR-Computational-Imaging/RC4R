@@ -1,0 +1,41 @@
+{
+  "files": {
+    "calibrator": {
+      "filename": "probability_calibrator.json",
+      "sha256": "f98542638c60d4d1eb9d5323eebabff6499422390b2ff96ed6585a103fcbdade",
+      "size_bytes": 1934
+    },
+    "environment": {
+      "filename": "uv.lock",
+      "sha256": "915bf76191248560e5e42db8ad141d2af1e4aeca71e97bc21d8ec3bf251ab7cb",
+      "size_bytes": 1115181
+    },
+    "parameters": {
+      "filename": "params.yaml",
+      "sha256": "1f6ec81bc0afa395c20541b4754fca131ab50824e0ecf233e50021d6ac4401ba",
+      "size_bytes": 797
+    },
+    "project": {
+      "filename": "pyproject.toml",
+      "sha256": "888a0afd7c3d57bf25856f57861c7f2621a3d614b35459ff85b249dfe2747cb7",
+      "size_bytes": 1959
+    },
+    "training_history": {
+      "filename": "history.csv",
+      "sha256": "e447b2f78a05f26501542c608ff27b8a202bf7680bb3249b396d83c6bcd4a5f3",
+      "size_bytes": 2473
+    },
+    "validation_metrics": {
+      "filename": "validation_metrics.json",
+      "sha256": "d1cde9a905c2905e6d48da40f110324881de0fee00ed70016b01ff46023f01d4",
+      "size_bytes": 1373
+    },
+    "weights": {
+      "filename": "binary_classifier.pt",
+      "sha256": "2666e33f3e82e2cc33ddb2c5985ca9e2b44e64ac9f891a6cf775e1643819839a",
+      "size_bytes": 181107
+    }
+  },
+  "hash_algorithm": "sha256",
+  "schema_version": 1
+}
