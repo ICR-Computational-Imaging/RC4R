@@ -199,3 +199,50 @@ stages:
       hash: md5
       md5: 2e094b9a78300a9a5b0118f6755a355d
       size: 65197
+  provenance:
+    cmd: uv run --group train python -m dermapred.dvcstages.provenance
+      --artifact weights=results/trained_models/binary_classifier.pt --artifact
+      calibrator=results/calibration/probability_calibrator.json --artifact
+      parameters=params.yaml --artifact
+      training_history=results/train/history.csv --artifact
+      validation_metrics=results/calibration/validation_metrics.json --artifact
+      project=pyproject.toml --artifact environment=uv.lock --output
+      results/trained_models/model-provenance.json
+    deps:
+    - path: params.yaml
+      hash: md5
+      md5: f39d098f83056b8d94e03c7d8eb6664f
+      size: 797
+    - path: pyproject.toml
+      hash: md5
+      md5: 2009a8e1a95c47e6f98dd06e5cb79314
+      size: 1959
+    - path: results/calibration/probability_calibrator.json
+      hash: md5
+      md5: 671e579614e2d97283d73530d84e636d
+      size: 1934
+    - path: results/calibration/validation_metrics.json
+      hash: md5
+      md5: 818d0f76ecdd7dcb14edd19890371f9e
+      size: 1373
+    - path: results/train/history.csv
+      hash: md5
+      md5: 269634ce67cfa7af14efc434d4f4daf8
+      size: 2473
+    - path: results/trained_models/binary_classifier.pt
+      hash: md5
+      md5: 882797c78700e05387b617fe6b70e94c
+      size: 181107
+    - path: src/dermapred/dvcstages/provenance.py
+      hash: md5
+      md5: 3c14e010e59aa71aa40137a8449dea49
+      size: 2500
+    - path: uv.lock
+      hash: md5
+      md5: 269d16f109c7e3d5d605447035ec77d0
+      size: 1115181
+    outs:
+    - path: results/trained_models/model-provenance.json
+      hash: md5
+      md5: 42f6fa6af5bb62f1fbfbca7fe25ec088
+      size: 1305

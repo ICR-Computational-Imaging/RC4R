@@ -19,7 +19,7 @@ appropriate step, not a script to execute all at once.
 | --- | --- |
 | Admin | Grants access, configures repository rules, and manages publishing credentials and approval settings. |
 | Maintainer | Approves the scope and target version, assigns reviewers, merges approved changes, and prepares and publishes releases. |
-| Contributor | Raises an issue, makes changes on a branch, runs checks, opens a PR, and responds to review. |
+| Contributor | Raises an issue, sets the approved development version on their branch, makes changes, runs checks, opens a PR, and responds to review. |
 | Reviewer | Checks the proposed changes and evidence, then approves or requests corrections. |
 | User | Installs or uses a published release and reports problems through issues. |
 
@@ -191,8 +191,10 @@ Target release: 0.1.0.
 
 Assign the issue to a [milestone](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/about-milestones)
 such as `v0.1.0` if useful. A milestone groups work planned for a release; the comment records approval.
-Several issues may share a target version. The contributor does not need to change version files
-on every issue branch.
+Several issues may share a target version. The maintainer coordinates that
+target; contributors set it as a development version on their own branches.
+If a branch already has the agreed development version, keep it rather than
+incrementing the release number again.
 
 Versions usually follow `MAJOR.MINOR.PATCH`. For a stable public API, compatible
 fixes change PATCH, compatible features change MINOR, and incompatible changes
@@ -238,6 +240,45 @@ issue-42/installation-docs
 This branch exists locally. It appears on GitHub after you push it in step 6.
 If `pull --ff-only` refuses to update, your local and remote histories differ;
 ask for help reconciling them before starting the new branch.
+
+### Set the approved development version
+
+**Responsible: contributor. Location: your issue branch, in your terminal.**
+
+Before changing the code, check the current version in `VERSION` and the target
+approved in the issue. Use [bumpversion](semantic_versioning.md) to start that
+target in its development phase. Start from a clean working tree and choose
+one command:
+
+| Approved change | Command | Example from `0.1.0` |
+| --- | --- | --- |
+| MAJOR | `uv run bumpversion major` | `1.0.0.dev0` |
+| MINOR | `uv run bumpversion minor` | `0.2.0.dev0` |
+| PATCH | `uv run bumpversion patch` | `0.1.1.dev0` |
+
+For example, for an approved patch targeting `0.1.1` from `0.1.0`:
+
+```bash
+uv run bumpversion --dry-run --verbose patch
+uv run bumpversion patch
+```
+
+The dry run previews the change. The second command updates the configured
+version files and creates a commit when `commit = True`. If the dependency
+lockfile records the project version, refresh it with `uv lock` and commit
+the lockfile update too.
+
+**Contributors must not run `bumpversion release` or remove the `.devN` suffix.**
+The maintainer does that during release preparation in step 9. Keep `tag = False`;
+release tags are created only after the release PR is reviewed and merged.
+
+If several branches target the same release, they should use the same base
+development version. Do not bump `0.1.1.dev0` to `0.1.2.dev0` when the approved
+target is still `0.1.1`. Ask the maintainer before changing an existing target
+or resolving conflicting version changes.
+
+**Expected result:** your branch identifies the approved target as a development
+version, such as `0.1.1.dev0`, until the maintainer prepares the stable release.
 
 ## How the branches fit together
 
@@ -408,11 +449,113 @@ Opening the PR requests review; it does not merge your work.
 
 ### Review the change
 
-**Responsible: reviewer. Location: GitHub.**
+**Responsible: reviewer; maintainer arranges any additional specialist review.**
+**Location: GitHub, and a separate local checkout when practical checks are needed.**
 
-Read the changes against the issue's success criteria and check the evidence
-for the latest commit. Approve or request specific corrections. An approval
-is a review decision; the maintainer still decides when the change can merge.
+The reviewer checks whether the change solves the agreed problem and is ready
+to join the shared code. Passing automated tests is supporting evidence; the
+reviewer also reads the changes and assesses the behaviour and explanation.
+
+#### Understand the proposal and check the evidence
+
+1. Open **Pull requests** and select the PR. Read its description and linked
+   issue, including the success criteria and approved target version.
+2. Check that the PR targets the intended base branch, usually `main`, and
+   contains the intended source branch. Note the latest commit so you know
+   which version you are reviewing.
+3. Open **Checks**, or the associated run under **Actions**, and confirm the
+   agreed checks passed for that latest commit. Read failed or skipped checks
+   and ask for missing evidence; an older successful run does not verify
+   later changes.
+4. Open **Files changed** and read the proposed edits one file at a time.
+   Use **Viewed** to record completed files. Review the questions below as
+   applicable to the change.
+
+| Area | What the reviewer checks |
+| --- | --- |
+| Scope | Does the change meet the issue's success criteria? Are unrelated edits included? |
+| Behaviour | Does the implementation handle the intended use and relevant failure cases? |
+| Tests | Do tests exercise the changed behaviour, and would they catch the reported problem? |
+| Documentation | Do explanations and examples match the code? Can a newcomer follow changed instructions? |
+| Dependencies and automation | Are dependency, lockfile, and workflow changes intentional and necessary? |
+| Data or model artifacts | Are the selected files identifiable, available through approved storage, and supported by the required verification evidence? |
+| Release preparation | Do the version, release notes, and any manifest describe the same approved candidate? |
+
+For the installation-documentation example, follow the proposed steps in a
+fresh environment and check their expected outcomes. For code changes, run
+relevant checks locally when that would resolve a question not covered by the
+CI evidence. If part of the change is outside your expertise, ask the maintainer
+to arrange another reviewer rather than approving that part without assessment.
+
+#### Check the PR locally when needed
+
+Start from a clone of the repository hosting the PR. This example fetches the
+PR's current code into a separate working folder, leaving your usual checkout
+on its existing branch:
+
+```bash
+git fetch origin pull/PR_NUMBER/head
+git worktree add --detach ../pr-review FETCH_HEAD
+cd ../pr-review
+git log -1 --oneline
+```
+
+Replace `PR_NUMBER` with the PR's actual number, which may differ from its issue
+number. Use a new folder name if `../pr-review` already exists. Confirm the
+printed commit matches the latest PR commit, then run the relevant environment
+setup and checks from [step 4](#4-make-the-change-and-test-it). Detached means
+you are inspecting a specific commit rather than preparing changes on a branch.
+These commands retrieve code; they do not merge it.
+
+If the review needs DVC-managed artifacts, retrieve only the agreed targets
+using the [artifact-review instructions](#upload-dvc-artifacts-for-review) and
+the required storage access. Routine PR review does not require running a
+held-out evaluation pipeline. If private verification is needed, review the
+approved report or arrange verification with an authorised project member.
+
+#### Give actionable feedback and submit the review
+
+In **Files changed**, use the comment button beside a relevant line to explain
+what needs attention and why. For example:
+
+```text
+Required change: please state the expected output of this command so a new
+collaborator can tell whether installation succeeded.
+
+Suggestion: consider combining these two paragraphs to avoid repetition.
+```
+
+Distinguish required corrections from optional suggestions. Choose **Start a
+review**, then **Add review comment** for further comments. Pending review
+comments are visible only to you until you submit the review.
+
+When finished, select **Review changes**, write a short summary of what you
+checked, and choose:
+
+| Decision | When to choose it |
+| --- | --- |
+| Comment | You have questions or feedback but are not yet approving or formally requesting corrections. |
+| Request changes | Specific corrections are needed before you consider the PR ready. Explain what must change. |
+| Approve | You have reviewed the current changes, assessed the required evidence, and have no unresolved blocking concerns. |
+
+Click **Submit review** so the contributor can see your decision and comments.
+A summary might be:
+
+```text
+Reviewed the README changes against issue #42 and followed the revised
+installation steps in a fresh environment. The expected outputs matched.
+Required checks passed for the latest PR commit. No blocking concerns remain.
+```
+
+Describe only checks you actually performed or inspected. Authors cannot
+approve their own PRs. Whether another person's approval satisfies the merge
+requirements depends on their permissions and any required code-owner review.
+An approval is a review decision; the maintainer still decides when to merge.
+See [GitHub's review instructions](https://docs.github.com/en/pull-requests/how-tos/review-pull-requests/reviewing-proposed-changes-in-a-pull-request).
+
+**Expected result:** the PR records the review decision, checks assessed, and
+any required corrections. The contributor knows what to do next; the maintainer
+can see whether the required review is complete.
 
 ### Address corrections and conflicts
 
@@ -433,6 +576,12 @@ git push
 Confirm that the first command prints your issue branch. Substitute the files
 you corrected. Reply to review comments and request another review. The
 existing PR updates automatically; no new branch or PR is needed.
+
+The reviewer then opens the updated PR, reads the new commits and affected
+files, confirms the latest checks, and verifies each requested correction.
+They submit a new review when satisfied. Do not treat the original approval
+or a resolved comment thread as evidence that later edits have been reviewed;
+follow the repository's fresh-approval requirements.
 
 If GitHub requires the branch to be updated with `main`, start from a clean
 working tree on your issue branch:
@@ -500,30 +649,26 @@ git pull --ff-only origin main
 git switch -c issue-57/release-0.1.0
 ```
 
-Agree the version, list the included changes in the release notes, and check
-that completed issues match the release scope. Update the configured version
-files together using the project's agreed version tool.
+Confirm that the development version already targets the approved release,
+list the included changes in the release notes, and check that completed
+issues match the release scope. Contributors set the MAJOR, MINOR, or PATCH
+target in step 3; do not increment that target again here.
 
-Use [bumpversion](semantic_versioning.md), which is included in the development dependencies.
-Start from a clean working tree and choose **one** command for the approved change:
-
-| Change | Command | When to use it |
-| --- | --- | --- |
-| MAJOR | `uv run bumpversion major` | An incompatible change to the public interface. |
-| MINOR | `uv run bumpversion minor` | New functionality compatible with the previous interface. |
-| PATCH | `uv run bumpversion patch` | A compatible bug fix. |
-
-For example, preview a minor bump before applying it:
+Start from a clean working tree. The maintainer uses
+[bumpversion](semantic_versioning.md#creating-a-stable-release) to remove the
+development suffix:
 
 ```bash
-uv run bumpversion --dry-run --verbose minor
-uv run bumpversion minor
+uv run bumpversion --dry-run --verbose release
+uv run bumpversion release
 ```
 
-The preview does not change files. The second command applies the version
-change and creates a commit if `commit = True`. Keep `tag = False` so the
-maintainer creates the release tag only after review and merge. Configuration
-and development-suffix handling are explained in the linked versioning guide.
+For example, `0.1.1.dev0` becomes `0.1.1`. The preview does not change files.
+The second command updates the version and creates a commit if `commit = True`.
+**Only the maintainer runs `bumpversion release`; contributors leave their
+branches on development versions.** Keep `tag = False` so the maintainer
+creates the release tag only after review and merge. If the development
+version does not match the approved target, resolve that before proceeding.
 
 If a dependency lockfile records the project version, refresh it using the
 project's normal command, such as `uv lock`, and commit the update.

@@ -135,8 +135,11 @@ TestPyPI has its own accounts, projects, and API tokens; see the
 
 **Responsible: maintainer. Location: a checkout of the reviewed release tag.**
 
-Use bumpversion in a release-preparation PR to set the agreed version. Do not
-edit `VERSION` independently of that policy. Once the PR has merged into
+Contributors set the approved development target on their issue branches
+using `bumpversion major`, `minor`, or `patch`. The maintainer uses
+`uv run bumpversion release` in a release-preparation PR to remove the
+development suffix; contributors must not run that command. Do not edit
+`VERSION` independently of that policy. Once the release PR has merged into
 `main`, tag its approved commit as described in the development workflow.
 
 For `v0.1.0`, create a fresh release checkout:

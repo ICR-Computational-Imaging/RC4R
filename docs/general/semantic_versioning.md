@@ -34,11 +34,13 @@ need to match the Git commit count.
 The [development and release workflow](development_workflow.md) uses short-lived
 issue branches created from `main`, with PRs targeting `main`. Each branch has
 an approved issue and release-version target. Several issues may target the
-same release; this does not require each branch to bump the package version.
+same release. Contributors set the approved target as a development version
+on their own branches; if that target is already set, they do not bump it again.
 
 Development suffixes identify preview builds when needed. A `.devN` version
-does not imply a permanent branch named `dev`. A maintainer coordinates the
-version change in release preparation, and stable release tags identify exact
+does not imply a permanent branch named `dev`. A maintainer approves and
+coordinates the target, then removes the development suffix during release
+preparation. Stable release tags identify exact
 reviewed commits on `main`. Branch names and version strings do not enforce
 stability; tests, model verification, and review provide that evidence.
 
@@ -73,7 +75,10 @@ Release tags are still created manually after review because `tag = False`.
 
 ## Bump MAJOR, MINOR, or PATCH
 
-Choose one command, depending on the approved change:
+**Responsible: contributor, on their issue branch after the target is approved.**
+
+Choose one command, depending on the approved change. For example,
+`uv run bumpversion patch` changes `0.1.0` to `0.1.1.dev0`:
 
 | Change | Preview without changing files | Apply the change | Example result from `1.4.2` |
 | --- | --- | --- | --- |
@@ -86,6 +91,15 @@ part. These examples each start independently from `1.4.2`; do not run all
 three commands in sequence. This repository's configuration also starts the
 new version in its `dev` phase. The development suffix is removed separately when preparing
 the stable release, as described below.
+
+Contributors must not run `bumpversion release`, remove the development
+suffix manually, or set a stable version with `--new-version`. Stable release
+preparation is the maintainer's responsibility. If several branches target
+the same release, coordinate them with the maintainer and keep an existing
+matching development target rather than incrementing it again.
+
+After a version change, run `uv lock` if the lockfile records the package
+version, and commit the lockfile update alongside the version change.
 
 ## Previewing a change
 
@@ -114,6 +128,8 @@ identifiable version, rather than automatically running it after every commit.
 
 ## Creating a stable release
 
+**Responsible: maintainer. Contributors must not run this command.**
+
 On an approved release-preparation branch, when the development version targets
 the agreed release, remove its development suffix with:
 
@@ -135,10 +151,12 @@ git push origin v0.1.0
 
 Tagging after merge ensures the tag points to the reviewed commit on `main`,
 including when GitHub squashes the PR. Do not create or push a release tag
-until that commit and version are approved. Existing stable versions can use
-an explicit new version as described below instead of removing a suffix.
+until that commit and version are approved. Do not run another MAJOR, MINOR,
+or PATCH bump at this point: the contributor has already set the target.
 
 ## Setting an explicit version
+
+**Responsible: maintainer for template setup or approving a target correction.**
 
 When starting a new project from this template or moving to a deliberately
 chosen release series, set the complete target version explicitly:
@@ -164,19 +182,22 @@ uv run bumpversion --no-commit --new-version 0.1.0.dev1 build
 
 ## Example release sequence
 
-For an approved release targeting `0.1.0`, with the current version
-`0.1.0.dev45`:
+For an approved patch targeting `0.1.1`, starting from stable `0.1.0`:
 
-1. Create a release-preparation branch from updated `main`, associated with
-   the approved release issue.
-2. Run `uv run bumpversion release` on that branch to set `0.1.0`.
-3. Run the required checks and obtain review, including model verification
-   when the release changes model artifacts.
-4. Merge the PR into `main`, update local `main`, and tag the exact reviewed
-   commit as `v0.1.0`.
-5. Publish the verified artifacts and package according to the release workflow.
-6. Start subsequent work from updated `main` under a new approved issue. Set a
-   development version only when an identifiable preview build is needed.
+1. **Maintainer:** approve the issue and target `0.1.1`.
+2. **Contributor:** create an issue branch from updated `main`, then run
+   `uv run bumpversion patch` to set `0.1.1.dev0`.
+3. **Contributor and reviewer:** complete the changes, checks, and PR review.
+   The maintainer merges the approved contribution, keeping its development version.
+4. **Maintainer:** create a release-preparation branch from updated `main`,
+   associated with the release issue. Run `uv run bumpversion release` to
+   change `0.1.1.dev0` to `0.1.1`, and refresh the lockfile if needed.
+5. **Maintainer and reviewer:** check and review the release PR, including model
+   verification where applicable, then merge it into `main`.
+6. **Maintainer:** tag the exact reviewed commit as `v0.1.1` and publish the
+   verified artifacts and package according to the release workflow.
+7. **Contributor:** start subsequent work under a new approved issue and set
+   its agreed development target on a new branch.
 
 The next target is a project decision: use a patch version for a compatible
 fix, a minor version for compatible functionality, or a major version for an
