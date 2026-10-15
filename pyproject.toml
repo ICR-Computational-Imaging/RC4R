@@ -15,6 +15,9 @@ license = "Apache-2.0"
 license-files = ["LICENSE"]
 dependencies = ["torch", "pillow", "numpy"]
 
+[project.optional-dependencies]
+ui = ["PyQt6>=6.6,<7", "matplotlib>=3.10"]
+
 [project.scripts]
 dermapred = "dermapred.inference.cli:main"
 

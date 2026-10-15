@@ -36,8 +36,9 @@ workflow included in this repository.
 
 Runs the full pytest suite on Ubuntu with Python 3.11 and 3.12 for pushes to
 *any branch*, pull requests, and manual requests. It installs the locked
-`pytest` and `train` dependency groups; training imports require the latter
-even for unit tests.
+`pytest` and `train` dependency groups and the optional `ui` extra; training
+imports require the training group even for unit tests. Qt uses its offscreen
+platform, and a separate check enforces at least 80% coverage of `dermapred.ui`.
 Tests use synthetic data and mocked transfers, so no private data, DVC remotes,
 or release credentials are needed. Pytest's configured coverage report appears
 in the job log.
@@ -50,7 +51,7 @@ make them mandatory. Fork PRs may require a maintainer to approve the run.
 Run the same checks locally with:
 
 ```bash
-uv run --locked --no-default-groups --group pytest --group train pytest
+QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train --extra ui pytest
 ```
 
 ### Package publishing (`publish.yaml`)

@@ -5,6 +5,9 @@ command. Its runtime dependencies are PyTorch, NumPy, and Pillow. DVC, MONAI,
 scikit-learn, plotting tools, and dataset download tools are development
 dependencies and are not required to run a trained model.
 
+An optional [desktop interface](ui.md) adds PyQt6 and Matplotlib for selecting
+an image region and running calibrated inference.
+
 This is an educational template. The example model is not intended for
 clinical use or medical decision-making.
 
@@ -111,7 +114,7 @@ result = predictor.predict("image.jpg")
 ```
 
 Load the predictor once and reuse it for subsequent images. `predict` accepts
-an image path or a Pillow `Image.Image`, allowing a later user interface to
+an image path or a Pillow `Image.Image`, allowing the desktop interface to
 call the same API without duplicating inference logic. Inference currently
 runs on the CPU and returns one prediction per call.
 

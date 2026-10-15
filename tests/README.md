@@ -25,12 +25,14 @@ remote, or the complete DermaMNIST dataset. Use small synthetic arrays or
 committed, non-sensitive fixtures where representative data are needed. Full
 pipeline and model-quality checks can be kept separate from fast unit tests.
 
-The default development environment includes the `test` dependency group.
-Synchronise it and run the complete suite from the repository root:
+The default development environment includes the `pytest` dependency group.
+Training dependencies are also needed by synthetic pipeline tests, and the
+optional `ui` extra enables the desktop tests. Run the complete suite from
+the repository root:
 
 ```bash
-uv sync
-uv run pytest
+uv sync --locked --group train --extra ui
+QT_QPA_PLATFORM=offscreen uv run --locked --group train --extra ui pytest
 ```
 
 The pytest configuration in `pyproject.toml` enables coverage reporting for
@@ -49,8 +51,8 @@ or a pull request is opened. The continuous integration workflow should create
 a clean environment from the committed `uv.lock` file and then execute:
 
 ```bash
-uv sync --locked
-uv run pytest
+uv sync --locked --no-default-groups --group pytest --group train --extra ui
+QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train --extra ui pytest
 ```
 
 Running the local and automated tests through the same commands helps ensure
@@ -64,7 +66,7 @@ independent of network access, DVC credentials, and the complete DermaMNIST
 dataset. Full data-pipeline reproduction should use a separate workflow with
 the required access controls.
 
-The workflow definition belongs in `.github/workflows/ci.yml`. Before enabling
+The workflow definition is `.github/workflows/tests.yaml`. Before enabling
 locked CI installation, generate and commit the lockfile:
 
 ```bash
@@ -77,6 +79,19 @@ When fixing a defect, first add a test that demonstrates the problem, then
 confirm that the implementation change makes that test pass.
 
 ## Tests in this repository
+
+### Desktop interface
+
+`tests/ui/` uses synthetic images, mocked inference, and Qt's offscreen
+platform. It checks cropping, mouse selection, image loading, calibrated result
+display, errors, background tasks, and safe closing. No real weights or network
+access are needed. Desktop integration tests are skipped if PyQt6 is absent;
+CI installs the UI extra and enforces the coverage threshold:
+
+```bash
+QT_QPA_PLATFORM=offscreen uv run --locked --extra ui --group train \
+  pytest tests/ui --cov-reset --cov=dermapred.ui --cov-fail-under=80
+```
 
 ### Synthetic final-evaluation pipeline check
 

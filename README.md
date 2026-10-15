@@ -137,16 +137,34 @@ with channels first. Direct resizing changes a non-square image's aspect
 ratio. See the [inference guide](docs/dermapred/inference.md) for the complete
 API, local-file examples, and preprocessing policy.
 
+## Open the desktop interface
+
+Install the optional UI dependencies and launch with a trusted release manifest:
+
+```bash
+uv run --locked --extra ui python -m dermapred.ui --manifest model-release.json
+```
+
+For an installed package, install `dermapred[ui]` and run
+`python -m dermapred.ui --manifest model-release.json`. Open an image, draw a
+red box around the mole, and click **Infer** to see its calibrated positive-class
+probability. See the [desktop guide](docs/dermapred/ui.md) for local weights,
+preprocessing, and offline use.
+
 ## Run the tests
 
 ```bash
-uv run --locked --no-default-groups --group pytest --group train pytest
+QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train --extra ui pytest
 ```
 
 Tests create synthetic data and temporary model files; download and GitHub
 upload operations are mocked. They do not require the real datasets, DVC
 remotes, or institutional credentials. GitHub Actions runs the suite on Python
 3.11 and 3.12 for branch pushes and pull requests.
+
+The UI tests use an offscreen Qt platform. Without the optional `ui` extra,
+desktop integration tests are skipped. CI installs the extra and enforces at
+least 80% coverage of `dermapred.ui`.
 
 To check just the final-evaluation pipeline with synthetic data:
 
