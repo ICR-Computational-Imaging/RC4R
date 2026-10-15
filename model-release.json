@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "dermapred-lenet",
+  "version": "0.0.2",
+  "files": {
+    "weights": {
+      "filename": "binary_classifier.pt",
+      "url": "https://github.com/ICR-Computational-Imaging/RC4R/releases/download/v0.0.2/binary_classifier.pt",
+      "sha256": "2666e33f3e82e2cc33ddb2c5985ca9e2b44e64ac9f891a6cf775e1643819839a",
+      "size_bytes": 181107
+    },
+    "calibrator": {
+      "filename": "probability_calibrator.json",
+      "url": "https://github.com/ICR-Computational-Imaging/RC4R/releases/download/v0.0.2/probability_calibrator.json",
+      "sha256": "f98542638c60d4d1eb9d5323eebabff6499422390b2ff96ed6585a103fcbdade",
+      "size_bytes": 1934
+    }
+  }
+}
