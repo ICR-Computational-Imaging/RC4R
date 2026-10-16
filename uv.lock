@@ -1319,16 +1319,12 @@ wheels = [
 name = "dermapred"
 source = { editable = "." }
 dependencies = [
+    { name = "matplotlib" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pillow" },
-    { name = "torch" },
-]
-
-[package.optional-dependencies]
-ui = [
-    { name = "matplotlib" },
     { name = "pyqt6" },
+    { name = "torch" },
 ]
 
 [package.dev-dependencies]
@@ -1381,13 +1377,12 @@ type = [
 
 [package.metadata]
 requires-dist = [
-    { name = "matplotlib", marker = "extra == 'ui'", specifier = ">=3.10" },
+    { name = "matplotlib", specifier = ">=3.10" },
     { name = "numpy" },
     { name = "pillow" },
-    { name = "pyqt6", marker = "extra == 'ui'", specifier = ">=6.6,<7" },
+    { name = "pyqt6", specifier = ">=6.6,<7" },
     { name = "torch" },
 ]
-provides-extras = ["ui"]
 
 [package.metadata.requires-dev]
 dev = [

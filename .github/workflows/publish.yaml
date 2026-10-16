@@ -30,7 +30,7 @@ jobs:  # Separate package preparation from the job that receives the upload toke
       MPLBACKEND: Agg  # Render test plots without a graphical display.
       OMP_NUM_THREADS: "2"  # Limit CPU threads used by numerical libraries during tests.
       MKL_NUM_THREADS: "2"  # Apply the same limit to libraries using MKL.
-      QT_QPA_PLATFORM: offscreen  # Test the optional UI without a desktop display.
+      QT_QPA_PLATFORM: offscreen  # Test the UI without a desktop display.
     steps:  # Execute these operations in order within this job.
       - uses: actions/checkout@v7  # Download repository files at the selected tag.
         with:
@@ -52,8 +52,8 @@ jobs:  # Separate package preparation from the job that receives the upload toke
       # Install only locked test and training dependencies, then run pytest.
       - name: Run synthetic tests  # Check the code without private data or DVC remotes.
         run: |
-          uv sync --locked --no-default-groups --group pytest --group train --extra ui
-          uv run --locked --no-default-groups --group pytest --group train --extra ui pytest
+          uv sync --locked --no-default-groups --group pytest --group train
+          uv run --locked --no-default-groups --group pytest --group train pytest
       - name: Build distributions  # Create the installable wheel and source archive.
         run: uv build  # Write both package formats to dist/.
       # Use an isolated environment containing the wheel and its runtime dependencies.

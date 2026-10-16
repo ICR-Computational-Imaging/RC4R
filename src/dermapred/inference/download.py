@@ -16,6 +16,7 @@ import tempfile
 from collections.abc import Sequence
 from dataclasses import dataclass
 from http.client import HTTPMessage
+from importlib.metadata import version as package_version
 from pathlib import Path
 from typing import IO
 from urllib.error import URLError
@@ -25,6 +26,8 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 _IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\Z")
 _SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 _CHUNK_SIZE = 1024 * 1024
+DEFAULT_RELEASE_REPOSITORY = "ICR-Computational-Imaging/RC4R"
+_MANIFEST_MAX_BYTES = 1024 * 1024
 
 
 def _validate_url(url: str) -> None:
@@ -156,6 +159,91 @@ def _matches_artifact(path: Path, artifact: ModelArtifact) -> bool:
     with path.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     return digest == artifact.sha256
+
+
+def download_release_manifest(
+    *,
+    repository: str = DEFAULT_RELEASE_REPOSITORY,
+    version: str | None = None,
+    cache_dir: Path | None = None,
+    offline: bool = False,
+    timeout: float = 30.0,
+) -> Path:
+    """Fetch a published release's manifest, pinned to the installed version.
+
+    GitHub hosts the trusted manifest; its artifact hashes are checked by
+    ``download_model``. A valid cached manifest is reused. Offline mode never
+    contacts GitHub. No Git checkout or GitHub credentials are required.
+    An explicit version supports testing a published model from development code.
+    """
+    selected_version = package_version("dermapred") if version is None else version
+    parts = repository.split("/")
+    if len(parts) != 2 or not all(_IDENTIFIER.fullmatch(part) for part in parts):
+        raise ValueError("Use a GitHub repository in OWNER/REPOSITORY format.")
+    if not _IDENTIFIER.fullmatch(selected_version) or not selected_version[0].isdigit():
+        raise ValueError("Release version must be a simple version identifier without a v prefix.")
+    if not 0 < timeout < float("inf"):
+        raise ValueError("timeout must be positive and finite.")
+    base_url = f"https://github.com/{repository}/releases/download/v{selected_version}"
+    root = default_cache_directory() if cache_dir is None else cache_dir
+    destination = root / "releases" / repository / selected_version / "model-release.json"
+
+    def validate(path: Path) -> None:
+        if path.stat().st_size > _MANIFEST_MAX_BYTES:
+            raise ValueError("Release manifest exceeds the maximum size of 1 MiB.")
+        release = ModelRelease.load(path)
+        if release.version != selected_version:
+            raise ValueError("Release manifest version does not match the requested version.")
+        if not {"weights", "calibrator"} <= release.files.keys():
+            raise ValueError("Release manifest must contain weights and calibrator artifacts.")
+        if any(
+            artifact.url != f"{base_url}/{artifact.filename}"
+            for artifact in release.files.values()
+        ):
+            raise ValueError("Manifest artifact URLs must belong to the requested GitHub release.")
+
+    try:
+        validate(destination)
+    except (OSError, ValueError):
+        if offline:
+            raise FileNotFoundError(
+                f"No valid cached manifest for {repository} v{selected_version}."
+            ) from None
+    else:
+        return destination
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path: Path | None = None
+    try:
+        request = Request(
+            f"{base_url}/model-release.json",
+            headers={"User-Agent": "dermapred-model-downloader"},
+        )
+        opener = build_opener(_HTTPSRedirectHandler())
+        try:
+            with opener.open(request, timeout=timeout) as response:
+                _validate_url(response.geturl())
+                content = response.read(_MANIFEST_MAX_BYTES + 1)
+        except URLError as error:
+            raise OSError(
+                f"Cannot retrieve model-release.json for {repository} v{selected_version}. "
+                "Check that this public release and its manifest asset are published, "
+                "or supply local model files / a local manifest. "
+                f"Details: {error}"
+            ) from error
+        if len(content) > _MANIFEST_MAX_BYTES:
+            raise ValueError("Release manifest exceeds the maximum size of 1 MiB.")
+        with tempfile.NamedTemporaryFile(
+            dir=destination.parent, prefix=".manifest-", suffix=".part", delete=False
+        ) as output:
+            temporary_path = Path(output.name)
+            output.write(content)
+        validate(temporary_path)
+        temporary_path.replace(destination)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+    return destination
 
 
 def _download_artifact(artifact: ModelArtifact, destination: Path, timeout: float) -> None:

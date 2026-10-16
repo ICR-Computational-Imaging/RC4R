@@ -26,13 +26,13 @@ committed, non-sensitive fixtures where representative data are needed. Full
 pipeline and model-quality checks can be kept separate from fast unit tests.
 
 The default development environment includes the `pytest` dependency group.
-Training dependencies are also needed by synthetic pipeline tests, and the
-optional `ui` extra enables the desktop tests. Run the complete suite from
+Training dependencies are also needed by synthetic pipeline tests. Desktop
+dependencies are included in the standard installation. Run the complete suite from
 the repository root:
 
 ```bash
-uv sync --locked --group train --extra ui
-QT_QPA_PLATFORM=offscreen uv run --locked --group train --extra ui pytest
+uv sync --locked --group train
+QT_QPA_PLATFORM=offscreen uv run --locked --group train pytest
 ```
 
 The pytest configuration in `pyproject.toml` enables coverage reporting for
@@ -51,8 +51,8 @@ or a pull request is opened. The continuous integration workflow should create
 a clean environment from the committed `uv.lock` file and then execute:
 
 ```bash
-uv sync --locked --no-default-groups --group pytest --group train --extra ui
-QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train --extra ui pytest
+uv sync --locked --no-default-groups --group pytest --group train
+QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train pytest
 ```
 
 Running the local and automated tests through the same commands helps ensure
@@ -85,11 +85,11 @@ confirm that the implementation change makes that test pass.
 `tests/ui/` uses synthetic images, mocked inference, and Qt's offscreen
 platform. It checks cropping, mouse selection, image loading, calibrated result
 display, errors, background tasks, and safe closing. No real weights or network
-access are needed. Desktop integration tests are skipped if PyQt6 is absent;
-CI installs the UI extra and enforces the coverage threshold:
+access are needed. Desktop integration tests run as part of the standard
+suite; CI enforces the coverage threshold:
 
 ```bash
-QT_QPA_PLATFORM=offscreen uv run --locked --extra ui --group train \
+QT_QPA_PLATFORM=offscreen uv run --locked --group train \
   pytest tests/ui --cov-reset --cov=dermapred.ui --cov-fail-under=80
 ```
 

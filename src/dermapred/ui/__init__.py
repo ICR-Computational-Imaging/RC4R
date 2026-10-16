@@ -1,1 +1,1 @@
-"""Optional desktop interface; importing this package does not start Qt."""
+"""Desktop interface; importing this package does not start Qt."""

@@ -129,6 +129,14 @@ bandwidth for large models.
 
 ## Download a model
 
+The desktop UI obtains the public manifest automatically when launched with
+`python -m dermapred.ui`. It chooses the tag `vVERSION` using the installed
+package version and requests the release asset named `model-release.json`.
+`Predictor.from_release()` provides the same automatic selection for Python
+users. The tag's release and assets must be published; a draft or an absent
+development release produces an error. See the [desktop guide](ui.md) for
+version overrides and offline use.
+
 With the installed package and a trusted local manifest:
 
 ```bash

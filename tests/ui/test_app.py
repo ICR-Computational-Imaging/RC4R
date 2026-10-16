@@ -6,18 +6,14 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
+from matplotlib.backend_bases import MouseEvent
 from PIL import Image
+from PyQt6.QtGui import QCloseEvent
+from PyQt6.QtTest import QTest
+from PyQt6.QtWidgets import QApplication
 
-pytest.importorskip("PyQt6")
-pytest.importorskip("matplotlib")
-
-from matplotlib.backend_bases import MouseEvent  # noqa: E402
-from PyQt6.QtGui import QCloseEvent  # noqa: E402
-from PyQt6.QtTest import QTest  # noqa: E402
-from PyQt6.QtWidgets import QApplication  # noqa: E402
-
-from dermapred.inference.predictor import Prediction  # noqa: E402
-from dermapred.ui import app  # noqa: E402
+from dermapred.inference.predictor import Prediction
+from dermapred.ui import app
 
 
 @pytest.fixture(scope="module")

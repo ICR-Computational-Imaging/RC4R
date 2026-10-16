@@ -1,12 +1,13 @@
 # Installing and running image inference
 
 The pip package provides an image-inference API and a `dermapred predict`
-command. Its runtime dependencies are PyTorch, NumPy, and Pillow. DVC, MONAI,
-scikit-learn, plotting tools, and dataset download tools are development
-dependencies and are not required to run a trained model.
+command. Its runtime dependencies are PyTorch, NumPy, Pillow, PyQt6, and
+Matplotlib. DVC, MONAI, scikit-learn, and dataset download tools are development
+dependencies.
 
-An optional [desktop interface](ui.md) adds PyQt6 and Matplotlib for selecting
-an image region and running calibrated inference.
+The included [desktop interface](ui.md) uses PyQt6 and Matplotlib for selecting
+an image region and running calibrated inference. It is available with the
+standard installation.
 
 This is an educational template. The example model is not intended for
 clinical use or medical decision-making.
@@ -37,9 +38,11 @@ package or its model artifacts have already been published.
 
 The Python wheel contains the code; model weights and their matching calibrator
 are distributed separately using the [model release workflow](model_download.md).
-Installing the package does not download a dataset or model. Until a release
-manifest is selected and bundled with the package, users supply the trusted
-`model-release.json` for their chosen model explicitly.
+Installing the package does not download a dataset or model. The desktop UI and
+`Predictor.from_release()` can retrieve `model-release.json` from the public
+GitHub Release matching the installed package version. The command-line
+`dermapred predict` examples below still accept a trusted local manifest or
+explicit model files.
 
 ## Run inference with local model files
 
@@ -93,12 +96,19 @@ the platform default. Only load checkpoints and manifests from trusted sources.
 ```python
 from dermapred.inference import Predictor
 
-predictor = Predictor.from_manifest("model-release.json")
+predictor = Predictor.from_release()
 result = predictor.predict("image.jpg")
 print(result.label)
 print(result.probability)
 print(result.to_dict())
 ```
+
+`from_release()` downloads and caches the public manifest for the installed
+version, then verifies and loads its weights and calibrator. The matching tag
+must have a published release with a `model-release.json` asset. It does not
+fall back to `latest`. Pass `version="0.1.1"` to explicitly select a published
+model during development, or `offline=True` to require a cached bundle. A local
+manifest can still be loaded with `Predictor.from_manifest("model-release.json")`.
 
 For local artifacts:
 

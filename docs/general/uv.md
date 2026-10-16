@@ -92,10 +92,10 @@ Dependencies are separated according to who needs them:
 
 | Location in `pyproject.toml` | Purpose | Example |
 | --- | --- | --- |
-| `[project].dependencies` | Required when users install Dermapred | PyTorch, NumPy, Pillow |
-| `[project.optional-dependencies]` | Published features users may choose to install | A future browser or desktop UI |
+| `[project].dependencies` | Required when users install Dermapred, including the desktop interface | PyTorch, NumPy, Pillow, PyQt6, Matplotlib |
+| `[project.optional-dependencies]` | Optional published features, if introduced later | Not currently used |
 | `[dependency-groups].train` | Local data and model-development tools | DVC, MedMNIST |
-| `[dependency-groups].test` | Automated testing | pytest |
+| `[dependency-groups].pytest` | Automated testing | pytest |
 | `[dependency-groups].lint` | Code-quality checks | Ruff |
 | `[dependency-groups].type` | Static type checking | mypy |
 | `[dependency-groups].docs` | Documentation generation | MkDocs |

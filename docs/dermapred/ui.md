@@ -1,36 +1,63 @@
 # Desktop image inference
 
-The optional PyQt6 interface displays images using an embedded Matplotlib
+The included PyQt6 interface displays images using an embedded Matplotlib
 canvas. Select a mole with a red bounding box, then run the existing calibrated
 inference engine on that region. This is an educational example and is not
 intended for clinical use or medical decisions.
 
 ## Install and launch
 
-Install the optional desktop dependencies with pip or uv:
+The desktop dependencies are included in the standard package installation:
 
 ```bash
-python -m pip install 'dermapred[ui]'
+python -m pip install dermapred
 ```
 
 From a repository checkout:
 
 ```bash
-uv sync --locked --extra ui
-uv run --locked --extra ui python -m dermapred.ui --manifest model-release.json
+uv sync --locked
+uv run --locked python -m dermapred.ui
 ```
 
 For an installed package, use:
 
 ```bash
-python -m dermapred.ui --manifest model-release.json
+python -m dermapred.ui
 ```
 
-Supply a trusted local [release manifest](model_download.md). The weights and
-matching calibrator are downloaded and verified when you first click **Infer**,
-then cached for subsequent use. `--offline` requires verified cached artifacts;
-`--cache-dir PATH` selects the cache location. The UI does not retrieve the
-manifest itself and does not download anything merely on launch.
+No local manifest is needed by default. The UI uses the **installed package
+version**, without requiring a Git checkout. For version `0.1.1`, it retrieves:
+
+```text
+https://github.com/ICR-Computational-Imaging/RC4R/releases/download/v0.1.1/model-release.json
+```
+
+The manifest, weights, and matching calibrator are fetched when you first click
+**Infer**, then cached for subsequent use. The manifest must match the requested
+version and point to assets in that same public release; weights and calibrator
+are verified against its byte counts and SHA-256 hashes. Nothing is downloaded
+merely on launch or installation. `--offline` requires a valid cached manifest
+and verified cached artifacts; `--cache-dir PATH` selects their cache location.
+
+The release must be published, with an asset named **`model-release.json`**.
+Draft releases cannot be downloaded anonymously. There is no automatic fallback
+to another version or the latest release. Development versions usually do not
+have a public release yet: use local model files, or explicitly select a
+published version while developing:
+
+```bash
+uv run --locked python -m dermapred.ui --release-version 0.1.1
+```
+
+Replace `0.1.1` with an actual published model release. `--repo OWNER/REPOSITORY`
+selects another project's public release location when adapting this template.
+
+You can still supply a trusted local [release manifest](model_download.md):
+
+```bash
+python -m dermapred.ui --manifest model-release.json
+```
 
 Alternatively, supply both local model files:
 
@@ -81,11 +108,11 @@ Tests use synthetic images, offscreen Qt, and mocked model loading and inference
 They do not require trained weights, private datasets, or network access.
 
 ```bash
-QT_QPA_PLATFORM=offscreen uv run --locked --extra ui --group train \
+QT_QPA_PLATFORM=offscreen uv run --locked --group train \
   pytest tests/ui --cov-reset --cov=dermapred.ui --cov-fail-under=80
 ```
 
-The unit-test workflow installs the UI extra, runs these tests on Linux with
+The unit-test workflow runs these tests on Linux with
 Python 3.11 and 3.12, and enforces at least 80% coverage of the UI package.
 Before release, also check the interface interactively on each desktop platform
 you intend to support; automated offscreen tests do not verify native dialogs,

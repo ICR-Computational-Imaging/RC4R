@@ -26,7 +26,7 @@ jobs:
       MPLBACKEND: Agg
       OMP_NUM_THREADS: "2"
       MKL_NUM_THREADS: "2"
-      QT_QPA_PLATFORM: offscreen  # Exercise the optional desktop UI without a display.
+      QT_QPA_PLATFORM: offscreen  # Exercise the desktop UI without a display.
 
     steps:
       - name: Check out repository
@@ -45,12 +45,12 @@ jobs:
 
       # Tests import training modules, but use synthetic data and mocked downloads.
       - name: Install locked test dependencies
-        run: uv sync --locked --no-default-groups --group pytest --group train --extra ui
+        run: uv sync --locked --no-default-groups --group pytest --group train
 
       - name: Run pytest with coverage
-        run: uv run --locked --no-default-groups --group pytest --group train --extra ui pytest
+        run: uv run --locked --no-default-groups --group pytest --group train pytest
 
       - name: Check UI coverage
         run: >-
-          uv run --locked --no-default-groups --group pytest --group train --extra ui
+          uv run --locked --no-default-groups --group pytest --group train
           pytest tests/ui --cov-reset --cov=dermapred.ui --cov-fail-under=80
