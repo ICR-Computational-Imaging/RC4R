@@ -79,6 +79,35 @@ def test_infer_requires_selection(workspace):
     factory.assert_not_called()
 
 
+def test_load_example_from_any_directory_resets_previous_result(
+    workspace, qt, monkeypatch, tmp_path
+):
+    window, factory, _ = workspace
+    monkeypatch.chdir(tmp_path)
+    window._show_image(Image.new("RGB", (20, 20)))
+    window.bounds = (0, 0, 5, 5)
+    window.result.setText("Old prediction")
+    window.example_button.click()
+    assert not window.example_button.isEnabled()
+    wait_for_idle(window, qt)
+    assert window.image is not None
+    assert window.image.mode == "RGB"
+    assert window.bounds is None
+    assert window.result.text() == "No prediction yet."
+    assert window.example_button.isEnabled()
+    factory.assert_not_called()
+
+
+def test_missing_example_shows_dialog_and_restores_controls(workspace, qt, monkeypatch):
+    window, _, _ = workspace
+    monkeypatch.setattr(app, "load_example_image", Mock(side_effect=FileNotFoundError("Missing")))
+    window.example_button.click()
+    wait_for_idle(window, qt)
+    app.QMessageBox.warning.assert_called_once()
+    assert window.image is None
+    assert window.example_button.isEnabled()
+
+
 def test_inference_crops_original_and_reuses_predictor(workspace, qt):
     window, factory, predictor = workspace
     window._show_image(Image.new("RGB", (100, 80)))

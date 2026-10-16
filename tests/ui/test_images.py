@@ -4,7 +4,15 @@ import numpy as np
 import pytest
 from PIL import Image
 
-from dermapred.ui.images import load_image, selection_bounds, square_crop
+from dermapred.ui.images import load_example_image, load_image, selection_bounds, square_crop
+
+
+def test_example_is_an_installed_resource_independent_of_working_directory(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    image = load_example_image()
+    assert image.mode == "RGB"
+    assert image.width > 0 and image.height > 0
+    assert len(image.tobytes()) == image.width * image.height * 3
 
 
 @pytest.mark.parametrize(

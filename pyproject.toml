@@ -48,6 +48,9 @@ version = { file = ["VERSION"] }
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+dermapred = ["examples/*.jpg"]
+
 [tool.pytest.ini_options]
 addopts = [
     "--strict-config",

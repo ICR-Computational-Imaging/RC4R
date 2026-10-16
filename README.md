@@ -148,7 +148,7 @@ uv run --locked python -m dermapred.ui
 
 For an installed package, install `dermapred` and run
 `python -m dermapred.ui`. The manifest is obtained from the public release
-matching the installed version. Open an image, draw a
+matching the installed version. Click **Load example** or open your own image, then draw a
 red box around the mole, and click **Infer** to see its calibrated positive-class
 probability. See the [desktop guide](docs/dermapred/ui.md) for local weights,
 preprocessing, offline use, and selecting a published release from a development version.

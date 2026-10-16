@@ -44,6 +44,81 @@ GitHub Release matching the installed package version. The command-line
 `dermapred predict` examples below still accept a trusted local manifest or
 explicit model files.
 
+## Try the bundled example image
+
+The example image is bundled inside the installed Python package, so users
+do not need to locate an installation folder, clone the repository, or
+download a dataset to try an image. Model weights and the calibrator are still
+obtained separately through the release downloader or local model files.
+
+### Use the Python API
+
+Use `importlib.resources` to read the image regardless of where the package is
+installed or which directory you run Python from:
+
+```python
+from importlib.resources import files
+
+from PIL import Image
+
+from dermapred.inference import Predictor
+
+example = files("dermapred").joinpath("examples", "example_image.jpg")
+with example.open("rb") as stream:
+    with Image.open(stream) as opened:
+        image = opened.convert("RGB")
+
+predictor = Predictor.from_release()
+result = predictor.predict(image)
+print(result.to_dict())
+```
+
+This reads the entire example image without selecting a region. It uses the
+published model release matching the installed package version. For a
+development checkout without a matching public release, use
+`Predictor.from_release(version="YOUR_PUBLISHED_VERSION")` or the local-model
+constructor described below.
+
+### Use the desktop interface
+
+After installing the package, launch the UI:
+
+```bash
+python -m dermapred.ui
+```
+
+Click **Load example**, draw the red bounding box around the mole, and click
+**Infer**. The button loads the bundled image directly and clears any previous
+selection and result. No file browsing or image download is required. From a
+repository checkout, launch with `uv run --locked python -m dermapred.ui`. See the
+[desktop guide](ui.md) for model selection and the square-cropping behaviour.
+
+### Use the image-file command
+
+To use the example with the image-file CLI, copy the bundled image into your
+current directory. This copy is not needed for the UI. Run this in your Python environment:
+
+```python
+from importlib.resources import files
+from pathlib import Path
+
+example = files("dermapred").joinpath("examples", "example_image.jpg")
+destination = Path("example_image.jpg")
+with destination.open("xb") as output:
+    output.write(example.read_bytes())
+print(destination.resolve())
+```
+
+This prints the copied file's location and refuses to overwrite an existing
+`example_image.jpg`. Use the copy with the image-file command:
+
+```bash
+dermapred predict example_image.jpg --manifest model-release.json
+```
+
+The command above requires a local release manifest; automatic manifest
+selection is available through the desktop UI and `Predictor.from_release()`.
+
 ## Run inference with local model files
 
 Use the checkpoint and calibrator from the same verified model release:

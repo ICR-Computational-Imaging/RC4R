@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from importlib.resources import files
 from pathlib import Path
 
 from PIL import Image, ImageOps
@@ -12,6 +13,14 @@ def load_image(path: Path) -> Image.Image:
     """Decode the first frame, apply EXIF orientation, and detach RGB pixels."""
     with Image.open(path) as image:
         return ImageOps.exif_transpose(image).convert("RGB")
+
+
+def load_example_image() -> Image.Image:
+    """Read the installed example resource without depending on a source checkout."""
+    example = files("dermapred").joinpath("examples", "example_image.jpg")
+    with example.open("rb") as stream:
+        with Image.open(stream) as image:
+            return ImageOps.exif_transpose(image).convert("RGB")
 
 
 def selection_bounds(

@@ -76,12 +76,14 @@ with checkpoint metadata is rejected by the inference engine.
 
 ## Select an image and run inference
 
-1. Click **Open image** and choose a JPEG, TIFF, PNG, or BMP file. TIFF files
-   use their first frame. EXIF orientation is applied before display.
+1. Click **Load example** to display the bundled example immediately, or click
+   **Open image** to choose your own JPEG, TIFF, PNG, or BMP file. The example
+   works after pip installation without locating package files or downloading
+   an image. TIFF files use their first frame. EXIF orientation is applied before display.
 2. On the left-hand image panel, hold the left mouse button and drag around
    the suspect mole. The red box updates while you drag. Release to finish.
 3. Drawing another box replaces the old selection and clears the old result.
-   Opening another image also clears both.
+   Opening another image or clicking **Load example** also clears both.
 4. Click **Infer**. A missing or zero-area selection produces an explanatory
    dialog instead of a prediction.
 5. Read the calibrated probability of `clinically_concerning` in the results
@@ -104,7 +106,7 @@ it does not forcibly interrupt a download or a model operation.
 
 ## Tests
 
-Tests use synthetic images, offscreen Qt, and mocked model loading and inference.
+Tests use synthetic images, the bundled example, offscreen Qt, and mocked model loading and inference.
 They do not require trained weights, private datasets, or network access.
 
 ```bash

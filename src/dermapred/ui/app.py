@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
 )
 
 from dermapred.inference.predictor import Predictor
-from dermapred.ui.images import load_image, selection_bounds, square_crop
+from dermapred.ui.images import load_example_image, load_image, selection_bounds, square_crop
 
 
 class Task(QThread):
@@ -70,9 +70,12 @@ class InferenceWindow(QMainWindow):
         layout.addWidget(QLabel("Educational example — not intended for clinical use."))
         controls = QHBoxLayout()
         self.open_button = QPushButton("Open image")
+        self.example_button = QPushButton("Load example")
         self.infer_button = QPushButton("Infer")
         self.cancel_button = QPushButton("Cancel")
-        for button in (self.open_button, self.infer_button, self.cancel_button):
+        for button in (
+            self.open_button, self.example_button, self.infer_button, self.cancel_button
+        ):
             controls.addWidget(button)
         layout.addLayout(controls)
         panels = QHBoxLayout()
@@ -86,10 +89,11 @@ class InferenceWindow(QMainWindow):
         self.result.setMinimumWidth(220)
         panels.addWidget(self.result, stretch=1)
         layout.addLayout(panels)
-        self.status = QLabel("Choose an image to begin.")
+        self.status = QLabel("Open an image or click Load example to begin.")
         layout.addWidget(self.status)
         self.setCentralWidget(workspace)
         self.open_button.clicked.connect(self.choose_image)
+        self.example_button.clicked.connect(self.open_example)
         self.infer_button.clicked.connect(self.infer)
         self.cancel_button.clicked.connect(self.close)
         # Register before RectangleSelector so a fresh press clears the old result.
@@ -104,6 +108,14 @@ class InferenceWindow(QMainWindow):
             self.open_image(Path(filename))
 
     def open_image(self, path: Path) -> None:
+        """Load a user-selected file in the background."""
+        self._load_image(lambda: load_image(path), "Loading image…")
+
+    def open_example(self) -> None:
+        """Load the example shipped with the installed Python package."""
+        self._load_image(load_example_image, "Loading example image…")
+
+    def _load_image(self, loader: Callable[[], Image.Image], message: str) -> None:
         """Clear stale evidence before attempting to load another image."""
         if self.task is not None:
             return
@@ -116,7 +128,7 @@ class InferenceWindow(QMainWindow):
         self.axes.clear()
         self.axes.set_axis_off()
         self.canvas.draw_idle()
-        self._start(lambda: load_image(path), self._show_image, "Loading image…")
+        self._start(loader, self._show_image, message)
 
     def _show_image(self, image: Image.Image) -> None:
         self.image = image
@@ -200,6 +212,7 @@ class InferenceWindow(QMainWindow):
         self._callback = callback
         self.task = Task(operation, self)
         self.open_button.setEnabled(False)
+        self.example_button.setEnabled(False)
         self.infer_button.setEnabled(False)
         if self.selector is not None:
             self.selector.set_active(False)
@@ -228,6 +241,7 @@ class InferenceWindow(QMainWindow):
             self.close()
             return
         self.open_button.setEnabled(True)
+        self.example_button.setEnabled(True)
         self.infer_button.setEnabled(True)
         if self.selector is not None:
             self.selector.set_active(True)
