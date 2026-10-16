@@ -214,7 +214,7 @@ git push
 
 Git records provenance and `.dvc` pointers; the two DVC remotes store their
 respective arrays. Push your issue branch and submit a PR following
-[the collaboration walkthrough](../general/development_workflow.md).
+[the collaboration walkthrough](../development_workflow.md).
 
 ## 5. Pull an existing dataset
 

@@ -5,7 +5,7 @@ other people can install using pip. The example uses `dermapred` version
 `0.1.0`; replace the name and version when adapting this template.
 
 For issue approval, release branches, bumpversion, and tagging the reviewed
-commit, start with the [development workflow](development_workflow.md).
+commit, start with the [development workflow](../development_workflow.md).
 For installing the package and running images, see the
 [inference guide](../dermapred/inference.md).
 
@@ -261,7 +261,7 @@ starting template is also available in `docs/examples/publish.yaml`.
 The workflow must be present on GitHub's default branch before manual runs
 are available. Include it in the reviewed commit before creating the release
 tag that you will use for publication. You create and push that tag manually,
-as described in the [development workflow](development_workflow.md).
+as described in the [development workflow](../development_workflow.md).
 The publishing workflow does not bump versions, create tags, or commit changes.
 
 Run it manually against a version tag, with TestPyPI selected by default. It

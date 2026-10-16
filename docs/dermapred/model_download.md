@@ -8,7 +8,7 @@ download weights.
 
 For issue approval, branches from `main`, model verification, and promotion
 through a reviewed PR, see the [development and release
-workflow](../general/development_workflow.md).
+workflow](../development_workflow.md).
 
 ## Prepare a release
 

@@ -1,5 +1,18 @@
 # RC4R — Reproducible Code for Research
 
+[![GitHub repository](https://img.shields.io/badge/GitHub-RC4R-181717?logo=github)](https://github.com/ICR-Computational-Imaging/RC4R)
+[![PyPI version](https://img.shields.io/pypi/v/dermapred?logo=pypi)](https://pypi.org/project/dermapred/)
+[![Monthly PyPI downloads](https://img.shields.io/pypi/dm/dermapred?label=PyPI%20downloads)](https://pypistats.org/packages/dermapred)
+[![Latest GitHub release](https://img.shields.io/github/v/release/ICR-Computational-Imaging/RC4R)](https://github.com/ICR-Computational-Imaging/RC4R/releases/latest)
+[![Open issues](https://img.shields.io/github/issues/ICR-Computational-Imaging/RC4R)](https://github.com/ICR-Computational-Imaging/RC4R/issues)
+
+[![Tests on main](https://img.shields.io/github/actions/workflow/status/ICR-Computational-Imaging/RC4R/tests.yaml?branch=main&label=tests&logo=githubactions)](https://github.com/ICR-Computational-Imaging/RC4R/actions/workflows/tests.yaml?query=branch%3Amain)
+[![Documentation build on main](https://img.shields.io/github/actions/workflow/status/ICR-Computational-Imaging/RC4R/docs.yaml?branch=main&label=docs&logo=materialformkdocs)](https://ICR-Computational-Imaging.github.io/RC4R/)
+[![Python 3.11 or newer](https://img.shields.io/badge/Python-%3E%3D3.11-3776AB?logo=python&logoColor=white)](https://pypi.org/project/dermapred/)
+[![License](https://img.shields.io/github/license/ICR-Computational-Imaging/RC4R)](https://github.com/ICR-Computational-Imaging/RC4R/blob/main/LICENSE)
+
+![DermaPred logo](https://raw.githubusercontent.com/ICR-Computational-Imaging/RC4R/main/docs/assets/logo/dermapred-logo.svg)
+
 RC4R is a Python project template for reproducible research. It demonstrates
 how to connect source code, locked dependencies, versioned data and model
 artifacts, automated tests, documentation, and reviewed releases.
@@ -207,7 +220,7 @@ the scope and target release with a maintainer, create a working branch, run
 the relevant checks, and submit a pull request to the agreed destination branch.
 Review and merging are separate from publishing a release.
 
-- [Development and release workflow: issues, branches, PRs, and releases](docs/general/development_workflow.md)
+- [Development and release workflow: issues, branches, PRs, and releases](docs/development_workflow.md)
 - [Publishing the Python package to PyPI](docs/general/publishing_to_pypi.md)
 - [Releasing model weights and generating a manifest](docs/dermapred/model_download.md)
 - [Code of conduct](CODE_OF_CONDUCT.md)

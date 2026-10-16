@@ -31,7 +31,7 @@ The number after `dev` distinguishes successive development builds targeting
 the same release. It is separate from the semantic `PATCH` number and does not
 need to match the Git commit count.
 
-The [development and release workflow](development_workflow.md) uses short-lived
+The [development and release workflow](../development_workflow.md) uses short-lived
 issue branches created from `main`, with PRs targeting `main`. Each branch has
 an approved issue and release-version target. Several issues may target the
 same release. Contributors set the approved target as a development version

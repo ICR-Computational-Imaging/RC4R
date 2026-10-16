@@ -1,7 +1,7 @@
 # Using Git and GitHub
 
 For a practical first contribution, follow
-[Development and release workflow](development_workflow.md). It explains each
+[Development and release workflow](../development_workflow.md). It explains each
 step, who performs it, and how to check the result.
 
 ## Introduction to Git and GitHub
@@ -194,7 +194,7 @@ change, review its diff, discuss it, and run automated checks before merging.
 For ordinary changes in this repository, use a short-lived branch based on the
 latest `main`. First create a GitHub issue and obtain maintainer approval for
 the scope and target semantic version, as described in the
-[development and release workflow](development_workflow.md):
+[development and release workflow](../development_workflow.md):
 
 ```bash
 git switch main
