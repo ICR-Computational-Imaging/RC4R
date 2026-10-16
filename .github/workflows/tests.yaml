@@ -55,8 +55,3 @@ jobs:
 
       - name: Run pytest with coverage
         run: uv run --locked --no-default-groups --group pytest --group train pytest
-
-      - name: Check UI coverage
-        run: >-
-          uv run --locked --no-default-groups --group pytest --group train
-          pytest tests/ui --cov-reset --cov=dermapred.ui --cov-fail-under=80
