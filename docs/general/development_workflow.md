@@ -741,6 +741,10 @@ After the release PR has merged and its matching tag has been pushed, follow
 That guide covers authentication, a local dry run, the upload command, and
 verification of the uploaded attachments. Use the manifest reviewed in step 9
 and the same selected files, without retraining or refitting calibration.
+For a new draft, the uploader asks GitHub to generate release notes automatically.
+The maintainer reviews and edits those notes before publication, including any
+model-specific changes and limitations. An optional `--notes-file PATH` supplies
+custom notes instead; retries preserve the notes already in an existing draft.
 
 This is the step that sends the model artifacts to GitHub. A DVC push stores
 artifacts in the configured data remote; the package-publishing workflow

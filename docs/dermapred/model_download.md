@@ -116,9 +116,13 @@ click **Publish release** when approved. The public downloader URLs become
 available after publication. Model verification and permission to distribute
 the files must already be established; hash checks confirm file identity.
 
-For a new draft, notes come from the tag annotation by default. Add
-`--notes-file PATH` to supply your reviewed release notes instead. Existing
-draft notes are preserved. Development versions are marked as prereleases.
+For a new draft, the script passes `--generate-notes` so GitHub creates release
+notes automatically. No temporary notes file is required. Review and edit the
+generated notes in the draft before publishing, adding model changes and
+limitations where needed. Add `--notes-file PATH` to use your own reviewed
+notes instead. Existing draft notes are preserved when an upload is retried;
+the script does not regenerate or replace them. Development versions are
+marked as prereleases.
 
 An interrupted upload can leave a partial draft. Rerun the command: it checks
 existing attachments, reuses identical files, and uploads only missing ones.

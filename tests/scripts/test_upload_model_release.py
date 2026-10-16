@@ -59,8 +59,14 @@ class FakeGH:
         if action == "create":
             assert self.draft is None
             assert "--draft" in command and "--verify-tag" in command
+            # gh rejects --notes-from-tag combined with the explicit --repo.
+            assert "--notes-from-tag" not in command
             if "--notes-file" in command:
+                assert "--generate-notes" not in command
                 self.notes = Path(command[command.index("--notes-file") + 1]).read_text()
+            else:
+                assert "--generate-notes" in command
+                self.notes = "Automatically generated release notes"
             self.draft = True
         elif action == "upload":
             assert self.draft is True
@@ -118,6 +124,10 @@ def test_creates_draft_and_verifies_uploaded_bytes(
         **{path.name: path.read_bytes() for path in artifacts.values()},
     }
     assert sum(call[1:3] == ["release", "download"] for call in fake_gh.calls) == 3
+    create = next(call for call in fake_gh.calls if call[1:3] == ["release", "create"])
+    assert "--generate-notes" in create
+    assert "--repo" in create
+    assert fake_gh.notes == "Automatically generated release notes"
 
 
 def test_dry_run_only_checks_local_files(
@@ -254,6 +264,18 @@ def test_release_notes_file_is_passed_to_gh(
     notes.write_text("Release 0.1.0\n\nApproved model and calibration.\n")
     uploader.upload_model_release("owner/project", *bundle, notes_path=notes)
     assert fake_gh.notes == notes.read_text()
+
+
+def test_existing_draft_preserves_reviewed_notes(
+    tmp_path: Path, bundle: tuple[Path, dict[str, Path]], fake_gh: FakeGH
+) -> None:
+    fake_gh.draft = True
+    fake_gh.notes = "Notes already reviewed on GitHub."
+    notes = tmp_path / "replacement.md"
+    notes.write_text("These must not replace existing draft notes.")
+    uploader.upload_model_release("owner/project", *bundle, notes_path=notes)
+    assert fake_gh.notes == "Notes already reviewed on GitHub."
+    assert not any(call[1:3] == ["release", "create"] for call in fake_gh.calls)
 
 
 def test_missing_gh_reports_installation_instructions(

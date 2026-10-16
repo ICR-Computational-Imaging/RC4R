@@ -148,8 +148,8 @@ def upload_model_release(
         manifest_path: Reviewed model manifest; its version determines ``vVERSION``.
         artifacts: Local files keyed by the artifact roles in the manifest.
         dry_run: Validate local files and URLs without invoking gh.
-        notes_path: Optional release notes file for a new draft. Otherwise use
-            the existing tag's annotation. Existing draft notes are preserved.
+        notes_path: Optional release notes file for a new draft. Otherwise ask
+            GitHub to generate release notes. Existing draft notes are preserved.
 
     Returns:
         The draft release URL, or a local verification summary for a dry run.
@@ -228,7 +228,7 @@ def upload_model_release(
                 f"Release {tag}",
             ]
             if notes_snapshot is None:
-                command.append("--notes-from-tag")
+                command.append("--generate-notes")
             else:
                 command.extend(["--notes-file", str(notes_snapshot)])
             if ".dev" in release.version:
@@ -252,7 +252,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
     parser.add_argument("--repo", required=True, help="GitHub.com OWNER/REPO")
     parser.add_argument("--manifest", required=True, type=Path)
     parser.add_argument("--artifact", required=True, action="append", metavar="ROLE=PATH")
-    parser.add_argument("--notes-file", type=Path)
+    parser.add_argument(
+        "--notes-file", type=Path,
+        help="Use this notes file for a new draft; otherwise GitHub generates the notes.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args(arguments)
     try:
