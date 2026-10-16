@@ -13,7 +13,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
-dependencies = ["torch", "pillow", "numpy"]
+dependencies = ["torch", "pillow", "numpy", "PyQt6>=6.6,<7", "matplotlib>=3.10"]
 
 [project.scripts]
 dermapred = "dermapred.inference.cli:main"
@@ -47,6 +47,9 @@ version = { file = ["VERSION"] }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+dermapred = ["examples/*.jpg"]
 
 [tool.pytest.ini_options]
 addopts = [

@@ -11,7 +11,12 @@ from PIL import Image, ImageOps
 
 from dermapred.data.preprocessing import preprocess_images
 from dermapred.inference.calibration import ProbabilityCalibrator, logits_to_probabilities
-from dermapred.inference.download import ModelRelease, download_model
+from dermapred.inference.download import (
+    DEFAULT_RELEASE_REPOSITORY,
+    ModelRelease,
+    download_model,
+    download_release_manifest,
+)
 from dermapred.models.binary_classifier import LeNetBinary
 
 
@@ -123,6 +128,34 @@ class Predictor:
         return cls(
             paths["weights"],
             calibrator_path=paths["calibrator"],
+            image_size=image_size,
+            threshold=threshold,
+        )
+
+    @classmethod
+    def from_release(
+        cls,
+        *,
+        repository: str = DEFAULT_RELEASE_REPOSITORY,
+        version: str | None = None,
+        cache_dir: Path | None = None,
+        offline: bool = False,
+        image_size: int | tuple[int, int] | None = None,
+        threshold: float = 0.5,
+    ) -> Predictor:
+        """Load a public model release matching the installed package version.
+
+        The matching tag must publish ``model-release.json`` alongside the
+        weights and calibrator. No fallback to ``latest`` or another version
+        occurs. ``version`` can explicitly select a different published release.
+        """
+        manifest = download_release_manifest(
+            repository=repository, version=version, cache_dir=cache_dir, offline=offline
+        )
+        return cls.from_manifest(
+            manifest,
+            cache_dir=cache_dir,
+            offline=offline,
             image_size=image_size,
             threshold=threshold,
         )

@@ -26,6 +26,7 @@ jobs:
       MPLBACKEND: Agg
       OMP_NUM_THREADS: "2"
       MKL_NUM_THREADS: "2"
+      QT_QPA_PLATFORM: offscreen  # Exercise the desktop UI without a display.
 
     steps:
       - name: Check out repository
@@ -41,6 +42,12 @@ jobs:
 
       - name: Install Python
         run: uv python install
+
+      # QtGui needs the EGL shared library even when Qt renders offscreen.
+      - name: Install Qt system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libegl1
 
       # Tests import training modules, but use synthetic data and mocked downloads.
       - name: Install locked test dependencies

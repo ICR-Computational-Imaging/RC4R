@@ -30,6 +30,7 @@ jobs:  # Separate package preparation from the job that receives the upload toke
       MPLBACKEND: Agg  # Render test plots without a graphical display.
       OMP_NUM_THREADS: "2"  # Limit CPU threads used by numerical libraries during tests.
       MKL_NUM_THREADS: "2"  # Apply the same limit to libraries using MKL.
+      QT_QPA_PLATFORM: offscreen  # Test the UI without a desktop display.
     steps:  # Execute these operations in order within this job.
       - uses: actions/checkout@v7  # Download repository files at the selected tag.
         with:
@@ -48,6 +49,11 @@ jobs:  # Separate package preparation from the job that receives the upload toke
             echo "::error::Release tag does not match VERSION."
             exit 1
           fi
+      # QtGui needs this Linux shared library even with QT_QPA_PLATFORM=offscreen.
+      - name: Install Qt system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libegl1
       # Install only locked test and training dependencies, then run pytest.
       - name: Run synthetic tests  # Check the code without private data or DVC remotes.
         run: |

@@ -6,8 +6,7 @@ artifacts, automated tests, documentation, and reviewed releases.
 
 **DermaPred** is the worked example: a PyTorch binary classifier using the
 public DermaMNIST dataset. Its installable package is named `dermapred` and
-provides a small CPU inference API and an image-file command. A user interface
-is planned for a later step.
+provides a CPU inference API, an image-file command, and a PyQt6 desktop interface.
 
 > **Note:** This repository is an educational template. The example model is not intended
   for clinical use or medical decision-making.
@@ -24,9 +23,10 @@ is planned for a later step.
 - GitHub Actions for tests and documentation, plus a manually triggered package-publishing workflow.
 - Walkthroughs for Git collaboration, versioning, model releases, and PyPI.
 
-Python **3.11 or newer** is required. Inference needs only PyTorch, NumPy, and
-Pillow. Training and evaluation tools are installed separately through uv
-dependency groups; inference users do not need DVC or dataset access.
+Python **3.11 or newer** is required. The standard installation includes
+PyTorch, NumPy, Pillow, PyQt6, and Matplotlib. Training and evaluation tools are
+installed separately through uv dependency groups; inference users do not need
+DVC or dataset access.
 
 ## Get started from the repository
 
@@ -81,9 +81,10 @@ TestPyPI and API tokens stored in GitHub environment secrets.
 
 ## Run inference on an image
 
-Inference requires either local model files or a trusted model-release
-manifest. **No default model manifest is currently included.** Package
-installation alone does not provide a trained model.
+The desktop UI and `Predictor.from_release()` retrieve the model manifest from
+the public GitHub Release matching the installed package version. Local model
+files and manifests are also supported. Package installation alone does not
+download a model; the matching public release must exist for automatic retrieval.
 
 ### Use local model files
 
@@ -121,7 +122,7 @@ without network access. Legacy released checkpoints also need `--image-size`.
 ```python
 from dermapred.inference import Predictor
 
-predictor = Predictor.from_manifest("model-release.json")
+predictor = Predictor.from_release()
 result = predictor.predict("image.jpg")
 print(result.to_dict())
 ```
@@ -137,16 +138,34 @@ with channels first. Direct resizing changes a non-square image's aspect
 ratio. See the [inference guide](docs/dermapred/inference.md) for the complete
 API, local-file examples, and preprocessing policy.
 
+## Open the desktop interface
+
+Launch the included desktop interface:
+
+```bash
+uv run --locked python -m dermapred.ui
+```
+
+For an installed package, install `dermapred` and run
+`python -m dermapred.ui`. The manifest is obtained from the public release
+matching the installed version. Click **Load example** or open your own image, then draw a
+red box around the mole, and click **Infer** to see its calibrated positive-class
+probability. See the [desktop guide](docs/dermapred/ui.md) for local weights,
+preprocessing, offline use, and selecting a published release from a development version.
+
 ## Run the tests
 
 ```bash
-uv run --locked --no-default-groups --group pytest --group train pytest
+QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train pytest
 ```
 
 Tests create synthetic data and temporary model files; download and GitHub
 upload operations are mocked. They do not require the real datasets, DVC
 remotes, or institutional credentials. GitHub Actions runs the suite on Python
 3.11 and 3.12 for branch pushes and pull requests.
+
+The UI tests use an offscreen Qt platform and run as part of the standard
+suite. CI enforces at least 80% coverage of `dermapred.ui`.
 
 To check just the final-evaluation pipeline with synthetic data:
 
