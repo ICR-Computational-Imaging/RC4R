@@ -7,13 +7,11 @@ from collections.abc import Sequence
 from functools import partial
 from pathlib import Path
 
-from dermapred.inference.download import DEFAULT_RELEASE_REPOSITORY
-from dermapred.inference.predictor import Predictor
-from dermapred.ui.app import run
-
 
 def main(arguments: Sequence[str] | None = None) -> int:
     """Parse model configuration before loading the desktop libraries."""
+    from dermapred.inference.download import DEFAULT_RELEASE_REPOSITORY
+
     parser = argparse.ArgumentParser(
         description=__doc__,
         epilog="Without local model files or a manifest, use the public release matching "
@@ -39,6 +37,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
         args.repo != DEFAULT_RELEASE_REPOSITORY or args.release_version is not None
     ):
         parser.error("--repo and --release-version apply only to automatic release selection.")
+
+    # Delay PyTorch and Qt imports so --help and argument errors need neither library loaded.
+    from dermapred.inference.predictor import Predictor
+    from dermapred.ui.app import run
 
     if args.manifest:
         factory = partial(

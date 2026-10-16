@@ -51,7 +51,7 @@ do not need to locate an installation folder, clone the repository, or
 download a dataset to try an image. Model weights and the calibrator are still
 obtained separately through the release downloader or local model files.
 
-### Use the Python API
+### With Python API
 
 Use `importlib.resources` to read the image regardless of where the package is
 installed or which directory you run Python from:
