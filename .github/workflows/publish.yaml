@@ -49,6 +49,11 @@ jobs:  # Separate package preparation from the job that receives the upload toke
             echo "::error::Release tag does not match VERSION."
             exit 1
           fi
+      # QtGui needs this Linux shared library even with QT_QPA_PLATFORM=offscreen.
+      - name: Install Qt system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libegl1
       # Install only locked test and training dependencies, then run pytest.
       - name: Run synthetic tests  # Check the code without private data or DVC remotes.
         run: |
