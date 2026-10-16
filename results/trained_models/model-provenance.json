@@ -7,8 +7,8 @@
     },
     "environment": {
       "filename": "uv.lock",
-      "sha256": "915bf76191248560e5e42db8ad141d2af1e4aeca71e97bc21d8ec3bf251ab7cb",
-      "size_bytes": 1115181
+      "sha256": "4d841e52a1fde9eabaa9f8839ef7b8b9729db343fd02ba0b5e60d64dd4b4ceec",
+      "size_bytes": 1127799
     },
     "parameters": {
       "filename": "params.yaml",
@@ -17,8 +17,8 @@
     },
     "project": {
       "filename": "pyproject.toml",
-      "sha256": "888a0afd7c3d57bf25856f57861c7f2621a3d614b35459ff85b249dfe2747cb7",
-      "size_bytes": 1959
+      "sha256": "fbf29682fd96d41c75e171f64eb1443a9b26f823cf3c5fe330a55e59f2e0c42a",
+      "size_bytes": 2059
     },
     "training_history": {
       "filename": "history.csv",
