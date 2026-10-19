@@ -124,8 +124,8 @@ If you do not already have a local copy, use the repository's **Code** button
 to copy its clone URL. Substitute that URL and the actual folder name below:
 
 ```bash
-git clone https://github.com/OWNER/REPOSITORY.git
-cd REPOSITORY
+git clone https://github.com/ICR-Computational-Imaging/RC4R.git
+cd RC4R
 ```
 
 If you already have a copy, open a terminal in that project folder. Run the
@@ -164,8 +164,8 @@ Proposed change:
 Put the installation steps in order and explain their expected outcomes.
 
 Done when:
-- The instructions work from a fresh local copy.
-- A reviewer has checked the commands and wording.
+- [ ] The instructions work from a fresh local copy.
+- [ ] A reviewer has checked the commands and wording.
 
 Proposed target version: 0.1.0
 ```
@@ -227,6 +227,9 @@ git switch -c issue-42/installation-docs
 git branch --show-current
 ```
 
+(replace `issue-42` and `installation-docs` with the actual issue number and
+title respectively).
+
 The first command selects local `main`. The second updates it from GitHub
 without creating a merge commit. The third creates and selects your working
 branch. The last confirms which branch you are using.
@@ -280,7 +283,7 @@ or resolving conflicting version changes.
 **Expected result:** your branch identifies the approved target as a development
 version, such as `0.1.1.dev0`, until the maintainer prepares the stable release.
 
-## How the branches fit together
+### How the branches fit together
 
 ![An issue branch and a release branch merging into main before tagging](assets/development-branches.svg)
 
@@ -366,10 +369,11 @@ git status
 
 `git add` selects changes for the next commit. `git diff --staged` shows exactly
 what will be included; review it before committing. `git commit` saves those
-changes locally. Stage any other intended files explicitly rather than
-including unrelated work.
+changes locally with an appropriate *message* (`-m` flag).
+Try to stage only intended files explicitly rather than including unrelated work for 
+each commit.
 
-If you staged a file by mistake, remove it from the next commit while keeping
+If you staged a file by mistake, you can remove it from the next commit while keeping
 its edits:
 
 ```bash
@@ -392,10 +396,10 @@ git push -u origin issue-42/installation-docs
 ```
 
 `-u` remembers which remote branch goes with this local branch. After later
-commits on the same branch, use `git push`.
+commits on the same branch, you can just use `git push`.
 
 If this change includes DVC-managed data or model outputs, also follow
-[uploading DVC artifacts](#upload-dvc-artifacts-for-review) below before asking
+[uploading DVC artifacts](#upload-dvc-artifacts-for-review) before asking
 reviewers to retrieve them. `git push` sends the tracking files and commits;
 `dvc push` sends the associated artifact contents to their configured storage.
 
@@ -640,6 +644,8 @@ separate task, usually covering several merged issues.
 **Responsible: maintainer prepares the release; reviewer checks it; admin maintains publishing access.**
 **Location: GitHub, your editor, and your terminal.**
 
+### Bumpversion release
+
 Create an approved release issue, such as **#57**, and start a release branch
 from a clean, updated `main`:
 
@@ -673,8 +679,10 @@ version does not match the approved target, resolve that before proceeding.
 If a dependency lockfile records the project version, refresh it using the
 project's normal command, such as `uv lock`, and commit the update.
 
-If the release includes model artifacts, follow
-[Prepare a model release](dermapred/model_download.md#prepare-a-release)
+### Prepare model release files (if needed)
+
+If the release includes AI model artifacts, follow
+[Prepare a model release](#prepare-a-model-release)
 after setting the final release version and before reviewing the release PR.
 The contributor prepares the manifest for the selected weights and matching
 calibrator, the reviewer verifies those files, and the maintainer confirms
@@ -683,6 +691,8 @@ and make the private artifacts available for review using the
 [DVC upload step](#upload-dvc-artifacts-for-review), where applicable.
 Keep those exact files for the later GitHub upload; generating the manifest
 does not upload them.
+
+### Pull request and merge the release
 
 Run the agreed release checks, including installation from a built package
 when applicable. Push the release branch and open a PR using steps 6–8.
@@ -731,13 +741,13 @@ prepare a new version for later corrections.
 commit. A tag labels code; it does not itself create a GitHub Release or upload
 a package unless the team has configured automation to do so.
 
-### Upload model artifacts to GitHub, when applicable
+### Upload model artifacts to GitHub (if needed)
 
 **Responsible: maintainer uploads the approved files; reviewer checks the draft.**
 **Location: your terminal, then GitHub Releases.**
 
 After the release PR has merged and its matching tag has been pushed, follow
-[Upload the files to a draft GitHub Release](dermapred/model_download.md#upload-the-files-to-a-draft-github-release).
+[Upload the files to a draft GitHub Release](#upload-model-files-to-a-draft-github-release).
 That guide covers authentication, a local dry run, the upload command, and
 verification of the uploaded attachments. Use the manifest reviewed in step 9
 and the same selected files, without retraining or refitting calibration.
@@ -813,62 +823,7 @@ notes, and the released files match the reviewed tag. Confirm the registry
 version and test the normal installation or usage instructions before closing
 the release issue. Publication is separate from merging and tagging.
 
-## If you cannot push to the shared repository
-
-**Responsible: contributor; admin or maintainer confirms the permitted contribution route.**
-**Location: GitHub and your terminal.**
-
-A **fork** is your own GitHub copy of a repository. Where project policy allows
-forks, choose **Fork**, then clone your copy and connect the original repository
-as `upstream`:
-
-```bash
-git clone https://github.com/YOUR-USERNAME/REPOSITORY.git
-cd REPOSITORY
-git remote add upstream https://github.com/OWNER/REPOSITORY.git
-```
-
-Open the issue in the original repository. In step 3, update from `upstream`
-before creating your issue branch:
-
-```bash
-git switch main
-git pull --ff-only upstream main
-git switch -c issue-42/installation-docs
-```
-
-Follow the editing, checking, and committing steps. Push to `origin`, which
-now points to your fork. For the PR, choose the **original repository and its
-`main` branch** as the base, and your **fork and issue branch** as the source.
-In step 8, update your local `main` using `git pull --ff-only upstream main`.
-Release tagging and publication remain the maintainer's responsibility in the
-original repository. If forks are unavailable, ask how to contribute.
-
-## Extra checks for releases with data or model files
-
-**Responsible: contributor prepares evidence; reviewer verifies it; maintainer approves the selected files; admin controls access.**
-
-These checks are optional for projects without such assets. Keep restricted
-data and large model files out of ordinary code commits. Use the project's
-approved storage and access arrangements; unit tests should use synthetic or
-otherwise approved fixtures where private data are unavailable.
-
-Before release, identify the exact selected files, their licence, source code
-version, required preprocessing, and verification results. A manifest can
-record download URLs, sizes, and hashes. It describes files but does not upload
-them or prove their performance.
-
-| Role | Release check |
-| --- | --- |
-| Contributor | Records provenance and the exact candidate files, with hashes and relevant results. |
-| Reviewer | Confirms file identity and compatibility with the proposed software. |
-| Maintainer | Confirms the agreed verification passed and public distribution is authorised. |
-| Admin | Maintains storage permissions and any restricted verification or upload credentials. |
-
-Upload the approved bytes without retraining or replacing them after review.
-Check the public download, integrity verification, and normal usage before
-publishing the final release. Changed files need fresh verification. Keep
-private evaluation reports private unless their publication is approved.
+## Additional steps if repository contains model weights
 
 ### Upload DVC artifacts for review
 
@@ -950,6 +905,161 @@ PR commit, an authorised reviewer can retrieve the same pipeline outputs with
 with storage access can retrieve them. Uploading to the configured DVC remote
 is separate from publishing approved files on a GitHub Release or uploading
 the Python package to PyPI. See [DVC push documentation](https://doc.dvc.org/command-reference/push).
+
+### Prepare a model release
+
+**Responsible: maintainer prepares the release; reviewer checks it; admin maintains publishing access.**
+**Location: GitHub, your editor, and your terminal.**
+
+The training pipeline creates a [model provenance record](dvc/provenance.md)
+after training and calibration. This records file hashes without a release
+version or public URLs. Prepare the release manifest below separately once
+the final release version and selected artifacts are known.
+
+First identify the code commit and corresponding DVC checkpoint and calibrator.
+Retrieve those artifacts inside the institutional environment. Public release
+of those specific artifacts must be permitted; changing the download mechanism
+does not change their publication status.
+
+**After bumpversion has set the approved release version**, generate a manifest locally:
+
+```bash
+uv run python -m scripts.create_model_manifest \
+  --name dermapred-lenet \
+  --base-url 'https://github.com/ICR-Computational-Imaging/RC4R/releases/download/v{version}' \
+  --artifact weights=results/trained_models/binary_classifier.pt \
+  --artifact calibrator=results/calibration/probability_calibrator.json \
+  --output model-release.json
+```
+
+The generator reads the repository's `VERSION` file automatically. If it contains
+`0.1.0`, the manifest version is `0.1.0` and the download URLs contain `v0.1.0`.
+
+Generate the manifest after the release version is set and before reviewing
+the release PR. Changing `VERSION` does not rewrite a previously generated
+manifest: create a fresh manifest after a bump and review it before replacing
+the older one. The generator refuses to overwrite existing files. For a model
+whose version is independent of the package, use an explicit `--version`;
+`--version-file PATH` selects a different version file instead.
+
+This creates metadata only. It does not upload files, retrieve DVC artifacts,
+or alter the checkpoint. Each file entry records a URL, filename, SHA-256, and
+byte count calculated from the local file. The generator refuses to overwrite
+an existing manifest. Keep a record of the source commit and DVC hashes with
+the release, along with the model licence, preprocessing specification, class
+definitions, evaluation results, and research-use limitations.
+
+Use the draft upload command below to attach the exact checkpoint, calibrator,
+and `model-release.json` to the matching GitHub release. Use version-specific
+download URLs, not `latest`.
+If supported by repository policy, enable immutable releases so that published
+tags and assets cannot be replaced. See [GitHub's release
+documentation](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository).
+
+The manifest should also be distributed with the corresponding software
+version so users have a trusted record of the expected hashes. Once a real
+release is chosen, it can be included as package data. The template does not
+ship a default manifest or claim that a public model release already exists.
+
+### Upload model files to a draft GitHub Release
+
+**Responsible: maintainer, after the release PR is merged and its tag is pushed.**
+
+Install [GitHub CLI](https://cli.github.com/) (`gh`) and sign in once:
+
+```bash
+gh auth login
+```
+
+The uploader reads the tag from the manifest: version `0.1.0` selects `v0.1.0`.
+It requires that tag to already exist on GitHub. It does not create or push tags,
+download private DVC files, or publish a release.
+
+First check the files locally, without contacting GitHub:
+
+```bash
+uv run --locked python -m scripts.upload_model_release \
+  --repo ICR-Computational-Imaging/RC4R \
+  --manifest model-release.json \
+  --artifact weights=results/trained_models/binary_classifier.pt \
+  --artifact calibrator=results/calibration/probability_calibrator.json \
+  --dry-run
+```
+
+**Expected result:** a message saying that three local files were verified.
+This checks the manifest URLs and each artifact's size and SHA-256. It does not
+check GitHub authentication, the remote tag, or the draft release.
+
+To upload, run the same command without `--dry-run`:
+
+```bash
+uv run --locked python -m scripts.upload_model_release \
+  --repo ICR-Computational-Imaging/RC4R \
+  --manifest model-release.json \
+  --artifact weights=results/trained_models/binary_classifier.pt \
+  --artifact calibrator=results/calibration/probability_calibrator.json
+```
+
+**This is the step that sends the model files to GitHub.** The script calls
+`gh release create --draft --verify-tag` when a draft is needed, then
+`gh release upload`. It downloads the attachments through authenticated `gh`
+and verifies their hashes before reporting success. See [creating
+releases](https://cli.github.com/manual/gh_release_create) and [uploading
+assets](https://cli.github.com/manual/gh_release_upload) in the GitHub CLI manual.
+
+**Expected result:** the script prints a draft release link. Open GitHub's
+**Releases** page while signed in, review the draft's notes and attachments, and
+click **Publish release** when approved. The public downloader URLs become
+available after publication. Model verification and permission to distribute
+the files must already be established; hash checks confirm file identity.
+
+For a new draft, the script passes `--generate-notes` so GitHub creates release
+notes automatically. No temporary notes file is required. Review and edit the
+generated notes in the draft before publishing, adding model changes and
+limitations where needed. Add `--notes-file PATH` to use your own reviewed
+notes instead. Existing draft notes are preserved when an upload is retried;
+the script does not regenerate or replace them. Development versions are
+marked as prereleases.
+
+An interrupted upload can leave a partial draft. Rerun the command: it checks
+existing attachments, reuses identical files, and uploads only missing ones.
+It refuses to overwrite different files or modify a published release. Local
+files are snapshotted before upload so the bytes checked are the bytes sent.
+Remote verification downloads the uploaded files again, which uses additional
+bandwidth for large models.
+
+## Troubleshooting
+
+### If you cannot push to the shared repository
+
+**Responsible: contributor; admin or maintainer confirms the permitted contribution route.**
+**Location: GitHub and your terminal.**
+
+A **fork** is your own GitHub copy of a repository. Where project policy allows
+forks, choose **Fork**, then clone your copy and connect the original repository
+as `upstream`:
+
+```bash
+git clone https://github.com/YOUR-USERNAME/REPOSITORY.git
+cd REPOSITORY
+git remote add upstream https://github.com/OWNER/REPOSITORY.git
+```
+
+Open the issue in the original repository. In step 3, update from `upstream`
+before creating your issue branch:
+
+```bash
+git switch main
+git pull --ff-only upstream main
+git switch -c issue-42/installation-docs
+```
+
+Follow the editing, checking, and committing steps. Push to `origin`, which
+now points to your fork. For the PR, choose the **original repository and its
+`main` branch** as the base, and your **fork and issue branch** as the source.
+In step 8, update your local `main` using `git pull --ff-only upstream main`.
+Release tagging and publication remain the maintainer's responsibility in the
+original repository. If forks are unavailable, ask how to contribute.
 
 ## Repository setup: make the rules enforceable
 

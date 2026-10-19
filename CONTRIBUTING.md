@@ -1,8 +1,5 @@
 # Contributing
 
-Start with an issue, agree the scope and target release with a maintainer,
-then submit your changes through a pull request.
-
 The [development and release workflow](docs/development_workflow.md) contains
 the full walkthrough, commands, figures, responsibilities, and expected outcomes.
 

@@ -62,16 +62,6 @@ markdown_extensions:
 nav:
   - Home: index.md  # Add an entry here whenever a new page should appear in site navigation.
   - Contributing: development_workflow.md
-  - Managing Python with uv: general/uv.md
-  - Semantic versioning: general/semantic_versioning.md
-  - Publishing a Python package: general/publishing_to_pypi.md
-  - Managing data with DVC: general/dvc.md
-  - Using Git and GitHub: general/github.md
-  - Testing with pytest: general/testing.md
-  - Code quality: general/code_quality.md
-  - Automation with GitHub Actions: general/github_actions.md
-  - Writing documentation with MkDocs: general/mkdocs.md
-  - Publishing with GitHub Pages: general/github-pages.md
   - DermaPred:
       - Image inference: dermapred/inference.md
       - Desktop interface: dermapred/ui.md
@@ -84,10 +74,30 @@ nav:
       - Validation performance: dermapred/dvc/validation.md
       - Final test evaluation: dermapred/dvc/evaluation.md
   - DermaPred API:
-      - Image preprocessing: dermapred/api/preprocessing.md
-      - Binary classifier: dermapred/api/binary_classifier.md
-      - Probability calibration: dermapred/api/calibration.md
-      - Model evaluation: dermapred/api/evaluation.md
+      - data.download_data: dermapred/api/data/download_data.md
+      - data.preprocessing: dermapred/api/data/preprocessing.md
+      - evaluation.metrics: dermapred/api/evaluation/metrics.md
+      - inference.calibration: dermapred/api/inference/calibration.md
+      - inference.cli: dermapred/api/inference/cli.md
+      - inference.download: dermapred/api/inference/download.md
+      - inference.predictor: dermapred/api/inference/predictor.md
+      - models.binary_classifier: dermapred/api/models/binary_classifier.md
+      - plotting.calibration: dermapred/api/plotting/calibration.md
+      - plotting.evaluation: dermapred/api/plotting/evaluation.md
+      - plotting.train: dermapred/api/plotting/train.md
+      - ui.app: dermapred/api/ui/app.md
+      - ui.images: dermapred/api/ui/images.md
+  - General Tools:
+      - Managing Python with uv: general/uv.md
+      - Semantic versioning: general/semantic_versioning.md
+      - Publishing a Python package: general/publishing_to_pypi.md
+      - Managing data with DVC: general/dvc.md
+      - Using Git and GitHub: general/github.md
+      - Testing with pytest: general/testing.md
+      - Code quality: general/code_quality.md
+      - Automation with GitHub Actions: general/github_actions.md
+      - Writing documentation with MkDocs: general/mkdocs.md
+      - Publishing with GitHub Pages: general/github-pages.md
   
 # --8<-- [end:navigation]
 # Note: The --8<-- block helps mkdocs snippets identify specific blocks of content to incorporate into Markdown documentation files.
