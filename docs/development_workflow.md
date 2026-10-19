@@ -370,7 +370,7 @@ git status
 `git add` selects changes for the next commit. `git diff --staged` shows exactly
 what will be included; review it before committing. `git commit` saves those
 changes locally with an appropriate *message* (`-m` flag).
-Try to stage only intended files explicitly rather than including unrelated work for 
+Try to stage only intended files explicitly rather than including unrelated work for
 each commit.
 
 If you staged a file by mistake, you can remove it from the next commit while keeping
