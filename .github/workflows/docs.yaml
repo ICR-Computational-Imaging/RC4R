@@ -1,5 +1,5 @@
 # --8<-- [start:doc_action]
-name: Documentation  # Name of workflow, as it appears in the GitHub Actions UI.
+name: Deploy static content to Pages  # Name of workflow, as it appears in the GitHub Actions UI.
 
 on:  # Define the events that trigger this workflow.
   push:  # Workflow runs when changes are pushed to GitHub.

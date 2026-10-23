@@ -359,8 +359,8 @@ uv run --group train dvc repro train
 uv run --group train dvc repro calibrate
 ```
 
-The root pipeline uses paths relative to the repository root and does not need
-`wdir: ../..`. Keep `.dvc/` at the repository root and dataset `.dvc` files
+The root pipeline uses paths relative to the repository root.
+Keep `.dvc/` at the repository root and dataset `.dvc` files
 beside their datasets.
 
 Each training stage declares `pyproject.toml` and `uv.lock` as dependencies:
