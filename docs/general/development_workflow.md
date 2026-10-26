@@ -1024,11 +1024,11 @@ jobs:
     name: Pytest (Python ${{ matrix.python-version }})
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.12"]
 ```
 
 GitHub replaces the matrix expression with each Python version, producing
-**Pytest (Python 3.11)** and **Pytest (Python 3.12)**. Select those job names
+**Pytest (Python 3.12)**. Select that job name
 as required status checks; `Unit tests` is the workflow name and `tests` is
 its internal job identifier, not the two check names.
 

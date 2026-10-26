@@ -192,7 +192,7 @@ def bootstrap_metric_intervals(
         raise ValueError("confidence_level must be between zero and one.")
     if bootstrap_indices.ndim != 2 or bootstrap_indices.shape[1] != len(labels):
         raise ValueError("Bootstrap indices must have shape (iterations, samples).")
-    values = {name: [] for name in METRIC_NAMES}
+    values: dict[str, list[float]] = {name: [] for name in METRIC_NAMES}
     for indices in bootstrap_indices:
         metrics = calculate_binary_metrics(
             labels[indices], probabilities[indices], threshold, reliability_bins

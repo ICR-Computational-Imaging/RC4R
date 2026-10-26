@@ -34,10 +34,11 @@ jobs:  # Define the tasks performed by this workflow.  Must be defind as "jobs".
       - name: Install uv 
         uses: astral-sh/setup-uv@v6.0.1  # Pin Astral's uv setup action to a published release.
         with:  # Provide configuration values to the setup action.
+          python-version: "3.12"
           enable-cache: true  # Cache downloaded dependencies to make later runs faster.
 
       - name: Install Python
-        run: uv python install 3.11  # Run this shell command on the Ubuntu runner.
+        run: uv python install 3.12  # Run this shell command on the Ubuntu runner.
 
       - name: Install documentation dependencies
         run: uv sync --locked --no-default-groups --group docs  # Define the shell script to be run.

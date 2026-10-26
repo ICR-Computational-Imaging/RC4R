@@ -23,7 +23,7 @@ provides a CPU inference API, an image-file command, and a PyQt6 desktop interfa
 - GitHub Actions for tests and documentation, plus a manually triggered package-publishing workflow.
 - Walkthroughs for Git collaboration, versioning, model releases, and PyPI.
 
-Python **3.11 or newer** is required. The standard installation includes
+Python **3.12 or newer** is required. The standard installation includes
 PyTorch, NumPy, Pillow, PyQt6, and Matplotlib. Training and evaluation tools are
 installed separately through uv dependency groups; inference users do not need
 DVC or dataset access.
@@ -162,7 +162,7 @@ QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --g
 Tests create synthetic data and temporary model files; download and GitHub
 upload operations are mocked. They do not require the real datasets, DVC
 remotes, or institutional credentials. GitHub Actions runs the suite on Python
-3.11 and 3.12 for branch pushes and pull requests.
+3.12 for branch pushes and pull requests.
 
 The UI tests use an offscreen Qt platform and run as part of the standard
 suite. CI enforces at least 80% coverage of `dermapred.ui`.

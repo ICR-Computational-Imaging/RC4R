@@ -115,7 +115,7 @@ QT_QPA_PLATFORM=offscreen uv run --locked --group train \
 ```
 
 The unit-test workflow runs these tests on Linux with
-Python 3.11 and 3.12, and enforces at least 80% coverage of the UI package.
+Python 3.12, and enforces at least 80% coverage of the UI package.
 Before release, also check the interface interactively on each desktop platform
 you intend to support; automated offscreen tests do not verify native dialogs,
 desktop packaging, or visual appearance on those platforms.

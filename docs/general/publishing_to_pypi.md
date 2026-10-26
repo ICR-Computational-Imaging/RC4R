@@ -37,7 +37,7 @@ python3 -m pip --version
 ```
 
 On Windows, `py` can replace `python3`. Use the interpreter you intend to run
-the package with; this project requires Python 3.11 or newer. Calling
+the package with; this project requires Python 3.12 or newer. Calling
 `python -m pip` keeps pip associated with that particular interpreter.
 
 Create an environment for installation checks, separate from the development

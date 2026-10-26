@@ -32,9 +32,9 @@ Only files ending in `.yml` or `.yaml` are interpreted as workflows. This
 The sections below describe the purpose, triggers, and requirements of each
 workflow included in this repository.
 
-### Unit tests (`tests.yaml`)
+### Unit tests and code quality (`tests.yaml`)
 
-Runs the full pytest suite on Ubuntu with Python 3.11 and 3.12 for pushes to
+Runs the full pytest suite on Ubuntu with Python 3.12 for pushes to
 *any branch*, pull requests, and manual requests. It installs the locked
 `pytest` and `train` dependency groups; UI dependencies are installed by default. Training
 imports require the training group even for unit tests. Qt uses its offscreen
@@ -47,15 +47,29 @@ Tests use synthetic data and mocked transfers, so no private data, DVC remotes,
 or release credentials are needed. Pytest's configured coverage report appears
 in the job log.
 
+An independent `Ruff and mypy` job runs on Python 3.12 for the same events.
+It runs `ruff check .` and strict mypy checks of `src` and `tests`, using the
+locked `lint`, `type`, `pytest`, and `train` dependency groups. Mypy runs even
+if Ruff reports violations, so both tools can report issues in the same run.
+
 After pushing the workflow, inspect the **Actions** tab or the PR checks. The
-jobs are named `Pytest (Python 3.11)` and `Pytest (Python 3.12)`. An admin can
-require both checks in the rules for `main`; adding the workflow alone does not
+jobs are named `Ruff and mypy` and `Pytest (Python 3.12)`. An admin can
+require these checks in the rules for `main`; adding the workflow alone does not
 make them mandatory. Fork PRs may require a maintainer to approve the run.
 
 Run the same checks locally with:
 
 ```bash
+uv run --locked --no-default-groups --group lint --group type --group pytest --group train ruff check .
+uv run --locked --no-default-groups --group lint --group type --group pytest --group train mypy
 QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --group train pytest
+```
+
+Mypy targets Python 3.12. If the local environment uses a newer Python, run it
+in an isolated Python 3.12 environment so dependency stubs match that target:
+
+```bash
+uv run --isolated --python 3.12 --locked --no-default-groups --group lint --group type --group pytest --group train mypy
 ```
 
 ### Package publishing (`publish.yaml`)

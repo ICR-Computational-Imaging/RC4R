@@ -37,7 +37,7 @@ jobs:  # Separate package preparation from the job that receives the upload toke
           persist-credentials: false  # Do not leave GitHub credentials in the checkout.
       - uses: astral-sh/setup-uv@v6.0.1  # Install uv using a published setup-action version.
         with:
-          python-version: "3.11"  # Select the Python version for the build and tests.
+          python-version: "3.12"  # Select the Python version for the build and tests.
       - name: Install Python  # Ensure the selected Python interpreter is available.
         run: uv python install  # Install Python through uv if it is not already available.
       - name: Check tag matches package version  # Require, for example, v0.1.0 to match VERSION 0.1.0.

@@ -27,7 +27,7 @@ def logits_to_probabilities(logits: np.ndarray) -> np.ndarray:
     if logits.ndim != 1 or not np.isfinite(logits).all():
         raise ValueError("Logits must be a one-dimensional finite array.")
     clipped_logits = np.clip(logits, -709.0, 709.0)
-    return 1.0 / (1.0 + np.exp(-clipped_logits))
+    return np.asarray(1.0 / (1.0 + np.exp(-clipped_logits)), dtype=np.float64)
 
 
 def expected_calibration_error(
@@ -162,7 +162,9 @@ class ProbabilityCalibrator:
         """
         if self.method == "isotonic":
             probabilities = logits_to_probabilities(logits)
-            return np.interp(probabilities, self.x_values, self.y_values)
+            return np.asarray(
+                np.interp(probabilities, self.x_values, self.y_values), dtype=np.float64
+            )
         scaled_logits = self.x_values[0] * np.asarray(logits, dtype=np.float64) + self.y_values[0]
         return logits_to_probabilities(scaled_logits)
 

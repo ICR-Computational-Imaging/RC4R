@@ -137,6 +137,7 @@ from collections.abc import Sequence
 from importlib.metadata import version as package_version
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import cast
 
 import numpy as np
 import yaml
@@ -194,7 +195,7 @@ def create_binary_labels(labels: np.ndarray) -> np.ndarray:
         [binary_mapping[index] for index in range(len(binary_mapping))],
         dtype=np.uint8,
     )
-    return lookup[labels]
+    return cast(np.ndarray, lookup[labels])
 
 
 def load_dermamnist_size(params_path: str | Path = DEFAULT_PARAMS_PATH) -> int:
