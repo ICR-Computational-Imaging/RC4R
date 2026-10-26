@@ -58,7 +58,7 @@ QT_QPA_PLATFORM=offscreen uv run --locked --no-default-groups --group pytest --g
 Running the local and automated tests through the same commands helps ensure
 that a result does not depend on packages or configuration available only on a
 developer's computer. The workflow can use a Python version matrix to check
-each version supported by the project, currently Python 3.11 and 3.12.
+the minimum supported Python version, currently Python 3.12.
 
 A failed test causes the GitHub Actions job to fail, making the result visible
 on the commit or pull request. The ordinary CI test job should remain

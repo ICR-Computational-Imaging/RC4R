@@ -2,13 +2,14 @@
 
 import hashlib
 import json
+from pathlib import Path
 
 import pytest
 
 from dermapred.dvcstages.provenance import create_model_provenance, main
 
 
-def test_provenance_hashes_exact_bytes_and_updates_calibrator(tmp_path):
+def test_provenance_hashes_exact_bytes_and_updates_calibrator(tmp_path: Path) -> None:
     weights = tmp_path / "weights.pt"
     calibrator = tmp_path / "calibrator.json"
     weights.write_bytes(b"synthetic weights")
@@ -29,7 +30,7 @@ def test_provenance_hashes_exact_bytes_and_updates_calibrator(tmp_path):
     assert updated["files"]["calibrator"]["sha256"] != data["files"]["calibrator"]["sha256"]
 
 
-def test_missing_input_does_not_replace_existing_provenance(tmp_path):
+def test_missing_input_does_not_replace_existing_provenance(tmp_path: Path) -> None:
     weights = tmp_path / "weights.pt"
     weights.write_bytes(b"synthetic")
     output = tmp_path / "provenance.json"
@@ -41,12 +42,12 @@ def test_missing_input_does_not_replace_existing_provenance(tmp_path):
     assert output.read_text() == "previous provenance"
 
 
-def test_cli_rejects_duplicate_roles(tmp_path):
+def test_cli_rejects_duplicate_roles(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as error:
         main(["--artifact", "weights=a", "--artifact", "weights=b", "--output", str(tmp_path)])
     assert error.value.code == 2
 
 
-def test_requires_both_inference_artifacts(tmp_path):
+def test_requires_both_inference_artifacts(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="weights and calibrator"):
         create_model_provenance({}, tmp_path / "provenance.json")

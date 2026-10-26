@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
       - uses: astral-sh/setup-uv@v6.0.1
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install Python
         run: uv python install
       - name: Check tag matches package version

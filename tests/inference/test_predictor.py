@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from urllib.request import Request
 
 import numpy as np
 import pytest
@@ -216,32 +217,36 @@ def test_public_release_api_fetches_matching_bundle_and_then_works_offline(
     manifest = tmp_path / "model-release.json"
     base_url = "https://github.com/owner/project/releases/download/v1.0.0"
     create_model_manifest(
-        "example", "1.0.0", base_url,
-        {"weights": checkpoint, "calibrator": calibrator}, manifest,
+        "example",
+        "1.0.0",
+        base_url,
+        {"weights": checkpoint, "calibrator": calibrator},
+        manifest,
     )
     payloads = {
-        f"{base_url}/{path.name}": path.read_bytes()
-        for path in (manifest, checkpoint, calibrator)
+        f"{base_url}/{path.name}": path.read_bytes() for path in (manifest, checkpoint, calibrator)
     }
-    requested = []
+    requested: list[str] = []
 
     class Response(io.BytesIO):
-        def geturl(self):
+        def geturl(self) -> str:
             return "https://release-assets.githubusercontent.com/file"
 
     class Opener:
-        def open(self, request, timeout):
+        def open(self, request: Request, timeout: float) -> Response:
             requested.append(request.full_url)
             return Response(payloads[request.full_url])
 
     monkeypatch.setattr(download, "build_opener", lambda *args: Opener())
     monkeypatch.setattr(download, "package_version", lambda name: "1.0.0")
-    options = {"repository": "owner/project", "cache_dir": tmp_path / "cache"}
-    predictor = Predictor.from_release(**options)
+    cache = tmp_path / "cache"
+    predictor = Predictor.from_release(repository="owner/project", cache_dir=cache)
     result = predictor.predict(Image.new("RGB", (20, 20)))
     assert result.calibrated
     assert result.probability == pytest.approx(1 / (1 + np.exp(1)))
     assert len(requested) == 3
-    offline_predictor = Predictor.from_release(**options, offline=True)
+    offline_predictor = Predictor.from_release(
+        repository="owner/project", cache_dir=cache, offline=True
+    )
     assert offline_predictor.predict(Image.new("RGB", (20, 20))) == result
     assert len(requested) == 3

@@ -247,9 +247,7 @@ class EvaluationStage:
             "confidence_level": parameters.confidence_level,
             "calibration_method": calibrator.method,
             "raw_brier_score": raw_metrics["brier_score"],
-            "raw_expected_calibration_error": raw_metrics[
-                "expected_calibration_error"
-            ],
+            "raw_expected_calibration_error": raw_metrics["expected_calibration_error"],
         }
         self.metrics_output.parent.mkdir(parents=True, exist_ok=True)
         with self.metrics_output.open("w", encoding="utf-8", newline="") as output_file:
@@ -258,8 +256,8 @@ class EvaluationStage:
             for name, value in metrics.items():
                 lower, upper = intervals[name]
                 writer.writerow([name, value, lower, upper])
-            for name, value in metadata.items():
-                writer.writerow([name, value, "", ""])
+            for name, metadata_value in metadata.items():
+                writer.writerow([name, metadata_value, "", ""])
 
         plot_confusion_matrix(
             labels, calibrated_probabilities, parameters.threshold, self.confusion_matrix_output

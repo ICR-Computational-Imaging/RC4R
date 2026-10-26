@@ -9,20 +9,24 @@ from dermapred.ui.__main__ import main
 
 @pytest.mark.parametrize(
     "arguments",
-    [["--model", "weights.pt"],
-     ["--manifest", "release.json", "--calibrator", "calibrator.json"],
-     ["--calibrator", "calibrator.json"],
-     ["--manifest", "release.json", "--release-version", "1.0.0"],
-     ["--model", "weights.pt", "--calibrator", "calibrator.json", "--offline"]],
+    [
+        ["--model", "weights.pt"],
+        ["--manifest", "release.json", "--calibrator", "calibrator.json"],
+        ["--calibrator", "calibrator.json"],
+        ["--manifest", "release.json", "--release-version", "1.0.0"],
+        ["--model", "weights.pt", "--calibrator", "calibrator.json", "--offline"],
+    ],
 )
-def test_invalid_cli_arguments(arguments):
+def test_invalid_cli_arguments(arguments: list[str]) -> None:
     with pytest.raises(SystemExit) as error:
         main(arguments)
     assert error.value.code == 2
 
 
 @pytest.mark.parametrize("manifest", [True, False])
-def test_launch_configures_existing_predictor_api(monkeypatch, manifest):
+def test_launch_configures_existing_predictor_api(
+    monkeypatch: pytest.MonkeyPatch, manifest: bool
+) -> None:
     from dermapred.inference import predictor
     from dermapred.ui import app
 
@@ -33,13 +37,17 @@ def test_launch_configures_existing_predictor_api(monkeypatch, manifest):
         assert main(["--manifest", "release.json", "--offline", "--cache-dir", "cache"]) == 0
         assert factory.from_manifest.call_args.kwargs["offline"] is True
     else:
-        assert main(["--model", "weights.pt", "--calibrator", "calibrator.json",
-                     "--image-size", "64"]) == 0
+        assert (
+            main(["--model", "weights.pt", "--calibrator", "calibrator.json", "--image-size", "64"])
+            == 0
+        )
         assert factory.call_args.kwargs["image_size"] == 64
 
 
 @pytest.mark.parametrize("arguments", [[], ["--release-version", "1.0.0", "--offline"]])
-def test_ui_defaults_to_public_release_without_loading_on_launch(monkeypatch, arguments):
+def test_ui_defaults_to_public_release_without_loading_on_launch(
+    monkeypatch: pytest.MonkeyPatch, arguments: list[str]
+) -> None:
     from dermapred.inference import predictor
     from dermapred.ui import app
 

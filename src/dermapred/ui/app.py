@@ -7,7 +7,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from matplotlib.backend_bases import MouseEvent
+from matplotlib.backend_bases import MouseButton, MouseEvent
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.widgets import RectangleSelector
@@ -74,12 +74,16 @@ class InferenceWindow(QMainWindow):
         self.infer_button = QPushButton("Infer")
         self.cancel_button = QPushButton("Cancel")
         for button in (
-            self.open_button, self.example_button, self.infer_button, self.cancel_button
+            self.open_button,
+            self.example_button,
+            self.infer_button,
+            self.cancel_button,
         ):
             controls.addWidget(button)
         layout.addLayout(controls)
         panels = QHBoxLayout()
-        self.canvas = FigureCanvasQTAgg(Figure(layout="constrained"))
+        # Matplotlib's Qt backend constructor and draw_idle lack annotations.
+        self.canvas = FigureCanvasQTAgg(Figure(layout="constrained"))  # type: ignore[no-untyped-call]
         self.axes = self.canvas.figure.add_subplot()
         self.axes.set_axis_off()
         self.axes.set_title("Open an image, then left-click and drag around the mole")
@@ -127,7 +131,7 @@ class InferenceWindow(QMainWindow):
             self.selector = None
         self.axes.clear()
         self.axes.set_axis_off()
-        self.canvas.draw_idle()
+        self.canvas.draw_idle()  # type: ignore[no-untyped-call]
         self._start(loader, self._show_image, message)
 
     def _show_image(self, image: Image.Image) -> None:
@@ -141,19 +145,19 @@ class InferenceWindow(QMainWindow):
         self.selector = RectangleSelector(
             self.axes,
             self._select,
-            button=[1],
+            button=[MouseButton.LEFT],
             minspanx=0,
             minspany=0,
             useblit=True,
             interactive=False,
             props={"edgecolor": "red", "facecolor": "none", "linewidth": 2},
         )
-        self.canvas.draw_idle()
+        self.canvas.draw_idle()  # type: ignore[no-untyped-call]
 
     def _begin_selection(self, event: MouseEvent) -> None:
         if (
             event.inaxes is self.axes
-            and event.button == 1
+            and event.button == MouseButton.LEFT
             and self.image is not None
             and self.task is None
         ):
@@ -165,9 +169,11 @@ class InferenceWindow(QMainWindow):
     def _select(self, press: MouseEvent, release: MouseEvent) -> None:
         if self.image is None:
             return
-        coordinates = (press.xdata, press.ydata, release.xdata, release.ydata)
-        if any(value is None for value in coordinates):
+        x_start, y_start = press.xdata, press.ydata
+        x_end, y_end = release.xdata, release.ydata
+        if x_start is None or y_start is None or x_end is None or y_end is None:
             return
+        coordinates = (x_start, y_start, x_end, y_end)
         try:
             self.bounds = selection_bounds(coordinates, self.image.size)
         except ValueError:
@@ -247,8 +253,10 @@ class InferenceWindow(QMainWindow):
             self.selector.set_active(True)
         self.status.setText("Ready. Draw a region and click Infer.")
 
-    def closeEvent(self, event: QCloseEvent) -> None:
+    def closeEvent(self, event: QCloseEvent | None) -> None:
         """Never destroy a running QThread or terminate a model operation unsafely."""
+        if event is None:
+            return
         if self.task is not None:
             self._closing = True
             self.hide()

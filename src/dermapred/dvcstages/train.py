@@ -11,9 +11,10 @@ from pathlib import Path
 import numpy as np
 import torch
 import yaml
-from monai.data import DataLoader
-from monai.transforms import Compose, RandFlip, RandRotate90
-from monai.utils import set_determinism
+from monai.data.dataloader import DataLoader
+from monai.transforms.compose import Compose
+from monai.transforms.spatial.array import RandFlip, RandRotate90
+from monai.utils.misc import set_determinism
 from sklearn.metrics import roc_auc_score
 from torch import nn
 from torch.utils.data import Dataset

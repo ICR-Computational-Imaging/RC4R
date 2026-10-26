@@ -2,7 +2,10 @@
 
 import io
 import json
+from pathlib import Path
+from typing import TypedDict
 from urllib.error import URLError
+from urllib.request import Request
 
 import pytest
 
@@ -10,31 +13,40 @@ from dermapred.inference import download
 from scripts.create_model_manifest import create_model_manifest
 
 
+class ManifestOptions(TypedDict, total=False):
+    repository: str
+    version: str
+    timeout: float
+
+
 class Response(io.BytesIO):
-    def geturl(self):
+    def geturl(self) -> str:
         return "https://release-assets.githubusercontent.com/manifest"
 
 
 class Opener:
-    def __init__(self, payload):
+    def __init__(self, payload: bytes) -> None:
         self.payload = payload
-        self.requests = []
+        self.requests: list[str] = []
 
-    def open(self, request, timeout):
+    def open(self, request: Request, timeout: float) -> Response:
         self.requests.append(request.full_url)
         return Response(self.payload)
 
 
 @pytest.fixture
-def remote_manifest(tmp_path, monkeypatch):
+def remote_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Opener:
     weights = tmp_path / "weights.pt"
     calibrator = tmp_path / "calibrator.json"
     weights.write_bytes(b"synthetic weights")
     calibrator.write_bytes(b"synthetic calibrator")
     path = tmp_path / "manifest.json"
     create_model_manifest(
-        "example", "1.0.0", "https://github.com/owner/project/releases/download/v1.0.0",
-        {"weights": weights, "calibrator": calibrator}, path,
+        "example",
+        "1.0.0",
+        "https://github.com/owner/project/releases/download/v1.0.0",
+        {"weights": weights, "calibrator": calibrator},
+        path,
     )
     opener = Opener(path.read_bytes())
     monkeypatch.setattr(download, "build_opener", lambda *args: opener)
@@ -42,7 +54,9 @@ def remote_manifest(tmp_path, monkeypatch):
     return opener
 
 
-def test_installed_version_selects_exact_tag_and_caches_manifest(remote_manifest, tmp_path):
+def test_installed_version_selects_exact_tag_and_caches_manifest(
+    remote_manifest: Opener, tmp_path: Path
+) -> None:
     cache = tmp_path / "cache"
     path = download.download_release_manifest(repository="owner/project", cache_dir=cache)
     assert path.read_bytes() == remote_manifest.payload
@@ -50,13 +64,18 @@ def test_installed_version_selects_exact_tag_and_caches_manifest(remote_manifest
         "https://github.com/owner/project/releases/download/v1.0.0/model-release.json"
     ]
     assert download.download_release_manifest(repository="owner/project", cache_dir=cache) == path
-    assert download.download_release_manifest(
-        repository="owner/project", cache_dir=cache, offline=True
-    ) == path
+    assert (
+        download.download_release_manifest(
+            repository="owner/project", cache_dir=cache, offline=True
+        )
+        == path
+    )
     assert len(remote_manifest.requests) == 1
 
 
-def test_version_override_does_not_use_installed_version(remote_manifest, tmp_path, monkeypatch):
+def test_version_override_does_not_use_installed_version(
+    remote_manifest: Opener, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setattr(download, "package_version", lambda name: "2.0.0.dev3")
     path = download.download_release_manifest(
         repository="owner/project", version="1.0.0", cache_dir=tmp_path
@@ -64,7 +83,9 @@ def test_version_override_does_not_use_installed_version(remote_manifest, tmp_pa
     assert download.ModelRelease.load(path).version == "1.0.0"
 
 
-def test_missing_manifest_offline_never_uses_network(remote_manifest, tmp_path):
+def test_missing_manifest_offline_never_uses_network(
+    remote_manifest: Opener, tmp_path: Path
+) -> None:
     with pytest.raises(FileNotFoundError, match="No valid cached manifest"):
         download.download_release_manifest(
             repository="owner/project", cache_dir=tmp_path, offline=True
@@ -72,19 +93,25 @@ def test_missing_manifest_offline_never_uses_network(remote_manifest, tmp_path):
     assert remote_manifest.requests == []
 
 
-def test_corrupt_manifest_is_rejected_offline_and_repaired(remote_manifest, tmp_path):
-    options = {"repository": "owner/project", "cache_dir": tmp_path}
-    path = download.download_release_manifest(**options)
+def test_corrupt_manifest_is_rejected_offline_and_repaired(
+    remote_manifest: Opener, tmp_path: Path
+) -> None:
+    path = download.download_release_manifest(repository="owner/project", cache_dir=tmp_path)
     path.write_text("invalid JSON")
     with pytest.raises(FileNotFoundError):
-        download.download_release_manifest(**options, offline=True)
+        download.download_release_manifest(
+            repository="owner/project", cache_dir=tmp_path, offline=True
+        )
     assert len(remote_manifest.requests) == 1
-    assert download.download_release_manifest(**options).read_bytes() == remote_manifest.payload
+    repaired = download.download_release_manifest(repository="owner/project", cache_dir=tmp_path)
+    assert repaired.read_bytes() == remote_manifest.payload
     assert len(remote_manifest.requests) == 2
 
 
 @pytest.mark.parametrize("problem", ["version", "urls", "calibrator", "json", "size"])
-def test_invalid_remote_manifest_is_never_cached(remote_manifest, tmp_path, problem):
+def test_invalid_remote_manifest_is_never_cached(
+    remote_manifest: Opener, tmp_path: Path, problem: str
+) -> None:
     data = json.loads(remote_manifest.payload)
     if problem == "version":
         data["version"] = "2.0.0"
@@ -103,23 +130,29 @@ def test_invalid_remote_manifest_is_never_cached(remote_manifest, tmp_path, prob
     assert not list(tmp_path.rglob("*.part"))
 
 
-def test_missing_public_release_reports_tag_without_fallback(remote_manifest, tmp_path):
-    def fail(*args, **kwargs):
-        raise URLError("Not found")
+def test_missing_public_release_reports_tag_without_fallback(
+    remote_manifest: Opener, tmp_path: Path
+) -> None:
+    from unittest.mock import patch
 
-    remote_manifest.open = fail
-    with pytest.raises(OSError, match="owner/project v1.0.0"):
-        download.download_release_manifest(repository="owner/project", cache_dir=tmp_path)
+    with patch.object(remote_manifest, "open", side_effect=URLError("Not found")):
+        with pytest.raises(OSError, match="owner/project v1.0.0"):
+            download.download_release_manifest(repository="owner/project", cache_dir=tmp_path)
     assert not list(tmp_path.rglob("*.part"))
 
 
 @pytest.mark.parametrize(
-    "options", [
-        {"repository": "../unsafe"}, {"version": "../unsafe"},
-        {"version": "v1.0.0"}, {"timeout": 0},
-    ]
+    "options",
+    [
+        {"repository": "../unsafe"},
+        {"version": "../unsafe"},
+        {"version": "v1.0.0"},
+        {"timeout": 0},
+    ],
 )
-def test_reject_invalid_settings_before_network(remote_manifest, tmp_path, options):
+def test_reject_invalid_settings_before_network(
+    remote_manifest: Opener, tmp_path: Path, options: ManifestOptions
+) -> None:
     with pytest.raises(ValueError):
         download.download_release_manifest(cache_dir=tmp_path, **options)
     assert remote_manifest.requests == []

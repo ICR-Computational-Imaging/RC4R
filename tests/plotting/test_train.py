@@ -1,8 +1,12 @@
 """Tests for plotting model-training histories."""
 
 from pathlib import Path
+from typing import Any
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pytest
+from matplotlib.figure import Figure
 
 from dermapred.plotting.train import plot_loss_curves
 
@@ -33,19 +37,19 @@ def test_plot_loss_curves_rejects_empty_history(tmp_path: Path) -> None:
         plot_loss_curves(history_path, tmp_path / "loss.png")
 
 
-def test_training_figure_has_only_validation_auc(tmp_path: Path, monkeypatch) -> None:
+def test_training_figure_has_only_validation_auc(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """The AUC panel contains validation scores and marks the selected epoch."""
-    from dermapred.plotting import train
+    original = plt.subplots
+    captured: list[np.ndarray] = []
 
-    original = train.plt.subplots
-    captured = []
-
-    def capture(*args, **kwargs):
+    def capture(*args: Any, **kwargs: Any) -> tuple[Figure, np.ndarray]:
         figure, axes = original(*args, **kwargs)
         captured.append(axes)
         return figure, axes
 
-    monkeypatch.setattr(train.plt, "subplots", capture)
+    monkeypatch.setattr(plt, "subplots", capture)
     history = tmp_path / "history.csv"
     history.write_text(
         "epoch,training_loss,validation_loss,validation_roc_auc\n1,0.8,0.7,0.6\n2,0.6,0.8,0.9\n",

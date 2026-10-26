@@ -1,5 +1,7 @@
 """A compact binary classifier based on the LeNet architecture."""
 
+from typing import cast
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -64,7 +66,7 @@ class LeNetBinary(nn.Module):
         x = torch.flatten(x, start_dim=1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        return self.fc3(x)
+        return cast(torch.Tensor, self.fc3(x))
 
     def classify(self, x: torch.Tensor) -> torch.Tensor:
         """Convert learned features into raw classification logits.
@@ -78,7 +80,7 @@ class LeNetBinary(nn.Module):
         Raises:
             RuntimeError: If the final dimension of ``x`` is not two.
         """
-        return self.fc4(x)
+        return cast(torch.Tensor, self.fc4(x))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Run an image batch through the complete classifier.
